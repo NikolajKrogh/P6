@@ -21,8 +21,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     SensorManager mSensorManager;
     Sensor accSensor;
-    Sensor stepSensor;
     String x_axis;
+    String y_axis;
+    String z_axis;
 
     private TextView statusLabel;
     private ActivityMainBinding binding;
@@ -34,10 +35,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        stepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         //mSensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -52,11 +52,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         x_axis = Float.toString(event.values[0]);
-        statusLabel.setText(x_axis);
-        Log.d("Sensor:", event.sensor.getStringType());
+        y_axis = Float.toString(event.values[1]);
+        z_axis = Float.toString(event.values[2]);
+        statusLabel.setText(x_axis + ", " + y_axis + ", " + z_axis);
+        //Log.i("x,y,z", x_axis + ", " + y_axis + ", " + z_axis);
     }
 
     public void onButtonClick(View view) {
-        statusLabel.setText(x_axis);
+        Log.i("Sensors", mSensorManager.getSensorList(Sensor.TYPE_ALL).toString());
     }
 }
