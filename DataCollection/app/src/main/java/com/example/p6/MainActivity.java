@@ -12,16 +12,11 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 import com.example.p6.databinding.ActivityMainBinding;
-import com.opencsv.CSVWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-public abstract class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity implements SensorEventListener {
 
     SensorManager mSensorManager;
-    private Sensor senAccelerometer;
+    Sensor senAccelerometer;
     private Sensor senHeartRateCounter;
     private String heartRate;
     String x_axis;
@@ -30,7 +25,6 @@ public abstract class MainActivity extends Activity implements SensorEventListen
 
     private TextView accelerometerText;
     private TextView heartRateText;
-
     private ActivityMainBinding binding;
 
     @Override
@@ -53,6 +47,11 @@ public abstract class MainActivity extends Activity implements SensorEventListen
     }
 
     @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+
+    }
+
+    @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType()==Sensor.TYPE_HEART_RATE){
             heartRate = Float.toString(event.values[0]);
@@ -63,36 +62,8 @@ public abstract class MainActivity extends Activity implements SensorEventListen
             x_axis = Float.toString(event.values[0]);
             y_axis = Float.toString(event.values[1]);
             z_axis = Float.toString(event.values[2]);
-            accelerometerText.setText("accelerometer:" +x_axis + "x: , " + y_axis + "y: , " + z_axis + "z: ");
+            accelerometerText.setText("accelerometer: x: " +x_axis + ", y: " + y_axis + ", z: " + z_axis);
             //Log.i("x,y,z", x_axis + ", " + y_axis + ", " + z_axis);
-        }
-
-        Log.i("Hello world!", "Hello world!");
-        File file = new File("\\P6\\Python");
-        try {
-            Log.i("Hello from the other side", "Hello from the other side");
-            // create FileWriter object with file as parameter
-            FileWriter outputFile = new FileWriter(file);
-
-            // create CSVWriter object fileWriter object as parameter
-            CSVWriter writer = new CSVWriter(outputFile);
-
-            // adding header to csv
-            String[] header = { "Name", "Class", "Marks" };
-            writer.writeNext(header);
-
-            // add data to csv
-            String[] data1 = { "Aman", "10", "620" };
-            writer.writeNext(data1);
-            String[] data2 = { "Suraj", "10", "630" };
-            writer.writeNext(data2);
-
-            // closing writer connection
-            writer.close();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 
@@ -100,6 +71,4 @@ public abstract class MainActivity extends Activity implements SensorEventListen
         Log.i("Sensors", mSensorManager.getSensorList(Sensor.TYPE_ALL).toString());
     }
 }
-
-
 
