@@ -20,10 +20,16 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/statusLabel"
+                android:id="@+id/accelerometerText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/status_label" />
+
+            <TextView
+                android:id="@+id/heartRateText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/hello_world" />
 
             <Button
                 android:id="@+id/button"
