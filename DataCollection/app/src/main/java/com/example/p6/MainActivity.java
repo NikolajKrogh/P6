@@ -136,6 +136,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onStartButtonClick(View view){
+        hasStartedActivity = true;
         view.setEnabled(false);
         findViewById(R.id.stopButton).setEnabled(true);
         RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
@@ -147,6 +148,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onStopButtonClick(View view) {
+        hasStartedActivity = false;
         //String[] header = { "timestamp,heartbeat,acc_x,acc_y,acc_z,label"};
         String finalString = "timestamp,heartrate,acc_x,acc_y,acc_z,label\n";
 
