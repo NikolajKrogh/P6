@@ -86,15 +86,17 @@
                         android:id="@+id/startButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:onClick="onButtonClick"
+                        android:onClick="onStartButtonClick"
                         android:text="Start activity" />
                 </RadioGroup>
 
                 <Button
-                    android:id="@+id/endButton"
+                    android:id="@+id/stopButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:gravity="center"
+                    android:onClick="onStopButtonClick"
                     android:text="Stop activity" />
 
                 <Space

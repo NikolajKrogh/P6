@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import android.hardware.Sensor;
@@ -15,17 +17,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.p6.databinding.ActivityMainBinding;
-import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
@@ -61,12 +58,21 @@ public class MainActivity extends Activity implements SensorEventListener {
     Sensor senAccelerometer;
     private Sensor senHeartRateCounter;
     float heartRate = 0;
-    boolean hasGotHeartBeatData = false;
+    boolean hasGotHeartRateData = false;
+    boolean hasStartedActivity = false;
 
     private TextView accelerometerText;
     private TextView heartRateText;
     private ActivityMainBinding binding;
     long firstTimeStamp = 0;
+    enum Activity {
+        IDLE,
+        WALKING,
+        RUNNING,
+        CYCLING;
+    }
+    Activity activityToTrack = Activity.WALKING;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +95,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z , List<Row> rows)
     {
-        int label = 0; //0 for walking, 1 for running
+        int label = activityToTrack.ordinal();
         Row row = new Row(
                 Long.toString(timestamp),
                 Float.toString(heartRate),
@@ -98,12 +104,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Float.toString(acc_z),
                 Integer.toString(label)
         );
-
+        Log.i("Ordinal value: ", Integer.toString(label));
         rows.add(row);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (!hasStartedActivity)
+            return;
         long time = event.timestamp;
         if (firstTimeStamp == 0){
             firstTimeStamp = event.timestamp;
@@ -111,15 +119,15 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate:" + heartRate);
-            hasGotHeartBeatData = true;
+            hasGotHeartRateData = true;
         }
-        if (hasGotHeartBeatData && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        if (hasGotHeartRateData && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x_axis = event.values[0];
             float y_axis = event.values[1];
             float z_axis = event.values[2];
             insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, rows);
             accelerometerText.setText("accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
-            hasGotHeartBeatData = false;
+            hasGotHeartRateData = false;
         }
     }
 
@@ -128,7 +136,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
-    public void onButtonClick(View view) {
+    public void onStartButtonClick(View view){
+        view.setEnabled(false);
+        findViewById(R.id.stopButton).setEnabled(true);
+        RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
+        for(int i = 0; i < radioButtons.getChildCount(); i++){
+            radioButtons.getChildAt(i).setClickable(false);
+        }
+
+        Toast.makeText(getApplicationContext(), "Tracking started for " + activityToTrack.name().toLowerCase(), Toast.LENGTH_SHORT).show();
+    }
+
+    public void onStopButtonClick(View view) {
         //String[] header = { "timestamp,heartbeat,acc_x,acc_y,acc_z,label"};
         String finalString = "timestamp,heartrate,acc_x,acc_y,acc_z,label\n";
 
@@ -140,7 +159,16 @@ public class MainActivity extends Activity implements SensorEventListener {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd_HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.now();
         Log.i("Date: ", dateTime.toString());
-        writeToFile("data_" + dateTime.toString() + ".csv", finalString);
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTime.toString() + ".csv", finalString);
+
+        // Make start button clickable again
+        findViewById(R.id.startButton).setEnabled(true);
+        findViewById(R.id.stopButton).setEnabled(false);
+
+        RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
+        for(int i = 0; i < radioButtons.getChildCount(); i++){
+            radioButtons.getChildAt(i).setClickable(true);
+        }
     }
 
     public void writeToFile(String fileName, String content){
@@ -163,24 +191,24 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onRadioButtonIdle(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
-        Log.i("LOG", "idle");
+        activityToTrack = Activity.IDLE;
     }
 
     public void onRadioButtonWalking(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
-        Log.i("LOG", "walk");
+        activityToTrack = Activity.WALKING;
     }
 
     public void onRadioButtonRunning(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
-        Log.i("LOG", "run");
+        activityToTrack = Activity.RUNNING;
     }
     public void onRadioButtonCycling(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
-        Log.i("LOG", "cycle");
+        activityToTrack = Activity.CYCLING;
     }
 }
 
