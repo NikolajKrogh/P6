@@ -20,7 +20,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
@@ -61,6 +65,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private TextView accelerometerText;
     private TextView heartRateText;
     private ActivityMainBinding binding;
+    long firstTimeStamp = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +104,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         long time = event.timestamp;
-        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+        if (firstTimeStamp == 0){
+            firstTimeStamp = event.timestamp;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate:" + heartRate);
             hasGotHeartBeatData = true;
@@ -127,13 +135,17 @@ public class MainActivity extends Activity implements SensorEventListener {
         {
             finalString += row.toString();
         }
-        writeToFile("collectedData.csv", finalString);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd_HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.now();
+        Log.i("Date: ", dateTime.toString());
+        writeToFile("data_" + dateTime.toString() + ".csv", finalString);
     }
 
     public void writeToFile(String fileName, String content){
         File path = null;
         try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND); // Use MODE_APPEND if you don't want to overwrite the content
+            path = getApplicationContext().getDir(fileName, Context.MODE_PRIVATE); // Use MODE_APPEND if you don't want to overwrite the content
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
