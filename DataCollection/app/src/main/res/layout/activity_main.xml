@@ -8,37 +8,102 @@
     tools:context=".MainActivity"
     tools:deviceIds="wear">
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/inner_frame_layout_padding"
-        app:layout_boxedEdges="all">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/inner_frame_layout_padding"
+            app:layout_boxedEdges="all">
 
-            <TextView
-                android:id="@+id/accelerometerText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/status_label" />
-
-            <TextView
-                android:id="@+id/heartRateText"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/hello_world" />
+                android:orientation="vertical">
 
-            <Button
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onButtonClick"
-                android:text="Button" />
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="69dp" />
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/heartRateText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Waiting for heart rate" />
 
-    </FrameLayout>
+                <TextView
+                    android:id="@+id/accelerometerText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/status_label" />
+
+                <RadioGroup
+                    android:id="@+id/radioButtonGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:checkedButton="@id/radioButtonWalking"
+                    android:gravity="center">
+
+                    <RadioButton
+                        android:id="@+id/radioButtionIdle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:gravity="center"
+                        android:onClick="onRadioButtonIdle"
+                        android:text="Idle" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonWalking"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:gravity="center"
+                        android:onClick="onRadioButtonWalking"
+                        android:text="Walking" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonRunning"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:onClick="onRadioButtonRunning"
+                        android:text="Running" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonCycling"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:onClick="onRadioButtonCycling"
+                        android:text="Cycling" />
+
+                    <Button
+                        android:id="@+id/startButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onButtonClick"
+                        android:text="Start activity" />
+                </RadioGroup>
+
+                <Button
+                    android:id="@+id/endButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Stop activity" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="77dp" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+    </ScrollView>
+
 </androidx.wear.widget.BoxInsetLayout>

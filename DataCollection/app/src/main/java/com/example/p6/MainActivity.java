@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import android.hardware.Sensor;
@@ -157,6 +158,29 @@ public class MainActivity extends Activity implements SensorEventListener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void onRadioButtonIdle(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        Log.i("LOG", "idle");
+    }
+
+    public void onRadioButtonWalking(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        Log.i("LOG", "walk");
+    }
+
+    public void onRadioButtonRunning(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        Log.i("LOG", "run");
+    }
+    public void onRadioButtonCycling(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        Log.i("LOG", "cycle");
     }
 }
 
