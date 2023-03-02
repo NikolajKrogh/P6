@@ -104,7 +104,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Float.toString(acc_z),
                 Integer.toString(label)
         );
-        Log.i("Ordinal value: ", Integer.toString(label));
         rows.add(row);
     }
 
@@ -126,7 +125,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             float y_axis = event.values[1];
             float z_axis = event.values[2];
             insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, rows);
-            accelerometerText.setText("accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
+            accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
             hasGotHeartRateData = false;
         }
     }
@@ -156,10 +155,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             finalString += row.toString();
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd_HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.now();
-        Log.i("Date: ", dateTime.toString());
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTime.toString() + ".csv", finalString);
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
         // Make start button clickable again
         findViewById(R.id.startButton).setEnabled(true);
@@ -189,25 +187,17 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onRadioButtonIdle(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
         activityToTrack = Activity.IDLE;
     }
 
     public void onRadioButtonWalking(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
         activityToTrack = Activity.WALKING;
     }
 
     public void onRadioButtonRunning(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
         activityToTrack = Activity.RUNNING;
     }
     public void onRadioButtonCycling(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
         activityToTrack = Activity.CYCLING;
     }
 }
