@@ -1,6 +1,7 @@
 package com.example.p6;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -12,9 +13,43 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 import com.example.p6.databinding.ActivityMainBinding;
+import com.opencsv.CSVWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
+    class Row
+    {
+        long timestamp;
+        String heartbeat;
+        String acc_x;
+        String acc_y;
+        String acc_z;
+        String label;
 
+        public Row(long timestamp, String label)
+        {
+            this.timestamp = timestamp;
+            this.label = label;
+        }
+        public String[] toList()
+        {
+            return new String[] {Long.toString(timestamp),heartbeat,acc_x,acc_y,acc_z,label};
+        }
+
+        public String toString()
+        {
+            return String.format("%s,%s,%s,%s,%s,%s\n", Long.toString(timestamp),heartbeat,acc_x,acc_y,acc_z,label);
+        }
+
+
+    }
+    //String[][] rows = {};
+    List<Row> rows = new ArrayList();
     SensorManager mSensorManager;
     Sensor senAccelerometer;
     private Sensor senHeartRateCounter;
@@ -22,6 +57,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     String x_axis;
     String y_axis;
     String z_axis;
+    long firstTime = 0;
 
     private TextView accelerometerText;
     private TextView heartRateText;
@@ -51,14 +87,44 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
+
+    public void insertAccelerometerDataAtTimestamp(float[] accelerometerEventValues, long timestamp , List<Row> rows)
+    {
+        for (Row row: rows) {
+            if (row.timestamp == timestamp)
+            {
+                row.acc_x = Float.toString(accelerometerEventValues[0]);
+                row.acc_y = Float.toString(accelerometerEventValues[1]);
+                row.acc_z = Float.toString(accelerometerEventValues[2]);
+            }
+        }
+    }
+
+    private void insertHeartbeatDataAtTimestamp(float heartbeat, long timestamp , List<Row> rows)
+    {
+        for (Row row: rows) {
+            if (row.timestamp == timestamp)
+            {
+                row.heartbeat = Float.toString(heartbeat);
+            }
+        }
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (firstTime == 0)
+            firstTime = event.timestamp;
+        long time = event.timestamp;
+        int label = 0; //0 for walking, 1 for running
+        rows.add(new Row(time, Integer.toString(label)));
         if (event.sensor.getType()==Sensor.TYPE_HEART_RATE){
+            insertHeartbeatDataAtTimestamp(event.values[0], time , rows);
             heartRate = Float.toString(event.values[0]);
             Log.i("Heart Rate:", heartRate);
             heartRateText.setText("Heart Rate:" + heartRate);
         }
         if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+            insertAccelerometerDataAtTimestamp(event.values,time,rows);
             x_axis = Float.toString(event.values[0]);
             y_axis = Float.toString(event.values[1]);
             z_axis = Float.toString(event.values[2]);
@@ -68,7 +134,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onButtonClick(View view) {
-        Log.i("Sensors", mSensorManager.getSensorList(Sensor.TYPE_ALL).toString());
+        //String[] header = { "timestamp,heartbeat,acc_x,acc_y,acc_z,label"};
+        String finalString = "timestamp,heartbeat,acc_x,acc_y,acc_z,label\n";
+
+        for (Row row: rows)
+        {
+            finalString += row.toString();
+        }
+        Log.i("this",finalString);
+        //skriv til fil
     }
 }
 
