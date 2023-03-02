@@ -11,11 +11,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.p6.databinding.ActivityMainBinding;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,6 +60,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     String y_axis;
     String z_axis;
     long firstTime = 0;
+    int i = -1000;
+    boolean hasGotHeartBeatData = false;
 
     private TextView accelerometerText;
     private TextView heartRateText;
@@ -112,24 +116,38 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (firstTime == 0)
-            firstTime = event.timestamp;
-        long time = event.timestamp;
-        int label = 0; //0 for walking, 1 for running
-        rows.add(new Row(time, Integer.toString(label)));
-        if (event.sensor.getType()==Sensor.TYPE_HEART_RATE){
-            insertHeartbeatDataAtTimestamp(event.values[0], time , rows);
-            heartRate = Float.toString(event.values[0]);
-            Log.i("Heart Rate:", heartRate);
-            heartRateText.setText("Heart Rate:" + heartRate);
+
+        if (i >= 100 || event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+            if (firstTime == 0)
+                firstTime = event.timestamp;
+            long time = event.timestamp;
+            int label = 0; //0 for walking, 1 for running
+            rows.add(new Row(time, Integer.toString(label)));
+            if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+                insertHeartbeatDataAtTimestamp(event.values[0], time, rows);
+                heartRate = Float.toString(event.values[0]);
+                Log.i("Heart Rate:", heartRate);
+                heartRateText.setText("Heart Rate:" + heartRate);
+                hasGotHeartBeatData = true;
+            }
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                insertAccelerometerDataAtTimestamp(event.values, time, rows);
+                x_axis = Float.toString(event.values[0]);
+                y_axis = Float.toString(event.values[1]);
+                z_axis = Float.toString(event.values[2]);
+                accelerometerText.setText("accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
+                //Log.i("x,y,z", x_axis + ", " + y_axis + ", " + z_axis);
+            }
+            if (hasGotHeartBeatData){
+                i = 100;
+                hasGotHeartBeatData = false;
+            }
+            else {
+                i = 0;
+            }
         }
-        if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
-            insertAccelerometerDataAtTimestamp(event.values,time,rows);
-            x_axis = Float.toString(event.values[0]);
-            y_axis = Float.toString(event.values[1]);
-            z_axis = Float.toString(event.values[2]);
-            accelerometerText.setText("accelerometer: x: " +x_axis + ", y: " + y_axis + ", z: " + z_axis);
-            //Log.i("x,y,z", x_axis + ", " + y_axis + ", " + z_axis);
+        else {
+            i++;
         }
     }
 
@@ -141,8 +159,24 @@ public class MainActivity extends Activity implements SensorEventListener {
         {
             finalString += row.toString();
         }
-        Log.i("this",finalString);
-        //skriv til fil
+        writeToFile("collectedData.csv", finalString);
+    }
+
+    public void writeToFile(String fileName, String content){
+        File path = null;
+        try {
+            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND); // Use MODE_APPEND if you don't want to overwrite the content
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            FileOutputStream writer = new FileOutputStream(new File(path, fileName));
+            writer.write(content.getBytes());
+            writer.close();
+            Toast.makeText(getApplicationContext(), "Wrote to file: " + fileName, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
