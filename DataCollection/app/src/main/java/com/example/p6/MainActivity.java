@@ -117,7 +117,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
-            heartRateText.setText("Heart Rate:" + heartRate);
+            heartRateText.setText("Heart Rate: " + heartRate);
             hasGotHeartRateData = true;
         }
         if (hasGotHeartRateData && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
