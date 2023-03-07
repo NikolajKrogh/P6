@@ -143,14 +143,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         for(int i = 0; i < radioButtons.getChildCount(); i++){
             radioButtons.getChildAt(i).setClickable(false);
         }
-
         Toast.makeText(getApplicationContext(), "Tracking started for " + activityToTrack.name().toLowerCase(), Toast.LENGTH_SHORT).show();
     }
 
     public void onStopButtonClick(View view) {
         hasStartedActivity = false;
         //String[] header = { "timestamp,heartbeat,acc_x,acc_y,acc_z,label"};
-        String finalString = "timestamp,heartrate,acc_x,acc_y,acc_z,label\n";
+        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,label\n";
 
         for (Row row: rows)
         {
@@ -161,6 +160,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         LocalDateTime dateTime = LocalDateTime.now();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
+        rows = new ArrayList();
         // Make start button clickable again
         findViewById(R.id.startButton).setEnabled(true);
         findViewById(R.id.stopButton).setEnabled(false);
@@ -191,11 +191,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onRadioButtonIdle(View view) {
         activityToTrack = Activity.IDLE;
     }
-
     public void onRadioButtonWalking(View view) {
         activityToTrack = Activity.WALKING;
     }
-
     public void onRadioButtonRunning(View view) {
         activityToTrack = Activity.RUNNING;
     }
