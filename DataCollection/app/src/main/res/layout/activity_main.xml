@@ -101,7 +101,18 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="77dp" />
+                    android:layout_height="27dp" />
+
+                <Button
+                    android:id="@+id/exitButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onExitButtonClick"
+                    android:text="Exit app" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="27dp" />
 
             </LinearLayout>
 
