@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             this.acc_y = acc_y;
             this.acc_z = acc_z;
         }
-
+        @Override
         public String toString()
         {
             return String.format("%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,acc_x,acc_y,acc_z,label);
@@ -136,6 +136,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onStartButtonClick(View view){
+        findViewById(R.id.exitButton).setEnabled(false);
         hasStartedActivity = true;
         view.setEnabled(false);
         findViewById(R.id.stopButton).setEnabled(true);
@@ -161,14 +162,20 @@ public class MainActivity extends Activity implements SensorEventListener {
         writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
         rows = new ArrayList();
-        // Make start button clickable again
+        // Make start button clickable again, and stop button and exit button non-clickable
         findViewById(R.id.startButton).setEnabled(true);
+        findViewById(R.id.exitButton).setEnabled(true);
         findViewById(R.id.stopButton).setEnabled(false);
 
         RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
         for(int i = 0; i < radioButtons.getChildCount(); i++){
             radioButtons.getChildAt(i).setClickable(true);
         }
+    }
+
+    public void onExitButtonClick(View view) {
+        finish();
+        System.exit(0);
     }
 
     public void writeToFile(String fileName, String content){
