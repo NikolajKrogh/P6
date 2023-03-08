@@ -1,5 +1,6 @@
-#CSV 
+#File types to ignore 
 *.csv
+*.sav
 
 # Gradle files
 .gradle/
