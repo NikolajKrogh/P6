@@ -3,6 +3,7 @@ package com.example.p6;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     long latestTimestamp = 0;
     long currentTimestamp = 0;
     float initialStepCount = -1;
+    float accumulatedStepCount = 0;
     float firstStepCount = 0;
     float lastStepCount = 0;
     float currentStepCount = 0;
@@ -75,6 +77,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
     private TextView accelerometerText;
     private TextView heartRateText;
+    private TextView stepCountText;
+    private TextView stepCountRateText;
     private ActivityMainBinding binding;
     short heartRateAccuracy = 0;
     enum Activity {
@@ -102,6 +106,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         setContentView(binding.getRoot());
         accelerometerText = binding.accelerometerText;
         heartRateText = binding.heartRateText;
+        stepCountText = binding.stepCountText;
+        stepCountRateText = binding.stepCountRateText;
     }
 
     public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z, float step_count_rate, float step_count, short accuracy, List<Row> rows)
@@ -129,6 +135,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             if (initialStepCount == -1){
                 initialStepCount = currentStepCount;
             }
+            Log.i("Init: ", Float.toString(initialStepCount));
+            accumulatedStepCount = currentStepCount - initialStepCount;
+            stepCountText.setText("Total steps: " + accumulatedStepCount);
         }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
@@ -141,16 +150,16 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if (stepCountIteration == 1){
                     firstStepCount = currentStepCount;
                 }
-                else if (stepCountIteration >= 20){
+                else if (stepCountIteration >= 100){ // Add data every 10 sec
                     lastStepCount = currentStepCount;
                     stepCountRate = lastStepCount - firstStepCount;
-                    Log.i("Rate: ", Float.toString(stepCountRate));
                     stepCountIteration = 0;
+                    stepCountRateText.setText("Step-rate: " + stepCountRate);
                 }
                 float x_axis = event.values[0];
                 float y_axis = event.values[1];
                 float z_axis = event.values[2];
-                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, stepCountRate,  currentStepCount, heartRateAccuracy, rows);
+                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
                 accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
                 latestTimestamp = currentTimestamp;
             }
