@@ -3,6 +3,7 @@ package com.example.p6;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -30,35 +31,42 @@ public class MainActivity extends Activity implements SensorEventListener {
         String acc_x;
         String acc_y;
         String acc_z;
+        String step_count_rate;
         String label;
         String accuracy;
 
-        public Row(String timestamp, String heartbeat, String acc_x, String acc_y, String acc_z, String label, String accuracy)
+        public Row(String timestamp, String heartbeat, String acc_x, String acc_y, String acc_z, String step_count_rate, String label, String accuracy)
         {
             this.timestamp = timestamp;
             this.heartbeat = heartbeat;
-            this.label = label;
             this.acc_x = acc_x;
             this.acc_y = acc_y;
             this.acc_z = acc_z;
+            this.step_count_rate = step_count_rate;
+            this.label = label;
             this.accuracy = accuracy;
         }
         @Override
         public String toString()
         {
-            return String.format("%s,%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,acc_x,acc_y,acc_z,label,accuracy);
+            return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,acc_x,acc_y,acc_z,step_count_rate,label,accuracy);
         }
-
-
     }
     //String[][] rows = {};
-    List<Row> rows = new ArrayList();
-    SensorManager mSensorManager;
-    Sensor senAccelerometer;
+    private List<Row> rows = new ArrayList();
+    private SensorManager mSensorManager;
+    private Sensor senAccelerometer;
+    private Sensor senStepDetector;
+    private Sensor senStepCounter;
     private Sensor senHeartRateCounter;
     float heartRate = 0;
     long latestTimestamp = 0;
     long currentTimestamp = 0;
+    float firstStepCount = 0;
+    float lastStepCount = 0;
+    float currentStepCount = 0;
+    float stepCountRate = 0;
+    short stepCountIteration = 0;
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
     private TextView accelerometerText;
     private TextView heartRateText;
@@ -70,6 +78,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         RUNNING,
         CYCLING;
     }
+
     Activity activityToTrack = Activity.WALKING;
 
 
@@ -81,8 +90,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         senAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         senHeartRateCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-
-
+        senStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -90,7 +98,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         heartRateText = binding.heartRateText;
     }
 
-    public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z, short accuracy, List<Row> rows)
+    public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z, float step_count_rate, short accuracy, List<Row> rows)
     {
         int label = activityToTrack.ordinal();
         Row row = new Row(
@@ -99,6 +107,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Float.toString(acc_x),
                 Float.toString(acc_y),
                 Float.toString(acc_z),
+                Float.toString(step_count_rate),
                 Integer.toString(label),
                 Short.toString(accuracy)
         );
@@ -108,6 +117,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         long time = event.timestamp;
+        if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
+            currentStepCount = event.values[0];
+        }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
@@ -115,10 +127,20 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0 && heartRateAccuracy != 0) {
             currentTimestamp = event.timestamp;
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
+                stepCountIteration++;
+                if (stepCountIteration == 1){
+                    firstStepCount = currentStepCount;
+                }
+                else if (stepCountIteration >= 50){
+                    lastStepCount = currentStepCount;
+                    stepCountRate = lastStepCount - firstStepCount;
+                    Log.i("Rate: ", Float.toString(stepCountRate));
+                    stepCountIteration = 0;
+                }
                 float x_axis = event.values[0];
                 float y_axis = event.values[1];
                 float z_axis = event.values[2];
-                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, heartRateAccuracy, rows);
+                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, stepCountRate, heartRateAccuracy, rows);
                 accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
                 latestTimestamp = currentTimestamp;
             }
@@ -143,13 +165,14 @@ public class MainActivity extends Activity implements SensorEventListener {
         Toast.makeText(getApplicationContext(), "Tracking started for " + activityToTrack.name().toLowerCase(), Toast.LENGTH_SHORT).show();
         mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public void onStopButtonClick(View view) {
         mSensorManager.unregisterListener(this, senAccelerometer);
         mSensorManager.unregisterListener(this, senHeartRateCounter);
         findViewById(R.id.stopButton).setEnabled(false);
-        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,label,heart_rate_accuracy\n";
+        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate,label,heart_rate_accuracy\n";
 
         for (Row row: rows)
         {
@@ -158,12 +181,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.now();
+        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
         findViewById(R.id.startButton).setEnabled(true);
         findViewById(R.id.exitButton).setEnabled(true);
         rows.clear();
-
 
         RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
         for(int i = 0; i < radioButtons.getChildCount(); i++){
@@ -177,7 +200,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void writeToFile(String fileName, String content){
-        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
 
         File path = null;
         try {
