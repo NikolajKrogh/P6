@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -13,7 +11,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.p6.databinding.ActivityMainBinding;
@@ -34,8 +31,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         String acc_y;
         String acc_z;
         String label;
+        String accuracy;
 
-        public Row(String timestamp, String heartbeat, String acc_x, String acc_y, String acc_z, String label)
+        public Row(String timestamp, String heartbeat, String acc_x, String acc_y, String acc_z, String label, String accuracy)
         {
             this.timestamp = timestamp;
             this.heartbeat = heartbeat;
@@ -43,11 +41,12 @@ public class MainActivity extends Activity implements SensorEventListener {
             this.acc_x = acc_x;
             this.acc_y = acc_y;
             this.acc_z = acc_z;
+            this.accuracy = accuracy;
         }
         @Override
         public String toString()
         {
-            return String.format("%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,acc_x,acc_y,acc_z,label);
+            return String.format("%s,%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,acc_x,acc_y,acc_z,label,accuracy);
         }
 
 
@@ -58,13 +57,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     Sensor senAccelerometer;
     private Sensor senHeartRateCounter;
     float heartRate = 0;
-    boolean hasGotHeartRateData = false;
-    boolean hasStartedActivity = false;
-
+    long latestTimestamp = 0;
+    long currentTimestamp = 0;
+    private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
     private TextView accelerometerText;
     private TextView heartRateText;
     private ActivityMainBinding binding;
-    long firstTimeStamp = 0;
+    short heartRateAccuracy = 0;
     enum Activity {
         IDLE,
         WALKING,
@@ -84,8 +83,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         senHeartRateCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
 
 
-        mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -93,7 +90,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         heartRateText = binding.heartRateText;
     }
 
-    public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z , List<Row> rows)
+    public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y, float acc_z, short accuracy, List<Row> rows)
     {
         int label = activityToTrack.ordinal();
         Row row = new Row(
@@ -102,55 +99,57 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Float.toString(acc_x),
                 Float.toString(acc_y),
                 Float.toString(acc_z),
-                Integer.toString(label)
+                Integer.toString(label),
+                Short.toString(accuracy)
         );
         rows.add(row);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (!hasStartedActivity)
-            return;
         long time = event.timestamp;
-        if (firstTimeStamp == 0){
-            firstTimeStamp = event.timestamp;
-        }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
-            hasGotHeartRateData = true;
         }
-        if (hasGotHeartRateData && event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x_axis = event.values[0];
-            float y_axis = event.values[1];
-            float z_axis = event.values[2];
-            insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, rows);
-            accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
-            hasGotHeartRateData = false;
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0 && heartRateAccuracy != 0) {
+            currentTimestamp = event.timestamp;
+            if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
+                float x_axis = event.values[0];
+                float y_axis = event.values[1];
+                float z_axis = event.values[2];
+                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, heartRateAccuracy, rows);
+                accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
+                latestTimestamp = currentTimestamp;
+            }
         }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+    public void onAccuracyChanged(Sensor sensor, int accuracyReceived) {
+        if (sensor == senHeartRateCounter) {
+            heartRateAccuracy = (short) accuracyReceived;
+        }
     }
 
     public void onStartButtonClick(View view){
-        findViewById(R.id.exitButton).setEnabled(false);
-        hasStartedActivity = true;
         view.setEnabled(false);
+        findViewById(R.id.exitButton).setEnabled(false);
         findViewById(R.id.stopButton).setEnabled(true);
         RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
         for(int i = 0; i < radioButtons.getChildCount(); i++){
             radioButtons.getChildAt(i).setClickable(false);
         }
         Toast.makeText(getApplicationContext(), "Tracking started for " + activityToTrack.name().toLowerCase(), Toast.LENGTH_SHORT).show();
+        mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     public void onStopButtonClick(View view) {
-        hasStartedActivity = false;
-        //String[] header = { "timestamp,heartbeat,acc_x,acc_y,acc_z,label"};
-        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,label\n";
+        mSensorManager.unregisterListener(this, senAccelerometer);
+        mSensorManager.unregisterListener(this, senHeartRateCounter);
+        findViewById(R.id.stopButton).setEnabled(false);
+        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,label,heart_rate_accuracy\n";
 
         for (Row row: rows)
         {
@@ -161,11 +160,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         LocalDateTime dateTime = LocalDateTime.now();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
-        rows = new ArrayList();
-        // Make start button clickable again, and stop button and exit button non-clickable
         findViewById(R.id.startButton).setEnabled(true);
         findViewById(R.id.exitButton).setEnabled(true);
-        findViewById(R.id.stopButton).setEnabled(false);
+        rows.clear();
+
 
         RadioGroup radioButtons = (RadioGroup)findViewById(R.id.radioButtonGroup);
         for(int i = 0; i < radioButtons.getChildCount(); i++){
@@ -179,6 +177,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void writeToFile(String fileName, String content){
+        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
+
         File path = null;
         try {
             path = getApplicationContext().getDir(fileName, Context.MODE_PRIVATE); // Use MODE_APPEND if you don't want to overwrite the content
