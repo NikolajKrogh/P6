@@ -63,22 +63,27 @@ public class MainActivity extends Activity implements SensorEventListener {
     private Sensor senAccelerometer;
     private Sensor senStepCounter;
     private Sensor senHeartRateCounter;
-    float heartRate = 0;
-    short heartRateAccuracy = 0;
-    long latestTimestamp = 0;
-    long currentTimestamp = 0;
-    float initialStepCount = -1;
-    float accumulatedStepCount = 0;
-    float firstStepCount = 0;
-    float lastStepCount = 0;
-    float currentStepCount = 0;
-    float stepCountRate = 0;
-    short stepCountCounter = 0;
+    private float heartRate = 0;
+    private short heartRateAccuracy = 0;
+    private long latestTimestamp = 0;
+    private long currentTimestamp = 0;
+    private float initialStepCount = -1;
+    private float accumulatedStepCount = 0;
+    private float firstStepCount = 0;
+    private float lastStepCount = 0;
+    private float currentStepCount = 0;
+    private float stepCountRate = 0;
+    private short stepCountCounter = 0;
     private TextView accelerometerText;
     private TextView heartRateText;
     private TextView stepCountText;
     private TextView stepCountRateText;
     private ActivityMainBinding binding;
+    private DateTimeFormatter formatter;
+    private LocalDateTime dateTime;
+    private short numberOfDataPointsAdded = 0;
+    private String dataPointsToAdd = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate,step_count,label,heart_rate_accuracy\n";
+
     enum Activity {
         IDLE,
         WALKING,
@@ -138,7 +143,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                 float x_axis = event.values[0];
                 float y_axis = event.values[1];
                 float z_axis = event.values[2];
-                insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
+                if (numberOfDataPointsAdded <= 500){
+                    insertDataAtTimeStamp(time, heartRate, x_axis, y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
+                    numberOfDataPointsAdded++;
+                }
+                else {
+                    writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", dataPointsToAdd);
+                    numberOfDataPointsAdded = 0;
+                }
                 accelerometerText.setText("Accelerometer: x: " + x_axis + ", y: " + y_axis + ", z: " + z_axis);
                 latestTimestamp = currentTimestamp;
             }
@@ -161,6 +173,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 Short.toString(accuracy)
         );
         rows.add(row);
+        dataPointsToAdd += row.toString();
     }
 
     @Override
@@ -171,6 +184,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void onStartButtonClick(View view){
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
+        dateTime = LocalDateTime.now();
+
         view.setEnabled(false);
         findViewById(R.id.exitButton).setEnabled(false);
         findViewById(R.id.stopButton).setEnabled(true);
@@ -189,17 +205,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSensorManager.unregisterListener(this, senHeartRateCounter);
         mSensorManager.unregisterListener(this, senStepCounter);
         findViewById(R.id.stopButton).setEnabled(false);
-        String finalString = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate,step_count,label,heart_rate_accuracy\n";
-
-        for (Row row: rows)
-        {
-            finalString += row.toString();
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.now();
-        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", finalString);
 
         findViewById(R.id.startButton).setEnabled(true);
         findViewById(R.id.exitButton).setEnabled(true);
@@ -209,24 +214,30 @@ public class MainActivity extends Activity implements SensorEventListener {
         for(int i = 0; i < radioButtons.getChildCount(); i++){
             radioButtons.getChildAt(i).setClickable(true);
         }
+
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + formatter.format(dateTime) + ".csv", dataPointsToAdd);
+        Toast.makeText(getApplicationContext(), "Finished writing to file!", Toast.LENGTH_SHORT).show();
     }
 
     public void writeToFile(String fileName, String content){
-
+        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
         File path = null;
         try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_PRIVATE); // Use MODE_APPEND if you don't want to overwrite the content
+            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND); // Use MODE_APPEND if you don't want to overwrite the content
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         try {
-            FileOutputStream writer = new FileOutputStream(new File(path, fileName));
+            File file = new File(path.getPath(),fileName);
+
+            file.createNewFile(); // if file already exists, this will do nothing
+            FileOutputStream writer = new FileOutputStream(file,true);
             writer.write(content.getBytes());
             writer.close();
-            Toast.makeText(getApplicationContext(), "Wrote to file: " + fileName, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        dataPointsToAdd = "";
     }
 
     public void onExitButtonClick(View view) {
