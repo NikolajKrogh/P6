@@ -41,6 +41,20 @@
                     android:gravity="center"
                     android:text="Then data will display" />
 
+                <TextView
+                    android:id="@+id/stepCountRateText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="..." />
+
+                <TextView
+                    android:id="@+id/stepCountText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="..." />
+
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
                     android:layout_width="match_parent"
