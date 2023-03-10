@@ -107,8 +107,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     //region Data point variables
     private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
-            "step_count,label,heart_rate_accuracy\n";
+    private String dataPointsToAdd;
     //endregion
 
     //region Formatters
@@ -304,6 +303,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void resetValues(){
+        dataPointsToAdd = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
+                "step_count,label,heart_rate_accuracy\n";
         rows.clear();
         numberOfDataPointsAdded = 0;
         firstTimestamp = 0;
@@ -337,7 +338,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             throw new RuntimeException(e);
         }
         Toast.makeText(getApplicationContext(), "Finished writing to file!", Toast.LENGTH_SHORT).show();
-        dataPointsToAdd = "";
     }
 
     public void onExitButtonClick(View view) {
