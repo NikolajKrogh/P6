@@ -4,9 +4,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
-from skl2onnx import to_onnx
+from tslearn.metrics import dtw
 import onnx
 import onnxruntime as rt
+from skl2onnx import to_onnx, convert_sklearn
+from skl2onnx.common.data_types import FloatTensorType
 
 #region imported data 
 pamapData = pd.read_csv(r"data\pamapdataWithHR.csv")
@@ -59,29 +61,39 @@ X_test_scaled = scaler.transform(X_test)
 X_test_minmax = min_max_scaler.fit_transform(X_test)
 
 #Build the classifier (algorithm)
-knn = KNeighborsClassifier(n_neighbors=400)
+knn = KNeighborsClassifier(metric=dtw, n_neighbors=400)
 #Fill the model with data
 knn.fit(X_train_minmax, y_train.values.ravel())
-X = X_pamap_no_heart.to_numpy()
-print(X)
+X = X_train_minmax
 
-#Save the knn model to a binary file
-filename = 'knn_model.onnx'
 
+input_x = X_test_scaled.astype(np.float32)[:100]
+def predict_with_onnxruntime(onx, input_x):
+    #Load the serialized model and make new predictions
+    session = rt.InferenceSession(onx.SerializeToString())
+    input_name = session.get_inputs()[0].name
+    result = session.run(None, {input_name: input_x})
+    return result[0]
+
+#region onnx.convert_sklearn
+onnx = convert_sklearn(knn, initial_types=[('X', FloatTensorType((None, X.shape[1])))], target_opset=12)
+print(predict_with_onnxruntime(onnx, input_x))
+#endregion
+
+#region to_onnx
+"""
 #X is a numpy array and target_opset is saying which version of onnx we should use
 onnx = to_onnx(knn, X.astype(np.float32), target_opset=12)
+print(predict_with_onnxruntime(onnx, input_x))
+"""
+#endregion
 
-#save the serialized knn model 
+#Create the file that is going to store the model
+filename = 'knn_model.onnx'
+
+#save the serialized knn model to a binary file 
 with open( "knn_model.onnx", "wb" ) as f:
-    f.write( onnx.SerializeToString())
-
-#Load the serialized model and make new predictions
-session = rt.InferenceSession('knn_model.onnx')
-input_name = session.get_inputs()[0].name
-onnx_prediction = session.run(None, {input_name:X_test_scaled.astype(np.float32)[:100]})
-print(onnx_prediction)
-#loaded_model = onnx.load('knn_model.onnx')
-#print(onnx.checker.check_model(loaded_model))
+    f.write(onnx.SerializeToString())
 
 
 print("Walking dataset:", accuracy_score(knn.predict(walking_x),walking_y))
