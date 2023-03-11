@@ -294,6 +294,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        Toast.makeText(getApplicationContext(), "Finished writing to file!", Toast.LENGTH_SHORT).show();
     }
 
     public void unregisterListeners(){
@@ -318,6 +319,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         currentStepCount = 0;
         stepCountRate = 0;
         stepCountCounter = 0;
+
+        timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
+        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
+        stepCountRateText.setText("Step-rate: " + (int)stepCountRate);
+
     }
 
     public void writeToFile(String fileName, String content){
@@ -337,7 +343,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        Toast.makeText(getApplicationContext(), "Finished writing to file!", Toast.LENGTH_SHORT).show();
     }
 
     public void onExitButtonClick(View view) {
