@@ -340,6 +340,9 @@ public class MainActivity extends Activity implements SensorEventListener {
             FileOutputStream writer = new FileOutputStream(file,true);
             writer.write(content.getBytes());
             writer.close();
+
+            // Resets the datapoints to add
+            dataPointsToAdd = "";
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
