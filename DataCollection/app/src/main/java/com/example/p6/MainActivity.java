@@ -30,6 +30,7 @@ import java.util.List;
 public class MainActivity extends Activity implements SensorEventListener {
     static class Row{
         String timestamp;
+        String minutes;
         String heartbeat;
         String acc_x;
         String acc_y;
@@ -39,10 +40,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         String label;
         String accuracy;
 
-        public Row(String timestamp, String heartbeat, String acc_x, String acc_y, String acc_z,
+        public Row(String timestamp, String minutes, String heartbeat, String acc_x, String acc_y, String acc_z,
                    String step_count_rate, String step_count, String label, String accuracy)
         {
             this.timestamp = timestamp;
+            this.minutes = minutes;
             this.heartbeat = heartbeat;
             this.acc_x = acc_x;
             this.acc_y = acc_y;
@@ -55,7 +57,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         @NonNull
         @Override
         public String toString(){
-            return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,heartbeat,
+            return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,minutes,heartbeat,
                     acc_x,acc_y,acc_z,step_count_rate,step_count,label,accuracy);
         }
     }
@@ -66,6 +68,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         WALKING,
         RUNNING,
         CYCLING
+    }
+    enum Time {
+        MINUTES,
+        SECONDS,
+        MILLISECONDS,
     }
     //endregion
 
@@ -172,7 +179,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                 float y_axis = event.values[1];
                 float z_axis = event.values[2];
                 if (numberOfDataPointsAdded <= 500){
-                    insertDataAtTimeStamp(currentTimestamp, heartRate, x_axis, y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
+                    long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
+                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, x_axis,
+                            y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -194,15 +203,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void updateTimeSinceStart(long currentTimestamp){
         if (firstTimestamp == 0){
             firstTimestamp = currentTimestamp;
-            Log.i("First", ": " + firstTimestamp);
-            Log.i("First current", ": " + currentTimestamp);
         }
 
-        long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
-        long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
-        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
-        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
-
+        long secondsSinceStart = getTimeSinceStart(currentTimestamp)[Time.SECONDS.ordinal()];
+        long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
         long hoursToDisplay = minutesSinceStart / HOUR_TO_MIN_FACTOR;
         long minutesToDisplay = minutesSinceStart % 60;
         long secondsToDisplay = secondsSinceStart % 60;
@@ -210,6 +214,21 @@ public class MainActivity extends Activity implements SensorEventListener {
         timerText.setText("Time: " + clockFormat.format(hoursToDisplay)
                 + ":" + clockFormat.format(minutesToDisplay)
                 + ":" + clockFormat.format(secondsToDisplay));
+    }
+
+    public long[] getTimeSinceStart(long currentTimestamp){
+        long[] TimeSinceStart = new long[3];
+
+        long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
+        long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
+        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
+        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
+
+        TimeSinceStart[Time.MINUTES.ordinal()] = minutesSinceStart;
+        TimeSinceStart[Time.SECONDS.ordinal()] = secondsSinceStart;
+        TimeSinceStart[Time.MILLISECONDS.ordinal()] = milliSecondsSinceStart;
+
+        return TimeSinceStart;
     }
 
     public void updateAccumulatedStepCount(SensorEvent event){
@@ -234,12 +253,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public void insertDataAtTimeStamp(long timestamp, float heartRate, float acc_x, float acc_y,
+    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
                                       float acc_z, float step_count_rate, float step_count,
                                       short accuracy, @NonNull List<Row> rows) {
         int label = activityToTrack.ordinal();
         Row row = new Row(
                 Long.toString(timestamp),
+                Long.toString(minutes),
                 Float.toString(heartRate),
                 Float.toString(acc_x),
                 Float.toString(acc_y),
@@ -265,7 +285,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         dateTime = LocalDateTime.now();
 
-        view.setEnabled(false);
+        findViewById(R.id.startButton).setEnabled(false);
         findViewById(R.id.exitButton).setEnabled(false);
         findViewById(R.id.stopButton).setEnabled(true);
         RadioGroup radioButtons = findViewById(R.id.radioButtonGroup);
@@ -304,7 +324,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void resetValues(){
-        dataPointsToAdd = "timestamp,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
+        dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
                 "step_count,label,heart_rate_accuracy\n";
         rows.clear();
         numberOfDataPointsAdded = 0;
