@@ -2,22 +2,21 @@ package com.example.p6;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.p6.databinding.ActivityMainBinding;
+import com.example.p6.databinding.ActivityDisplayBinding;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,54 +26,47 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements SensorEventListener {
+
+
+public class DisplayActivity extends Activity implements SensorEventListener {
+
     static class Row{
         String timestamp;
         String minutes;
-        String heartbeat;
+        String heartRate;
         String acc_x;
         String acc_y;
         String acc_z;
         String step_count_rate;
         String step_count;
         String label;
-        String accuracy;
 
-        public Row(String timestamp, String minutes, String heartbeat, String acc_x, String acc_y, String acc_z,
-                   String step_count_rate, String step_count, String label, String accuracy)
+        public Row(String timestamp, String minutes, String heart_rate, String acc_x, String acc_y, String acc_z,
+                   String step_count_rate, String step_count, String label)
         {
             this.timestamp = timestamp;
             this.minutes = minutes;
-            this.heartbeat = heartbeat;
+            this.heartRate = heart_rate;
             this.acc_x = acc_x;
             this.acc_y = acc_y;
             this.acc_z = acc_z;
             this.step_count_rate = step_count_rate;
             this.step_count = step_count;
             this.label = label;
-            this.accuracy = accuracy;
         }
         @NonNull
         @Override
         public String toString(){
-            return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,minutes,heartbeat,
-                    acc_x,acc_y,acc_z,step_count_rate,step_count,label,accuracy);
+            return String.format("%s,%s,%s,,%s,%s,%s,%s,%s,%s\n", timestamp,minutes, heartRate,
+                    acc_x,acc_y,acc_z,step_count_rate,step_count,label);
         }
     }
 
-    //region Enums
-    enum Activity {
-        IDLE,
-        WALKING,
-        RUNNING,
-        CYCLING
-    }
     enum Time {
         MINUTES,
         SECONDS,
         MILLISECONDS,
     }
-    //endregion
 
     //region Time constants
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
@@ -92,7 +84,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     private Sensor senHeartRateCounter;
     private TextView heartRateText;
     private float heartRate = 0;
-    private short heartRateAccuracy = 0;
     private long firstTimestamp = 0;
     private long latestTimestamp = 0;
     //endregion
@@ -102,7 +93,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private TextView stepCountText;
     private TextView stepCountRateText;
     private float initialStepCount = -1; // Initialized as -1 because the initial step count will
-                                         // never be -1, but it may be 0
+    // never be -1, but it may be 0
     private float accumulatedStepCount = 0;
     private float firstStepCount = 0;
     private float lastStepCount = 0;
@@ -114,7 +105,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     //region Data point variables
     private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd;
+    private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
+            "step_count,label,heart_rate_accuracy\n";
     //endregion
 
     //region Formatters
@@ -126,20 +118,29 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     //region Other global variables
     private SensorManager mSensorManager;
-    private Activity activityToTrack = Activity.WALKING;
+    private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
     private LocalDateTime dateTime;
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
-
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_display);
+
+        // retrieve the data from previous activity
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if(extras != null){
+            int activityOrdinal = extras.getInt("activityToTrack");
+            activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
+        }
         getSensors();
         bindTextToVariables();
+        dateTime = LocalDateTime.now();
+        registerListeners();
     }
 
     public void getSensors(){
@@ -150,9 +151,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public void bindTextToVariables(){
-        com.example.p6.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityDisplayBinding binding = ActivityDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         accelerometerText = binding.accelerometerText;
         heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
@@ -161,7 +161,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         timesWrittenToFileText = binding.timesWrittenToFileText;
     }
 
-    @Override
+    public void registerListeners(){
+        mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
@@ -170,7 +175,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
         }
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0 && heartRateAccuracy != 0) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0) {
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
@@ -181,7 +186,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if (numberOfDataPointsAdded <= 500){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, x_axis,
-                            y_axis, z_axis, stepCountRate,  accumulatedStepCount, heartRateAccuracy, rows);
+                            y_axis, z_axis, stepCountRate,  accumulatedStepCount, rows);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -200,121 +205,19 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public void updateTimeSinceStart(long currentTimestamp){
-        if (firstTimestamp == 0){
-            firstTimestamp = currentTimestamp;
-        }
-
-        long secondsSinceStart = getTimeSinceStart(currentTimestamp)[Time.SECONDS.ordinal()];
-        long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-        long hoursToDisplay = minutesSinceStart / HOUR_TO_MIN_FACTOR;
-        long minutesToDisplay = minutesSinceStart % 60;
-        long secondsToDisplay = secondsSinceStart % 60;
-
-        timerText.setText("Time: " + clockFormat.format(hoursToDisplay)
-                + ":" + clockFormat.format(minutesToDisplay)
-                + ":" + clockFormat.format(secondsToDisplay));
-    }
-
-    public long[] getTimeSinceStart(long currentTimestamp){
-        long[] TimeSinceStart = new long[3];
-
-        long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
-        long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
-        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
-        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
-
-        TimeSinceStart[Time.MINUTES.ordinal()] = minutesSinceStart;
-        TimeSinceStart[Time.SECONDS.ordinal()] = secondsSinceStart;
-        TimeSinceStart[Time.MILLISECONDS.ordinal()] = milliSecondsSinceStart;
-
-        return TimeSinceStart;
-    }
-
-    public void updateAccumulatedStepCount(SensorEvent event){
-        currentStepCount = event.values[0];
-        if (initialStepCount == -1){
-            initialStepCount = currentStepCount;
-        }
-        accumulatedStepCount = currentStepCount - initialStepCount;
-        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
-    }
-
-    public void updateStepCountRate(){
-        stepCountCounter++;
-        if (stepCountCounter == 1){
-            firstStepCount = currentStepCount;
-        }
-        else if (stepCountCounter >= 100){ // Add data every 10 sec
-            lastStepCount = currentStepCount;
-            stepCountRate = lastStepCount - firstStepCount;
-            stepCountCounter = 0;
-            stepCountRateText.setText("Step-rate: " + (int)stepCountRate);
-        }
-    }
-
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
-                                      float acc_z, float step_count_rate, float step_count,
-                                      short accuracy, @NonNull List<Row> rows) {
-        int label = activityToTrack.ordinal();
-        Row row = new Row(
-                Long.toString(timestamp),
-                Long.toString(minutes),
-                Float.toString(heartRate),
-                Float.toString(acc_x),
-                Float.toString(acc_y),
-                Float.toString(acc_z),
-                Float.toString(step_count_rate),
-                Float.toString(step_count),
-                Integer.toString(label),
-                Short.toString(accuracy)
-        );
-        rows.add(row);
-        dataPointsToAdd += row.toString();
-    }
-
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracyReceived) {
-        if (sensor == senHeartRateCounter) {
-            heartRateAccuracy = (short) accuracyReceived;
-        }
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    public void onStartButtonClick(View view){
-        resetValues();
-
-        dateTime = LocalDateTime.now();
-
-        findViewById(R.id.startButton).setEnabled(false);
-        findViewById(R.id.exitButton).setEnabled(false);
-        findViewById(R.id.stopButton).setEnabled(true);
-        RadioGroup radioButtons = findViewById(R.id.radioButtonGroup);
-        for(int i = 0; i < radioButtons.getChildCount(); i++){
-            radioButtons.getChildAt(i).setClickable(false);
-        }
-        Toast.makeText(getApplicationContext(), "Tracking started for " + activityToTrack.name().toLowerCase(), Toast.LENGTH_SHORT).show();
-        registerListeners();
-    }
-
-    public void registerListeners(){
-        mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     public void onStopButtonClick(View view) {
         unregisterListeners();
-        findViewById(R.id.stopButton).setEnabled(false);
-        findViewById(R.id.startButton).setEnabled(true);
-        findViewById(R.id.exitButton).setEnabled(true);
-
-        RadioGroup radioButtons = findViewById(R.id.radioButtonGroup);
-        for(int i = 0; i < radioButtons.getChildCount(); i++){
-            radioButtons.getChildAt(i).setClickable(true);
-        }
-
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-        Toast.makeText(getApplicationContext(), "Finished writing to file!", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
     public void unregisterListeners(){
@@ -346,6 +249,62 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
+    public void updateAccumulatedStepCount(SensorEvent event){
+        currentStepCount = event.values[0];
+        if (initialStepCount == -1){
+            initialStepCount = currentStepCount;
+        }
+        accumulatedStepCount = currentStepCount - initialStepCount;
+        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
+    }
+
+    public void updateTimeSinceStart(long currentTimestamp){
+        if (firstTimestamp == 0){
+            firstTimestamp = currentTimestamp;
+        }
+
+        long secondsSinceStart = getTimeSinceStart(currentTimestamp)[Time.SECONDS.ordinal()];
+        long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
+        long hoursToDisplay = minutesSinceStart / HOUR_TO_MIN_FACTOR;
+        long minutesToDisplay = minutesSinceStart % 60;
+        long secondsToDisplay = secondsSinceStart % 60;
+
+        timerText.setText("Time: " + clockFormat.format(hoursToDisplay)
+                + ":" + clockFormat.format(minutesToDisplay)
+                + ":" + clockFormat.format(secondsToDisplay));
+    }
+
+    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
+                                      float acc_z, float step_count_rate, float step_count, @NonNull List<Row> rows) {
+        int label = activityToTrack.ordinal();
+        Row row = new Row(
+                Long.toString(timestamp),
+                Long.toString(minutes),
+                Float.toString(heartRate),
+                Float.toString(acc_x),
+                Float.toString(acc_y),
+                Float.toString(acc_z),
+                Float.toString(step_count_rate),
+                Float.toString(step_count),
+                Integer.toString(label)
+        );
+        rows.add(row);
+        dataPointsToAdd += row.toString();
+    }
+
+    public void updateStepCountRate(){
+        stepCountCounter++;
+        if (stepCountCounter == 1){
+            firstStepCount = currentStepCount;
+        }
+        else if (stepCountCounter >= 100){ // Add data every 10 sec
+            lastStepCount = currentStepCount;
+            stepCountRate = lastStepCount - firstStepCount;
+            stepCountCounter = 0;
+            stepCountRateText.setText("Step-rate: " + (int)stepCountRate);
+        }
+    }
+
     public void writeToFile(String fileName, String content){
         Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
         File path;
@@ -361,29 +320,25 @@ public class MainActivity extends Activity implements SensorEventListener {
             writer.write(content.getBytes());
             writer.close();
 
-            // Resets the datapoints to add
+            // Resets the data points to add
             dataPointsToAdd = "";
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void onExitButtonClick(View view) {
-        finish();
-        System.exit(0);
-    }
+    public long[] getTimeSinceStart(long currentTimestamp){
+        long[] TimeSinceStart = new long[3];
 
-    public void onRadioButtonIdle(View view) {
-        activityToTrack = Activity.IDLE;
-    }
-    public void onRadioButtonWalking(View view) {
-        activityToTrack = Activity.WALKING;
-    }
-    public void onRadioButtonRunning(View view) {
-        activityToTrack = Activity.RUNNING;
-    }
-    public void onRadioButtonCycling(View view) {
-        activityToTrack = Activity.CYCLING;
+        long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
+        long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
+        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
+        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
+
+        TimeSinceStart[Time.MINUTES.ordinal()] = minutesSinceStart;
+        TimeSinceStart[Time.SECONDS.ordinal()] = secondsSinceStart;
+        TimeSinceStart[Time.MILLISECONDS.ordinal()] = milliSecondsSinceStart;
+
+        return TimeSinceStart;
     }
 }
-

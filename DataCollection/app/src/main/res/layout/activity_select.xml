@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".MainActivity"
+    tools:context=".SelectActivity"
     tools:deviceIds="wear">
 
     <ScrollView
@@ -25,59 +25,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="23dp" />
-
-                <TextView
-                    android:id="@+id/heartRateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Please select activity" />
-
-                <TextView
-                    android:id="@+id/accelerometerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Then data will display" />
-
-                <TextView
-                    android:id="@+id/stepCountRateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="..." />
-
-                <TextView
-                    android:id="@+id/stepCountText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="..." />
-
-                <TextView
-                    android:id="@+id/timerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="..." />
-
-                <TextView
-                    android:id="@+id/timesWrittenToFileText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="..." />
-
-                <ProgressBar
-                    android:id="@+id/dataPointProgressBar"
-                    style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="false"
-                    android:max="500"
-                    android:progressTint="#03A9F4"
-                    android:rotation="0" />
+                    android:layout_height="53dp" />
 
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
@@ -129,19 +77,6 @@
                 </RadioGroup>
 
                 <Button
-                    android:id="@+id/stopButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:gravity="center"
-                    android:onClick="onStopButtonClick"
-                    android:text="Stop activity" />
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="27dp" />
-
-                <Button
                     android:id="@+id/exitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -150,11 +85,10 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="23dp" />
+                    android:layout_height="53dp" />
 
             </LinearLayout>
 
         </FrameLayout>
     </ScrollView>
-
 </androidx.wear.widget.BoxInsetLayout>
