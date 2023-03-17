@@ -4,7 +4,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
-from skl2onnx import to_onnx
 from tslearn.metrics import dtw
 from sklearn.neighbors import NearestCentroid
 
@@ -46,18 +45,18 @@ def make_budget_time_series(file):
     for i in range(4): #for every label
         sub_file = file[(file[label_as_string]==i)]
         print(sub_file)
-        initialStepCount = sub_file.iloc[0, sub_file.columns.get_loc(step_count_as_string)]
+        initial_step_count = sub_file.iloc[0, sub_file.columns.get_loc(step_count_as_string)]
         for j in range(max_minute+1): #for every minute
             print(counter)
             sub_sub_file = sub_file[(file[minute_timestamp_as_string]==j)]
-            accXMean = sub_sub_file.loc[:,x_accelerometer_as_string].abs().mean()
-            if (np.isnan(accXMean)):
+            acc_x_mean = sub_sub_file.loc[:,x_accelerometer_as_string].abs().mean()
+            if (np.isnan(acc_x_mean)):
                 continue
-            accYMean = sub_sub_file.loc[:,y_accelerometer_as_string].abs().mean()
-            accZMean = sub_sub_file.loc[:,z_accelerometer_as_string].abs().mean()
-            heartRateMean = sub_sub_file.loc[:,heartrate_as_string].mean()
-            stepCountDifference = sub_sub_file.iloc[-1, sub_sub_file.columns.get_loc(step_count_as_string)] - initialStepCount
-            rows[counter] = np.array([accXMean,accYMean,accZMean,heartRateMean, stepCountDifference])
+            acc_y_mean = sub_sub_file.loc[:,y_accelerometer_as_string].abs().mean()
+            acc_z_mean = sub_sub_file.loc[:,z_accelerometer_as_string].abs().mean()
+            heart_rate_mean = sub_sub_file.loc[:,heartrate_as_string].mean()
+            step_count_difference = sub_sub_file.iloc[-1, sub_sub_file.columns.get_loc(step_count_as_string)] - initial_step_count
+            rows[counter] = np.array([acc_x_mean,acc_y_mean,acc_z_mean,heart_rate_mean, step_count_difference])
             labels[counter] = np.array([i])
             counter += 1
     return rows,labels
