@@ -42,13 +42,6 @@
                     android:text="Accelerometer" />
 
                 <TextView
-                    android:id="@+id/stepCountRateText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Step count rate" />
-
-                <TextView
                     android:id="@+id/stepCountText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

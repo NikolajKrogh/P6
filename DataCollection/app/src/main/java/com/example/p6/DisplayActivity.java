@@ -37,12 +37,10 @@ public class DisplayActivity extends Activity implements SensorEventListener {
         String acc_x;
         String acc_y;
         String acc_z;
-        String step_count_rate;
         String step_count;
         String label;
 
-        public Row(String timestamp, String minutes, String heart_rate, String acc_x, String acc_y, String acc_z,
-                   String step_count_rate, String step_count, String label)
+        public Row(String timestamp, String minutes, String heart_rate, String acc_x, String acc_y, String acc_z, String step_count, String label)
         {
             this.timestamp = timestamp;
             this.minutes = minutes;
@@ -50,15 +48,14 @@ public class DisplayActivity extends Activity implements SensorEventListener {
             this.acc_x = acc_x;
             this.acc_y = acc_y;
             this.acc_z = acc_z;
-            this.step_count_rate = step_count_rate;
             this.step_count = step_count;
             this.label = label;
         }
         @NonNull
         @Override
         public String toString(){
-            return String.format("%s,%s,%s,,%s,%s,%s,%s,%s,%s\n", timestamp,minutes, heartRate,
-                    acc_x,acc_y,acc_z,step_count_rate,step_count,label);
+            return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,minutes, heartRate,
+                    acc_x,acc_y,acc_z,step_count,label);
         }
     }
 
@@ -91,21 +88,16 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     //region Step count variables
     private Sensor senStepCounter;
     private TextView stepCountText;
-    private TextView stepCountRateText;
     private float initialStepCount = -1; // Initialized as -1 because the initial step count will
     // never be -1, but it may be 0
     private float accumulatedStepCount = 0;
-    private float firstStepCount = 0;
-    private float lastStepCount = 0;
     private float currentStepCount = 0;
-    private float stepCountRate = 0;
-    private short stepCountCounter = 0;
     //endregion
 
     //region Data point variables
     private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
+    private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
             "step_count,label,heart_rate_accuracy\n";
     //endregion
 
@@ -156,7 +148,6 @@ public class DisplayActivity extends Activity implements SensorEventListener {
         accelerometerText = binding.accelerometerText;
         heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
-        stepCountRateText = binding.stepCountRateText;
         timerText = binding.timerText;
         timesWrittenToFileText = binding.timesWrittenToFileText;
     }
@@ -179,14 +170,13 @@ public class DisplayActivity extends Activity implements SensorEventListener {
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-                updateStepCountRate();
                 float x_axis = event.values[0];
                 float y_axis = event.values[1];
                 float z_axis = event.values[2];
                 if (numberOfDataPointsAdded <= 500){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, x_axis,
-                            y_axis, z_axis, stepCountRate,  accumulatedStepCount, rows);
+                            y_axis, z_axis,  accumulatedStepCount, rows);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -227,7 +217,7 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     }
 
     public void resetValues(){
-        dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z,step_count_rate," +
+        dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
                 "step_count,label,heart_rate_accuracy\n";
         rows.clear();
         numberOfDataPointsAdded = 0;
@@ -237,16 +227,10 @@ public class DisplayActivity extends Activity implements SensorEventListener {
         // Step count variables
         initialStepCount = -1;
         accumulatedStepCount = 0;
-        firstStepCount = 0;
-        lastStepCount = 0;
         currentStepCount = 0;
-        stepCountRate = 0;
-        stepCountCounter = 0;
+        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
 
         timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
-        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
-        stepCountRateText.setText("Step-rate: " + (int)stepCountRate);
-
     }
 
     public void updateAccumulatedStepCount(SensorEvent event){
@@ -275,7 +259,7 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     }
 
     public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
-                                      float acc_z, float step_count_rate, float step_count, @NonNull List<Row> rows) {
+                                      float acc_z, float step_count, @NonNull List<Row> rows) {
         int label = activityToTrack.ordinal();
         Row row = new Row(
                 Long.toString(timestamp),
@@ -284,25 +268,11 @@ public class DisplayActivity extends Activity implements SensorEventListener {
                 Float.toString(acc_x),
                 Float.toString(acc_y),
                 Float.toString(acc_z),
-                Float.toString(step_count_rate),
                 Float.toString(step_count),
                 Integer.toString(label)
         );
         rows.add(row);
         dataPointsToAdd += row.toString();
-    }
-
-    public void updateStepCountRate(){
-        stepCountCounter++;
-        if (stepCountCounter == 1){
-            firstStepCount = currentStepCount;
-        }
-        else if (stepCountCounter >= 100){ // Add data every 10 sec
-            lastStepCount = currentStepCount;
-            stepCountRate = lastStepCount - firstStepCount;
-            stepCountCounter = 0;
-            stepCountRateText.setText("Step-rate: " + (int)stepCountRate);
-        }
     }
 
     public void writeToFile(String fileName, String content){
