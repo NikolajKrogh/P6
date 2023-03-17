@@ -129,12 +129,16 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
+
+        // retrieve the data from previous activity
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if(extras != null){
+            int activityOrdinal = extras.getInt("activityToTrack");
+            activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
+        }
         getSensors();
         bindTextToVariables();
-
-        getSensors();
-        bindTextToVariables();
-
         dateTime = LocalDateTime.now();
         registerListeners();
     }
@@ -166,12 +170,10 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
-            Log.i("Yo?", "Yo!");
         }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
-            Log.i("Ye?", "Ye!");
         }
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0) {
             long currentTimestamp = event.timestamp;
@@ -211,9 +213,11 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     public void onStopButtonClick(View view) {
         unregisterListeners();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-        startActivity(new Intent(DisplayActivity.this, SelectActivity.class));
+
+        Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
         finish();
-        System.exit(0);
     }
 
     public void unregisterListeners(){

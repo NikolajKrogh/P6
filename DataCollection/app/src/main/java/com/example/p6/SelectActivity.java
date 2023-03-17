@@ -3,6 +3,7 @@ package com.example.p6;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -30,13 +31,18 @@ public class SelectActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+
         binding = ActivitySelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
     }
 
     public void onStartButtonClick(View view){
-        RadioGroup radioButtons = findViewById(R.id.radioButtonGroup);
-        startActivity(new Intent(SelectActivity.this, DisplayActivity.class));
+        Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("activityToTrack", activityToTrack.ordinal());
+        startActivity(intent);
+        finish();
     }
 
     public void onRadioButtonIdle(View view) {
