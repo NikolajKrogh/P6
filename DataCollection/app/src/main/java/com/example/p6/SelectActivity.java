@@ -3,10 +3,11 @@ package com.example.p6;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import com.example.p6.databinding.ActivitySelectBinding;
+
 
 public class SelectActivity extends Activity {
 
@@ -18,6 +19,9 @@ public class SelectActivity extends Activity {
     }
 
     private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
+
+    private TextView mTextView;
+    private ActivitySelectBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +35,7 @@ public class SelectActivity extends Activity {
         }
     }
 
-    public void startDisplayActivity(){
+    public void onStartButtonClick(View view){
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("activityToTrack", activityToTrack.ordinal());
