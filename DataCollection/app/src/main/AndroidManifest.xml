@@ -43,7 +43,8 @@
             android:name=".DisplayActivity"
             android:exported="true"
             android:label="@string/title_activity_display"
-            android:noHistory="true">
+            android:launchMode="singleTask">
+            >
         </activity>
     </application>
 
