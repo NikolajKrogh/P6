@@ -84,8 +84,19 @@ def make_budget_time_series_from_data_frame(data_frame):
     return X,y
 
 if __name__ == '__main__':
-    testX,testY = make_budget_time_series_from_data_frame(data)
-    X_train, X_test, y_train, y_test = train_test_split(testX, testY, test_size = 0.25, random_state=42)
+    X,y = make_budget_time_series_from_data_frame(data)
+    
+    robust_scaler = preprocessing.RobustScaler()
+    X_robust_scaled = robust_scaler.fit_transform(X)
+    
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X_minmax_scaled = min_max_scaler.fit_transform(X)
+    
+    scaler = preprocessing.StandardScaler()
+    X_standard_scaled = scaler.fit_transform(X)
+    
+    
+    X_train, X_test, y_train, y_test = train_test_split(X_robust_scaled, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid()
 
     nearest_centroid.fit(X_train, np.ravel(y_train))
@@ -96,112 +107,6 @@ if __name__ == '__main__':
 
 """
 todo:
-make pretty
 prøv accuracy med enkelte labels
-prøv med min max scaling / standard scaling
+try with more data (both fit and test)
 """
-quit()
-    # for index,row in file.iterrows():
-    #     accXData = np.append(accXData,row[x_accelerometer])
-    #     accYData = np.append(accYData,row[y_accelerometer])
-    #     accZData = np.append(accZData,row[z_accelerometer])
-    #     heartRateData = np.append(heartRateData,row[heartrate])       
-    #     timestamp = row[timestamp]
-    #     if firstTimestamp == -1:
-    #         firstTimestamp = timestamp
-    #     elif timestamp - firstTimestamp >= 1 * NANOSEC_TO_MINUTE_FACTOR:
-    #         hstacks = np.append(hstacks,np.hstack((accXData,accYData,accZData,heartRateData)))
-    #         resetNumpyArrays(accXData,accYData,accZData,heartRateData)
-    #         i+=1
-    # return hstacks
-
-ourIdleX,ourIdleY = makeTimeSeries(ourIdle)
-ourIdleX2,ourIdleY2 = makeTimeSeries(ourIdle2)
-# ourIdleY = np.empty(len(ourIdleX)); ourIdleY.fill(0) #idle label = 0
-# ourWalkingX = makeTimeSeries(ourWalking)
-# ourWalkingY = np.empty(len(ourWalkingX)); ourWalkingY.fill(1)  #walking label = 1
-#ourRunningX,ourRunningY = makeTimeSeries(ourRunning)
-#ourRunningY = np.empty(len(ourRunningX)); ourRunningY.fill(2)  #running label = 2
-# ourCyclingX = makeTimeSeries(ourCycling)
-# ourCyclingY = np.empty(len(ourCyclingX)); ourCyclingY.fill(3)  #cycling label = 3
-
-
-
-nearest_centroid = KNeighborsClassifier(metric=dtw,n_neighbors=4)
-
-print(type(ourIdleY))
-#ourIdleX = np.reshape(ourIdleX,(-1,1))
-
-print(ourIdleX)
-nearest_centroid.fit(ourIdleX, ourIdleY)
-
-#print("Walking dataset:", accuracy_score(knn.predict(ourIdleX2),ourIdleY2))
-
-            
-
-
-
-
-
-quit()
-
-walking_heartrate = "heartrate"
-walking_x_accelerometer = "acc_x"
-walking_y_accelerometer = "acc_y"
-walking_z_accelerometer = "acc_z"
-walkingLabel = "label"
-
-walking_x = recordedWalkingData[[walking_x_accelerometer,walking_y_accelerometer,walking_z_accelerometer]]
-walking_y = recordedWalkingData[[walkingLabel]]
-
-
-pamapx = "3d_accel_x_2"
-pamapy = "3d_accel_y_2"
-pamapz = "3d_accel_z_2"
-pamapheart = "heartrate"
-pamaplabel = "activityType"
-
-X_pamap_no_heart = pamapData[[pamapx,pamapy,pamapz]]
-X_pamap = pamapData[[pamapx,pamapy,pamapz,pamapheart]]
-Y_pamap = pamapData[[pamaplabel]]
-
-X_train, X_test, y_train, y_test = train_test_split(X_pamap_no_heart, Y_pamap, test_size = 0.2, random_state=42)
-
-#region DTW with one dimension
-s1 = np.array(recordedWalkingData[[walking_x_accelerometer]], dtype=object)
-s2 = np.array(pamapData[[pamapx]], dtype=object)
-#set_array_len = min(len(s1), len(s2))
-#s1 = s1.ravel()
-#s2 = s2.ravel()
-#s1 = s1[:set_array_len]
-#s2 = s2[:set_array_len]
-#path = dtw.warping_path(s1, s2)
-#dtwvis.plot_warping(s1, s2, path, filename="warp.png")
-#distance, paths = dtw.warping_paths(s1, s2)
-#print(distance)
-#print(paths)
-#endregion
-
-min_max_scaler = preprocessing.MinMaxScaler()
-scaler = preprocessing.StandardScaler().fit(X_train)
-X_train_scaled = scaler.transform(X_train)
-X_train_minmax = min_max_scaler.fit_transform(X_train)
-scaler = preprocessing.StandardScaler().fit(X_test)
-X_test_scaled = scaler.transform(X_test)
-X_test_minmax = min_max_scaler.fit_transform(X_test)
-
-
-def createTs(myStart, myLength):
-    index = pd.date_range(myStart, periods=myLength, freq='H'); 
-    values= [random.random() for _ in range(myLength)]
-    series = pd.Series(values, index=index);  
-    return(series)
-
-#Build the classifier (algorithm)
-nearest_centroid = KNeighborsClassifier(metric=dtw,n_neighbors=400)
-print(X_train_minmax)
-#Fill the model with data
-nearest_centroid.fit(X_train_minmax, y_train.values.ravel())
-
-
-print("Walking dataset:", accuracy_score(nearest_centroid.predict(walking_x),walking_y))
