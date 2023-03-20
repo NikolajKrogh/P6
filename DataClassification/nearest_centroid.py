@@ -31,24 +31,24 @@ def get_budget_time_series_rows(file):
     result = 0
     for i in range(4):
         sub_file = file[(file[label_as_string]==i)]
-        if np.isnan(sub_file.loc[:,minute_timestamp_as_string].max()):
+        if np.isnan(sub_file.loc[:,minute_timestamp_as_string].max()): #if there are not rows with that label
             continue
-        result += sub_file.loc[:,minute_timestamp_as_string].max()
+        result += sub_file.loc[:,minute_timestamp_as_string].nunique()
     return result 
+
 
 def make_budget_time_series(file):
     rowCount = int(get_budget_time_series_rows(file))
-    rows = np.empty((rowCount+2,5))  #5 is number of columns (acc_x,acc_y,acc_z,heartrate,stepcounter)
-    labels = np.empty((rowCount+2,1)) #1 is number of columns (label)
+    rows = np.empty((rowCount,5))  #row,column. 5 is number of columns (acc_x,acc_y,acc_z,heartrate,stepcounter)
+    labels = np.empty((rowCount,1)) #row,column. 1 is number of columns (label)
     max_minute = int(file.loc[:,minute_timestamp_as_string].max())
     counter = 0
     for i in range(4): #for every label
         sub_file = file[(file[label_as_string]==i)]
-        print(sub_file)
         initial_step_count = sub_file.iloc[0, sub_file.columns.get_loc(step_count_as_string)]
         for j in range(max_minute+1): #for every minute
-            print(counter)
-            sub_sub_file = sub_file[(file[minute_timestamp_as_string]==j)]
+            print(f"label: {i}, minute: {j}, counter: {counter}")
+            sub_sub_file = sub_file[(sub_file[minute_timestamp_as_string]==j)]
             acc_x_mean = sub_sub_file.loc[:,x_accelerometer_as_string].abs().mean()
             if (np.isnan(acc_x_mean)):
                 continue
@@ -70,7 +70,7 @@ nearest_centroid = NearestCentroid()
 
 nearest_centroid.fit(X_train, np.ravel(y_train))
 
-print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
+#print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
 
 
 

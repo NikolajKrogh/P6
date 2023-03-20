@@ -11,7 +11,6 @@ heartrate = "heart_rate"
 x_accelerometer = "acc_x"
 y_accelerometer = "acc_y"
 z_accelerometer = "acc_z"
-step_count_rate = "step_count_rate"
 step_count = "step_count"
 label = "label"
 #endregion
@@ -35,7 +34,7 @@ def add_minute_column(file):
             first_timestamp = timestamp_nano_sec
             minute_counter += 1
     file = file[[timestamp,minute_timestamp,heartrate,x_accelerometer,y_accelerometer,
-                 z_accelerometer,step_count_rate,step_count,label]]
+                 z_accelerometer,step_count,label]]
     file.dropna(inplace = True)
     file.to_csv(path)
 
