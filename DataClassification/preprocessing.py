@@ -1,6 +1,6 @@
 import pandas as pd
 
-path = r"data\ourData\cycling_2023-03-11_11_22_01.csv"
+path = r"data\test.csv"
 data = pd.read_csv(path)
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 
