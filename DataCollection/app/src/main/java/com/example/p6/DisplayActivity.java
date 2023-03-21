@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
 import com.example.p6.databinding.ActivityDisplayBinding;
@@ -102,7 +103,7 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     //endregion
 
     //region Formatters
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss");
     private final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
     private final DecimalFormat clockFormat = new DecimalFormat("#00");
 
@@ -129,10 +130,16 @@ public class DisplayActivity extends Activity implements SensorEventListener {
             int activityOrdinal = extras.getInt("activityToTrack");
             activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
         }
+
         getSensors();
         bindTextToVariables();
         dateTime = LocalDateTime.now();
         registerListeners();
+    }
+    
+    // Make back button act as home button
+    public void onBackPressed() {
+        moveTaskToBack(false);
     }
 
     public void getSensors(){
