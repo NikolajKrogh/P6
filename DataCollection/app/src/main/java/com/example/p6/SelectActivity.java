@@ -20,9 +20,6 @@ public class SelectActivity extends Activity {
 
     private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
 
-    private TextView mTextView;
-    private ActivitySelectBinding binding;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if(!isTaskRoot()){  // If DisplayActivity is already running, redirect to that
@@ -35,7 +32,7 @@ public class SelectActivity extends Activity {
         }
     }
 
-    public void onStartButtonClick(View view){
+    public void startDisplayActivity(){
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("activityToTrack", activityToTrack.ordinal());
