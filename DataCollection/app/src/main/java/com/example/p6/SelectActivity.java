@@ -5,13 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.p6.databinding.ActivitySelectBinding;
 
-import java.time.LocalDateTime;
 
 public class SelectActivity extends Activity {
 
@@ -29,12 +25,14 @@ public class SelectActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-
-        binding = ActivitySelectBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        if(!isTaskRoot()){  // If DisplayActivity is already running, redirect to that
+            startDisplayActivity();
+        }
+        else {
+            super.onCreate(savedInstanceState);
+            ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
+        }
     }
 
     public void onStartButtonClick(View view){
@@ -43,6 +41,10 @@ public class SelectActivity extends Activity {
         intent.putExtra("activityToTrack", activityToTrack.ordinal());
         startActivity(intent);
         finish();
+    }
+
+    public void onStartButtonClick(View view){
+        startDisplayActivity();
     }
 
     public void onRadioButtonIdle(View view) {
@@ -59,7 +61,7 @@ public class SelectActivity extends Activity {
     }
 
     public void onExitButtonClick(View view) {
-        finish();
+        finishAndRemoveTask();
         System.exit(0);
     }
 }
