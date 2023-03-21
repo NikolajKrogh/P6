@@ -8,13 +8,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 
 import com.example.p6.databinding.ActivityDisplayBinding;
@@ -29,7 +29,7 @@ import java.util.List;
 
 
 
-public class DisplayActivity extends Activity implements SensorEventListener {
+public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
 
     static class Row{
         String timestamp;
@@ -122,21 +122,47 @@ public class DisplayActivity extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // retrieve the data from previous activity
+        setLowScreenBrightness();
+        retrieveDataFromPreviousActvity();
+
+        getSensors();
+        bindTextToVariables();
+        dateTime = LocalDateTime.now();
+        registerListeners();
+
+        Button stopButton = findViewById(R.id.stopButton);
+        stopButton.setOnClickListener(DisplayActivity.this);
+        stopButton.setOnLongClickListener(DisplayActivity.this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Toast.makeText(this, "Click and hold to stop", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        stopActivity();
+        return false;
+    }
+
+    public void setLowScreenBrightness(){
+        WindowManager.LayoutParams WMLP = getWindow().getAttributes();
+        WMLP.screenBrightness = 0.05F;
+        getWindow().setAttributes(WMLP);
+    }
+
+    public void retrieveDataFromPreviousActvity(){
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if(extras != null){
             int activityOrdinal = extras.getInt("activityToTrack");
             activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
         }
-
-        getSensors();
-        bindTextToVariables();
-        dateTime = LocalDateTime.now();
-        registerListeners();
     }
-    
+
     // Make back button act as home button
     public void onBackPressed() {
         moveTaskToBack(false);
@@ -207,7 +233,7 @@ public class DisplayActivity extends Activity implements SensorEventListener {
 
     }
 
-    public void onStopButtonClick(View view) {
+    public void stopActivity() {
         unregisterListeners();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
@@ -221,23 +247,6 @@ public class DisplayActivity extends Activity implements SensorEventListener {
         mSensorManager.unregisterListener(this, senAccelerometer);
         mSensorManager.unregisterListener(this, senHeartRateCounter);
         mSensorManager.unregisterListener(this, senStepCounter);
-    }
-
-    public void resetValues(){
-        dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
-                "step_count,label,heart_rate_accuracy\n";
-        rows.clear();
-        numberOfDataPointsAdded = 0;
-        firstTimestamp = 0;
-        timesWrittenToFile = 0;
-
-        // Step count variables
-        initialStepCount = -1;
-        accumulatedStepCount = 0;
-        currentStepCount = 0;
-        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
-
-        timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
     }
 
     public void updateAccumulatedStepCount(SensorEvent event){

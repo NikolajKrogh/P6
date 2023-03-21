@@ -85,7 +85,6 @@
                     android:layout_height="wrap_content"
                     android:enabled="true"
                     android:gravity="center"
-                    android:onClick="onStopButtonClick"
                     android:text="Stop activity" />
 
                 <Space
