@@ -1,14 +1,14 @@
 import pandas as pd
+import os
 
-path = r"data\walking_2023-03-02_16_43_58.csv"
-own_data = pd.read_csv(path)
+path = 'data'
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 
-
-def add_minute_column(file):
+def add_minute_column(filepath):
     first_run = True
     minute_counter = 0
     first_timestamp = -1
+    file = pd.read_csv(filepath)
     for index,row in file.iterrows():       
         timestamp_nano_sec = row['timestamp']
         if first_timestamp == -1:
@@ -25,7 +25,9 @@ def add_minute_column(file):
             minute_counter += 1
 
     file.dropna(inplace = True)
-    file.to_csv(path)
+    file.to_csv(filepath)
 
-
-add_minute_column(own_data)
+for file in os.listdir(path):
+    filepath = os.path.join(path, file)
+    if file.endswith('.csv'):
+        add_minute_column(filepath)
