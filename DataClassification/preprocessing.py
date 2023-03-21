@@ -16,7 +16,7 @@ step_count = "step_count"
 label = "label"
 #endregion
 
-def add_minute_column(file):
+def add_minute_column(filepath):
     first_run = True
     minute_counter = 0
     first_timestamp = -1
