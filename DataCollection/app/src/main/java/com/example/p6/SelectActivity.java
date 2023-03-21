@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.view.WindowManager;
 import com.example.p6.databinding.ActivitySelectBinding;
 
 
@@ -29,6 +29,7 @@ public class SelectActivity extends Activity {
             super.onCreate(savedInstanceState);
             ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
