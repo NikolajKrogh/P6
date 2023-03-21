@@ -1,6 +1,7 @@
 import pandas as pd
+import os
 
-path = r"data\test.csv"
+path = 'data'
 data = pd.read_csv(path)
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 
@@ -15,10 +16,11 @@ step_count = "step_count"
 label = "label"
 #endregion
 
-def add_minute_column(file):
+def add_minute_column(filepath):
     first_run = True
     minute_counter = 0
     first_timestamp = -1
+    file = pd.read_csv(filepath)
     for index,row in file.iterrows():       
         timestamp_nano_sec = row['timestamp']
         if first_timestamp == -1:
@@ -36,7 +38,10 @@ def add_minute_column(file):
     file = file[[timestamp,minute_timestamp,heartrate,x_accelerometer,y_accelerometer,
                  z_accelerometer,step_count,label]]
     file.dropna(inplace = True)
-    file.to_csv(path)
+    file.to_csv(filepath)
 
 
-add_minute_column(data)
+for file in os.listdir(path):
+    filepath = os.path.join(path, file)
+    if file.endswith('.csv'):
+        add_minute_column(filepath)
