@@ -151,7 +151,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void setLowScreenBrightness(){
         WindowManager.LayoutParams WMLP = getWindow().getAttributes();
         WMLP.screenBrightness = 0.05F;
-        //getWindow().setAttributes(WMLP);
+        getWindow().setAttributes(WMLP);
     }
 
     public void retrieveDataFromPreviousActvity(){
