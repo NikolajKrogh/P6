@@ -170,7 +170,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void getSensors(){
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        senAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        senAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         senHeartRateCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         senStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
     }
@@ -199,7 +199,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
         }
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && heartRate > 0) {
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && heartRate > 0) {
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
