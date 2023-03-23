@@ -71,6 +71,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private static final long SEC_TO_MILLISEC_FACTOR =  1000;
     private static final long MIN_TO_SEC_FACTOR =  60;
     private static final long HOUR_TO_MIN_FACTOR =  60;
+    private static final float LOW_BRIGHTNESS = 0.05F;
+    private static final float HIGH_BRIGHTNESS = 1F;
     //endregion
 
     //region Accelerometer variables
@@ -123,8 +125,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        setLowScreenBrightness();
         retrieveDataFromPreviousActvity();
 
         getSensors();
@@ -138,8 +138,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     @Override
+    public void onUserInteraction(){
+        setScreenBrightness(HIGH_BRIGHTNESS);
+    }
+
+    @Override
     public void onClick(View v) {
-        Toast.makeText(this, "Click and hold to stop", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -148,9 +153,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         return false;
     }
 
-    public void setLowScreenBrightness(){
+    public void setScreenBrightness(float brightness){
         WindowManager.LayoutParams WMLP = getWindow().getAttributes();
-        WMLP.screenBrightness = 0.05F;
+        WMLP.screenBrightness = brightness;
         getWindow().setAttributes(WMLP);
     }
 
@@ -217,6 +222,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     timesWrittenToFile++;
                     timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
                     numberOfDataPointsAdded = 0;
+                    setScreenBrightness(LOW_BRIGHTNESS);
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
                 dataPointProgressBar.setProgress(numberOfDataPointsAdded);
