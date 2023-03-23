@@ -22,7 +22,6 @@ label = "label"
 #endregion
 
 def add_minute_column(filepath):
-    print(filepath)
     first_run = True
     minute_counter = 0
     first_timestamp = -1
@@ -53,9 +52,9 @@ def add_session_id(file):
     return file
 
 def save_csv(file,filepath):
-    file.dropna(inplace = True)
     file = file[[timestamp,minute_timestamp,heartrate,x_accelerometer,y_accelerometer,
                  z_accelerometer,step_count,session_id,label]]
+    file.dropna(inplace = True)
     file.to_csv(filepath)
 
 for file in os.listdir(path):
