@@ -7,7 +7,7 @@ import random
 
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 
-path = "data"
+path = r"data\to_combine"
 
 #region column names
 timestamp = "timestamp"
