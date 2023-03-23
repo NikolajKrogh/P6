@@ -101,7 +101,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
     private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
-            "step_count,label,heart_rate_accuracy\n";
+            "step_count,label\n";
     //endregion
 
     //region Formatters
