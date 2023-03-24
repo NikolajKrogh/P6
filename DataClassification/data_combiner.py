@@ -17,7 +17,7 @@ def data_combiner():
     path = r"data\to_combine\*.csv"
     files = glob.glob(path) 
     df = pd.concat((pd.read_csv(file, header = 0) for file in files))
-    df.to_csv(result_path)
+    df.to_csv(result_path,index=False)
     print(f"written to file: {result_path}")
     
     
