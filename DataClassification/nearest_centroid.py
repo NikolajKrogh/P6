@@ -52,8 +52,8 @@ def get_data_frame_with_label(data_frame,label):
     return data_frame[(data_frame[label_as_string]==label)]
 
 #gets the first step count value at a specific minute interval
-def get_step_count_at_minute_interval_start(data_frame, minute):
-    return data_frame.loc[data_frame[minute_timestamp_as_string] == minute].iloc[0][step_count_as_string]
+def get_step_count_at_minute_interval_start(data_frame):
+    return data_frame.iloc[0][step_count_as_string]
 
 def get_mean_accelerometer_data_for_budget_time_series_row(data_frame, accelerometer_type_as_string):
     return data_frame.loc[:,accelerometer_type_as_string].abs().mean()
@@ -75,8 +75,8 @@ def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,
     acc_y_mean = get_mean_accelerometer_data_for_budget_time_series_row(data_frame_with_minute,y_accelerometer_as_string)
     acc_z_mean = get_mean_accelerometer_data_for_budget_time_series_row(data_frame_with_minute,z_accelerometer_as_string)
     heart_rate_mean = get_mean_heart_rate_data_for_budget_time_series_row(data_frame_with_minute)
-    previous_step_count = get_step_count_at_minute_interval_start(data_frame_with_label,minute)
-    step_count_difference = get_step_count_difference_for_budget_time_series_row(data_frame_with_minute,previous_step_count)
+    first_step_count_at_minute_interval = get_step_count_at_minute_interval_start(data_frame_with_minute)
+    step_count_difference = get_step_count_difference_for_budget_time_series_row(data_frame_with_minute,first_step_count_at_minute_interval)
     X[row_index] = np.array([acc_x_mean,acc_y_mean,acc_z_mean,heart_rate_mean, step_count_difference])
     y[row_index] = np.array([label])
     return True
@@ -126,13 +126,14 @@ if __name__ == '__main__':
   
     nearest_centroid = NearestCentroid() 
     
-    
     nearest_centroid.fit(X_train, np.ravel(y_train))
+    #print(nearest_centroid.centroids_) 
     #print("accuracy idle:", accuracy_score(nearest_centroid.predict(X_idle_min_max_scaled),np.ravel(y_test_idle)))
     #print("accuracy walking:", accuracy_score(nearest_centroid.predict(X_walk_min_max_scaled),np.ravel(y_test_walk)))
     #print("accuracy cycling:", accuracy_score(nearest_centroid.predict(X_cycling_min_max_scaled),np.ravel(y_test_cycling)))
     
     
+
 
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
 

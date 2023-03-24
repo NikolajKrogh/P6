@@ -55,7 +55,7 @@ def save_csv(file,filepath):
     file = file[[timestamp,minute_timestamp,heartrate,x_accelerometer,y_accelerometer,
                  z_accelerometer,step_count,session_id,label]]
     file.dropna(inplace = True)
-    file.to_csv(filepath)
+    file.to_csv(filepath,index=False)
 
 for file in os.listdir(path):
     filepath = os.path.join(path, file)
