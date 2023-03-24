@@ -4,8 +4,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from sklearn.neighbors import NearestCentroid
-import matplotlib.pyplot as plt
-from sklearn.ensemble import IsolationForest
 
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
