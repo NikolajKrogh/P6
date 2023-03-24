@@ -4,6 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from sklearn.neighbors import NearestCentroid
+import matplotlib.pyplot as plt
+from sklearn.ensemble import IsolationForest
 
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
@@ -69,9 +71,9 @@ def get_step_count_difference_for_budget_time_series_row(data_frame, initial_ste
 def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,session_id):
     data_frame_with_session_id = data_frame_with_label[(data_frame_with_label[session_id_as_string]==session_id)]
     data_frame_with_minute = data_frame_with_session_id[(data_frame_with_session_id[minute_timestamp_as_string]==minute)]
+    if data_frame_with_minute.empty: #if there is no data for that minute
+        return False   
     acc_x_mean = get_mean_accelerometer_data_for_budget_time_series_row(data_frame_with_minute,x_accelerometer_as_string)
-    if (np.isnan(acc_x_mean)): #if the mean of any data is nan, we know that there is no data for that minute
-        return False
     acc_y_mean = get_mean_accelerometer_data_for_budget_time_series_row(data_frame_with_minute,y_accelerometer_as_string)
     acc_z_mean = get_mean_accelerometer_data_for_budget_time_series_row(data_frame_with_minute,z_accelerometer_as_string)
     heart_rate_mean = get_mean_heart_rate_data_for_budget_time_series_row(data_frame_with_minute)
@@ -122,10 +124,11 @@ if __name__ == '__main__':
     X_standard_scaled = scaler.fit_transform(X)
     
     
-    X_train, X_test, y_train, y_test = train_test_split(X_minmax_scaled, y, test_size = 0.25, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
+  
+    nearest_centroid = NearestCentroid() 
     
-    nearest_centroid = NearestCentroid()
-
+    
     nearest_centroid.fit(X_train, np.ravel(y_train))
     #print("accuracy idle:", accuracy_score(nearest_centroid.predict(X_idle_min_max_scaled),np.ravel(y_test_idle)))
     #print("accuracy walking:", accuracy_score(nearest_centroid.predict(X_walk_min_max_scaled),np.ravel(y_test_walk)))
@@ -134,3 +137,4 @@ if __name__ == '__main__':
     
 
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
+
