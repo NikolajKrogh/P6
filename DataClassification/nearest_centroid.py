@@ -67,6 +67,7 @@ def clean_data_frames_based_on_z_score(data_frame):
     data_frame_with_minute_not_step = data_frame[[x_accelerometer_as_string,y_accelerometer_as_string,z_accelerometer_as_string,heartrate_as_string]]
     data_frame_with_minute_step = data_frame[[step_count_as_string]]
     z_values = data_frame_with_minute_not_step.apply(zscore)
+    #according to the z-score a value of higher than 3 or below -3 is considered unusual for a data point and is thus removed
     data_frame_clean_not_step = data_frame_with_minute_not_step[(z_values < 3).all(axis = 1) & (z_values > -3).all(axis = 1)]
     combined = pd.concat([data_frame_clean_not_step,data_frame_with_minute_step],axis=1)
     combined.dropna(inplace = True)
