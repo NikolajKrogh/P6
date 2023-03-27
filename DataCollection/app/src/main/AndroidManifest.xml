@@ -46,6 +46,13 @@
             android:launchMode="singleTask">
             >
         </activity>
+        <activity
+            android:name=".NearestCentroidActivity"
+            android:exported="true"
+            android:label="@string/title_activity_nearest_centroid"
+            android:launchMode="standard">
+            >
+        </activity>
     </application>
 
 </manifest>
