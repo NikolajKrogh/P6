@@ -48,8 +48,6 @@ def get_budget_time_series_row_count(data_frame):
 def get_data_frame_with_label(data_frame,label):
     return data_frame[(data_frame[label_as_string]==label)]
 
-#gets the first step count value at a specific minute interval
-
 def get_mean_accelerometer_data_for_budget_time_series_row(data_frame, accelerometer_type_as_string):
     return data_frame.loc[:,accelerometer_type_as_string].abs().mean()
 
