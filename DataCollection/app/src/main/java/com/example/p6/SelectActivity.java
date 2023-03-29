@@ -12,7 +12,7 @@ import com.example.p6.databinding.ActivitySelectBinding;
 public class SelectActivity extends Activity {
 
     enum Activity {
-        IDLE,
+        SITTING,
         WALKING,
         RUNNING,
         CYCLING
@@ -45,8 +45,8 @@ public class SelectActivity extends Activity {
         startDisplayActivity();
     }
 
-    public void onRadioButtonIdle(View view) {
-        activityToTrack = SelectActivity.Activity.IDLE;
+    public void onRadioButtonSitting(View view) {
+        activityToTrack = SelectActivity.Activity.SITTING;
     }
     public void onRadioButtonWalking(View view) {
         activityToTrack = SelectActivity.Activity.WALKING;
