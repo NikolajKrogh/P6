@@ -7,6 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import com.example.p6.databinding.ActivitySelectBinding;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.IOException;
 
 
 public class SelectActivity extends Activity {
@@ -30,6 +33,14 @@ public class SelectActivity extends Activity {
             ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        NearestCentroidActivity a = new NearestCentroidActivity();
+        try {
+            a.getCentroidsFromFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (CsvValidationException e) {
+            throw new RuntimeException(e);
         }
     }
 
