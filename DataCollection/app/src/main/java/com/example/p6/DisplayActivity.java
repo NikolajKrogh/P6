@@ -35,28 +35,21 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         String timestamp;
         String minutes;
         String heartRate;
-        String acc_x;
-        String acc_y;
-        String acc_z;
         String step_count;
         String label;
 
-        public Row(String timestamp, String minutes, String heart_rate, String acc_x, String acc_y, String acc_z, String step_count, String label)
+        public Row(String timestamp, String minutes, String heart_rate, String step_count, String label)
         {
             this.timestamp = timestamp;
             this.minutes = minutes;
             this.heartRate = heart_rate;
-            this.acc_x = acc_x;
-            this.acc_y = acc_y;
-            this.acc_z = acc_z;
             this.step_count = step_count;
             this.label = label;
         }
         @NonNull
         @Override
         public String toString(){
-            return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,minutes, heartRate,
-                    acc_x,acc_y,acc_z,step_count,label);
+            return String.format("%s,%s,%s,%s,%s\n", timestamp, minutes, heartRate, step_count, label);
         }
     }
 
@@ -73,11 +66,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private static final long HOUR_TO_MIN_FACTOR =  60;
     private static final float LOW_BRIGHTNESS = 0.05F;
     private static final float HIGH_BRIGHTNESS = 1F;
-    //endregion
-
-    //region Accelerometer variables
-    private Sensor senAccelerometer;
-    private TextView accelerometerText;
     //endregion
 
     //region Heart rate variables
@@ -100,8 +88,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Data point variables
     private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
-            "step_count,label\n";
+    private String dataPointsToAdd = "timestamp,minutes,heart_rate,step_count,label\n";
     //endregion
 
     //region Formatters
@@ -175,7 +162,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void getSensors(){
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        senAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         senHeartRateCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         senStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
     }
@@ -183,7 +169,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void bindTextToVariables(){
         ActivityDisplayBinding binding = ActivityDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        accelerometerText = binding.accelerometerText;
         heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
         timerText = binding.timerText;
@@ -191,9 +176,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void registerListeners(){
-        mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -203,18 +187,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
             heartRate = event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
-        }
-        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && heartRate > 0) {
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-                float x_axis = event.values[0];
-                float y_axis = event.values[1];
-                float z_axis = event.values[2];
-                if (numberOfDataPointsAdded <= 500){
+
+                if (numberOfDataPointsAdded < 100){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, x_axis,
-                            y_axis, z_axis,  accumulatedStepCount, rows);
+                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount, rows);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -226,9 +205,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
                 dataPointProgressBar.setProgress(numberOfDataPointsAdded);
-                accelerometerText.setText("x: " + decimalFormat.format(x_axis)
-                        + "   y: " + decimalFormat.format(y_axis)
-                        + "   z: " + decimalFormat.format(z_axis));
                 latestTimestamp = currentTimestamp;
             }
         }
@@ -250,7 +226,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void unregisterListeners(){
-        mSensorManager.unregisterListener(this, senAccelerometer);
         mSensorManager.unregisterListener(this, senHeartRateCounter);
         mSensorManager.unregisterListener(this, senStepCounter);
     }
@@ -280,16 +255,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
-                                      float acc_z, float step_count, @NonNull List<Row> rows) {
+    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float step_count, @NonNull List<Row> rows) {
         int label = activityToTrack.ordinal();
         Row row = new Row(
                 Long.toString(timestamp),
                 Long.toString(minutes),
                 Float.toString(heartRate),
-                Float.toString(acc_x),
-                Float.toString(acc_y),
-                Float.toString(acc_z),
                 Float.toString(step_count),
                 Integer.toString(label)
         );

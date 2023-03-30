@@ -35,13 +35,6 @@
                     android:text="Heart rate" />
 
                 <TextView
-                    android:id="@+id/accelerometerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Accelerometer" />
-
-                <TextView
                     android:id="@+id/stepCountText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -68,7 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:indeterminate="false"
-                    android:max="500"
+                    android:max="100"
                     android:progressTint="#03A9F4"
                     android:rotation="0" />
 

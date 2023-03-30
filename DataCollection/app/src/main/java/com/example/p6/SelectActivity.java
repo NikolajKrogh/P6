@@ -29,7 +29,6 @@ public class SelectActivity extends Activity {
             super.onCreate(savedInstanceState);
             ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
