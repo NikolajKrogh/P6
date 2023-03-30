@@ -7,4 +7,6 @@
     <string name="hello_world">Hello Square World!</string>
     <string name="title_activity_display">DisplayActivity</string>
     <string name="title_activity_select">SelectActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_model">ModelActivity</string>
 </resources>

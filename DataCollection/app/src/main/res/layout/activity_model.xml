@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context=".ModelActivity"
+    tools:deviceIds="wear">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="53dp" />
+
+            <TextView
+                android:id="@+id/sittingCentroidText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Sitting centroid" />
+
+            <TextView
+                android:id="@+id/walkingCentroidText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Walking centroid" />
+
+            <TextView
+                android:id="@+id/runningCentroidText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Running centroid" />
+
+            <TextView
+                android:id="@+id/cyclingCentroidText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Cycling centroid" />
+
+            <Button
+                android:id="@+id/runModelButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:gravity="center"
+                android:text="Run model" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="53dp" />
+
+            <Button
+                android:id="@+id/exitButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onExitButtonClick"
+                android:text="Exit app" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="53dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.wear.widget.BoxInsetLayout>

@@ -68,13 +68,14 @@
                         android:onClick="onRadioButtonCycling"
                         android:text="Cycling" />
 
-                    <Button
-                        android:id="@+id/startButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:onClick="onStartButtonClick"
-                        android:text="Start activity" />
                 </RadioGroup>
+
+                <Button
+                    android:id="@+id/runModelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onStartButtonClick"
+                    android:text="Start activity" />
 
                 <Button
                     android:id="@+id/exitButton"

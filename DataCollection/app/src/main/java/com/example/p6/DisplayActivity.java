@@ -119,7 +119,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         dateTime = LocalDateTime.now();
         registerListeners();
 
-        Button stopButton = findViewById(R.id.stopButton);
+        Button stopButton = findViewById(R.id.runModelButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
     }
