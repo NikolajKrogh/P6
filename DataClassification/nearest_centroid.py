@@ -9,7 +9,7 @@ from scipy.stats import zscore
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
-NUMBER_OF_INPUT_PARAMETER = 5 #number of columns (acc_x,acc_y,acc_z,heartrate,stepcounter)
+NUMBER_OF_INPUT_PARAMETER = 2 #number of columns (heartrate,stepcounter)
 #endregion
 
 #region imported data 
@@ -20,9 +20,6 @@ data = pd.read_csv(r"data\combined.csv")
 timestamp_as_string = "timestamp"
 minute_timestamp_as_string = "minutes"
 heartrate_as_string = "heart_rate"
-x_accelerometer_as_string = "acc_x"
-y_accelerometer_as_string = "acc_y"
-z_accelerometer_as_string = "acc_z"
 step_count_as_string = 'step_count'
 session_id_as_string = 'session_id'
 label_as_string = "label"
@@ -48,9 +45,6 @@ def get_budget_time_series_row_count(data_frame):
 def get_data_frame_with_label(data_frame,label):
     return data_frame[(data_frame[label_as_string]==label)]
 
-def get_mean_accelerometer_data_for_budget_time_series_row(data_frame, accelerometer_type_as_string):
-    return data_frame.loc[:,accelerometer_type_as_string].abs().mean()
-
 def get_mean_heart_rate_data_for_budget_time_series_row(data_frame):
     return data_frame.loc[:,heartrate_as_string].mean()
 
@@ -62,12 +56,12 @@ def get_step_count_difference_for_budget_time_series_row(data_frame, initial_ste
 
 def clean_data_frames_based_on_z_score(data_frame):
     #since the step data is continually getting bigger we do not clean outliers from it, since that would consider all points to be outliers
-    data_frame_with_minute_not_step = data_frame[[x_accelerometer_as_string,y_accelerometer_as_string,z_accelerometer_as_string,heartrate_as_string]]
+    data_frame_with_minute_heart_rate = data_frame[[heartrate_as_string]]
     data_frame_with_minute_step = data_frame[[step_count_as_string]]
-    z_values = data_frame_with_minute_not_step.apply(zscore)
+    z_values = data_frame_with_minute_heart_rate.apply(zscore)
     #according to the z-score a value of higher than 3 or below -3 is considered unusual for a data point and is thus removed
-    data_frame_clean_not_step = data_frame_with_minute_not_step[(z_values < 3).all(axis = 1) & (z_values > -3).all(axis = 1)]
-    combined = pd.concat([data_frame_clean_not_step,data_frame_with_minute_step],axis=1)
+    data_frame_clean_heart_rate = data_frame_with_minute_heart_rate[(z_values < 3).all(axis = 1) & (z_values > -3).all(axis = 1)]
+    combined = pd.concat([data_frame_clean_heart_rate,data_frame_with_minute_step],axis=1)
     combined.dropna(inplace = True)
     return combined
     
@@ -80,13 +74,13 @@ def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,
         return False   
     
     cleaned_data_frame = clean_data_frames_based_on_z_score(data_frame_with_minute)
-    acc_x_mean = get_mean_accelerometer_data_for_budget_time_series_row(cleaned_data_frame,x_accelerometer_as_string)
-    acc_y_mean = get_mean_accelerometer_data_for_budget_time_series_row(cleaned_data_frame,y_accelerometer_as_string)
-    acc_z_mean = get_mean_accelerometer_data_for_budget_time_series_row(cleaned_data_frame,z_accelerometer_as_string)
+    if cleaned_data_frame.empty: #if all data for that minute are outliers
+        return False
+    
     heart_rate_mean = get_mean_heart_rate_data_for_budget_time_series_row(cleaned_data_frame)
     first_step_count_at_minute_interval = get_step_count_at_minute_interval_start(cleaned_data_frame)
     step_count_difference = get_step_count_difference_for_budget_time_series_row(cleaned_data_frame,first_step_count_at_minute_interval)
-    X[row_index] = np.array([acc_x_mean,acc_y_mean,acc_z_mean,heart_rate_mean, step_count_difference])
+    X[row_index] = np.array([heart_rate_mean, step_count_difference])
     y[row_index] = np.array([label])
     return True
 
