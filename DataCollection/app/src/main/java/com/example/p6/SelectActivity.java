@@ -49,8 +49,7 @@ public class SelectActivity extends Activity {
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
         intent.putExtra("activityToTrack", activityToTrack.ordinal());
         intent.putExtra("mode", mode.ordinal());
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }
