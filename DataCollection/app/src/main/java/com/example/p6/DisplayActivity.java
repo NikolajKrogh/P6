@@ -100,22 +100,24 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
+    private MainActivity.Activity activityToTrack = MainActivity.activityToTrack;
+    private MainActivity.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
-    private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
     private LocalDateTime dateTime;
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
-    private MainActivity.Mode mode = MainActivity.Mode.COLLECT_DATA;
+
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("Mode", mode.name());
+        Log.i("Activity", activityToTrack.name());
         MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        retrieveDataFromPreviousActivity();
 
         getSensors();
         bindTextToVariables();
@@ -147,17 +149,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         WindowManager.LayoutParams WMLP = getWindow().getAttributes();
         WMLP.screenBrightness = brightness;
         getWindow().setAttributes(WMLP);
-    }
-
-    public void retrieveDataFromPreviousActivity(){
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if(extras != null){
-            int activityOrdinal = extras.getInt("activityToTrack");
-            int modeOrdinal = extras.getInt("mode");
-            activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
-            mode = MainActivity.Mode.values()[modeOrdinal];
-        }
     }
 
     public void getSensors(){
@@ -194,7 +185,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount, rows);
                     numberOfDataPointsAdded++;
-                    Log.i("Ya", String.valueOf(numberOfDataPointsAdded));
                 }
                 else {
                     writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);

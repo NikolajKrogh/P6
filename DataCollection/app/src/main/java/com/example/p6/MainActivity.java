@@ -1,5 +1,6 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Activity.*;
 import static com.example.p6.MainActivity.Screen.*;
 import static com.example.p6.MainActivity.Mode.*;
 
@@ -14,10 +15,11 @@ import com.example.p6.databinding.ActivityMainBinding;
 import com.example.p6.databinding.ActivitySelectBinding;
 
 public class MainActivity extends Activity {
-    enum Mode {
-        RUN_MODEL,
-        SYNCHRONIZE,
-        COLLECT_DATA,
+    enum Activity {
+        SITTING,
+        WALKING,
+        RUNNING,
+        CYCLING
     }
 
     enum Screen {
@@ -27,9 +29,16 @@ public class MainActivity extends Activity {
         VIEW_MODEL
     }
 
+    enum Mode {
+        RUN_MODEL,
+        SYNCHRONIZE,
+        COLLECT_DATA,
+    }
+
+    static Activity activityToTrack = WALKING;
     static Screen currentScreen = MAIN;
-    static boolean BackButtonPressed = false;
     static Mode trackingMode = COLLECT_DATA;
+    static boolean BackButtonPressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
