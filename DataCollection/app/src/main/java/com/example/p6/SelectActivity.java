@@ -5,6 +5,7 @@ import static com.example.p6.MainActivity.Activity.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.p6.databinding.ActivitySelectBinding;

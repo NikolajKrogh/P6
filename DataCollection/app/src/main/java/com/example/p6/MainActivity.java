@@ -5,14 +5,11 @@ import static com.example.p6.MainActivity.Screen.*;
 import static com.example.p6.MainActivity.Mode.*;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.example.p6.databinding.ActivityMainBinding;
-import com.example.p6.databinding.ActivitySelectBinding;
 
 public class MainActivity extends Activity {
     enum Activity {
@@ -39,6 +36,7 @@ public class MainActivity extends Activity {
     static Screen currentScreen = MAIN;
     static Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
+    static boolean HomeButtonPressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +64,7 @@ public class MainActivity extends Activity {
 
     public void startSelectActivity(){
         Intent intent = new Intent(MainActivity.this, SelectActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
@@ -78,34 +76,34 @@ public class MainActivity extends Activity {
 
     public void startViewModelActivity(){
         Intent intent = new Intent(MainActivity.this, ViewModelActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
     public void onRunModelClick(View view){
         Intent intent = new Intent(MainActivity.this, DisplayActivity.class);
         trackingMode = RUN_MODEL;
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
     public void onSynchronizeModelClick(View view){
         Intent intent = new Intent(MainActivity.this, SelectActivity.class);
         trackingMode = SYNCHRONIZE;
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
     public void onViewModelClick(View view){
         Intent intent = new Intent(MainActivity.this, ViewModelActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
     public void onCollectDataClick(View view){
         Intent intent = new Intent(MainActivity.this, SelectActivity.class);
         trackingMode = COLLECT_DATA;
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
