@@ -19,29 +19,40 @@ public class SelectActivity extends Activity {
     }
 
     private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
+    private MainActivity.Mode mode = MainActivity.Mode.COLLECT_DATA;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(!isTaskRoot()){  // If DisplayActivity is already running, redirect to that
-            startDisplayActivity();
-        }
-        else {
-            super.onCreate(savedInstanceState);
-            ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
-            setContentView(binding.getRoot());
-        }
+        MainActivity.currentScreen = MainActivity.Screen.SELECT;
+        super.onCreate(savedInstanceState);
+        ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        retrieveDataFromPreviousActivity();
     }
 
-    public void startDisplayActivity(){
-        Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("activityToTrack", activityToTrack.ordinal());
-        startActivity(intent);
-        finish();
+    public void retrieveDataFromPreviousActivity(){
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if(extras != null){
+            int activityOrdinal = extras.getInt("activityToTrack");
+            int modeOrdinal = extras.getInt("mode");
+            activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
+            mode = MainActivity.Mode.values()[modeOrdinal];
+        }
     }
 
     public void onStartButtonClick(View view){
         startDisplayActivity();
+    }
+
+    public void startDisplayActivity(){
+        Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
+        intent.putExtra("activityToTrack", activityToTrack.ordinal());
+        intent.putExtra("mode", mode.ordinal());
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        startActivity(intent);
+        finish();
     }
 
     public void onRadioButtonSitting(View view) {
@@ -57,8 +68,10 @@ public class SelectActivity extends Activity {
         activityToTrack = SelectActivity.Activity.CYCLING;
     }
 
-    public void onExitButtonClick(View view) {
-        finishAndRemoveTask();
-        System.exit(0);
+    public void onBackButtonClick(View view) {
+        Intent intent = new Intent(SelectActivity.this, MainActivity.class);
+        MainActivity.BackButtonPressed = true;
+        startActivity(intent);
+        finish();
     }
 }

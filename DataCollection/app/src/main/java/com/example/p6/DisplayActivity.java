@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -105,14 +106,16 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
+    private MainActivity.Mode mode = MainActivity.Mode.COLLECT_DATA;
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        retrieveDataFromPreviousActvity();
+        retrieveDataFromPreviousActivity();
 
         getSensors();
         bindTextToVariables();
@@ -146,18 +149,15 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         getWindow().setAttributes(WMLP);
     }
 
-    public void retrieveDataFromPreviousActvity(){
+    public void retrieveDataFromPreviousActivity(){
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if(extras != null){
             int activityOrdinal = extras.getInt("activityToTrack");
+            int modeOrdinal = extras.getInt("mode");
             activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
+            mode = MainActivity.Mode.values()[modeOrdinal];
         }
-    }
-
-    // Make back button act as home button
-    public void onBackPressed() {
-        moveTaskToBack(false);
     }
 
     public void getSensors(){
@@ -190,11 +190,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-
                 if (numberOfDataPointsAdded < 100){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount, rows);
                     numberOfDataPointsAdded++;
+                    Log.i("Ya", String.valueOf(numberOfDataPointsAdded));
                 }
                 else {
                     writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
@@ -219,8 +219,15 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         unregisterListeners();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
-        Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intent;
+
+        if(mode == MainActivity.Mode.RUN_MODEL){
+            intent = new Intent(DisplayActivity.this, MainActivity.class);
+            MainActivity.BackButtonPressed = true;
+        }
+        else {
+            intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        }
         startActivity(intent);
         finish();
     }

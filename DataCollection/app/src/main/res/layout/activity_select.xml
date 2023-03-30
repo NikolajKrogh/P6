@@ -25,7 +25,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
@@ -81,12 +81,12 @@
                     android:id="@+id/exitButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onExitButtonClick"
-                    android:text="Exit app" />
+                    android:onClick="onBackButtonClick"
+                    android:text="Go back" />
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
             </LinearLayout>
 

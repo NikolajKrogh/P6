@@ -25,32 +25,39 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
                 <Button
                     android:id="@+id/runModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onStartButtonClick"
+                    android:onClick="onRunModelClick"
                     android:text="Run model" />
 
                 <Button
                     android:id="@+id/synchronizeModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onStartButtonClick"
+                    android:onClick="onSynchronizeModelClick"
                     android:text="Synchronize model" />
+
+                <Button
+                    android:id="@+id/viewModelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onViewModelClick"
+                    android:text="View model" />
 
                 <Button
                     android:id="@+id/collectDataButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onStartButtonClick"
+                    android:onClick="onCollectDataClick"
                     android:text="Collect data" />
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="25dp" />
 
                 <Button
                     android:id="@+id/exitButton"
@@ -63,12 +70,12 @@
                     android:id="@+id/resetModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onExitButtonClick"
+                    android:onClick="onResetModelClick"
                     android:text="Reset model" />
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
             </LinearLayout>
 

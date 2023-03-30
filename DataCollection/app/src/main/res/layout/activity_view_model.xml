@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".ModelActivity"
+    tools:context=".ViewModelActivity"
     tools:deviceIds="wear">
 
     <ScrollView
@@ -19,7 +19,14 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="53dp" />
+                android:layout_height="50dp" />
+
+            <TextView
+                android:id="@+id/originalModelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Original model:" />
 
             <TextView
                 android:id="@+id/sittingCentroidText"
@@ -49,30 +56,60 @@
                 android:gravity="center"
                 android:text="Cycling centroid" />
 
-            <Button
-                android:id="@+id/runModelButton"
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="25dp" />
+
+            <TextView
+                android:id="@+id/personalizedModelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:enabled="true"
                 android:gravity="center"
-                android:text="Run model" />
+                android:text="Personalized model:" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="53dp" />
-
-            <Button
-                android:id="@+id/exitButton2"
+            <TextView
+                android:id="@+id/sittingCentroidText3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="onExitButtonClick"
-                android:text="Exit app" />
+                android:gravity="center"
+                android:text="Sitting centroid" />
+
+            <TextView
+                android:id="@+id/walkingCentroidText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Walking centroid" />
+
+            <TextView
+                android:id="@+id/runningCentroidText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Running centroid" />
+
+            <TextView
+                android:id="@+id/cyclingCentroidText2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Cycling centroid" />
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="53dp" />
+                android:layout_height="25dp" />
+
+            <Button
+                android:id="@+id/viewModelBackButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onBackButtonClick"
+                android:text="Go back" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
 
         </LinearLayout>
     </ScrollView>
-
 </androidx.wear.widget.BoxInsetLayout>
