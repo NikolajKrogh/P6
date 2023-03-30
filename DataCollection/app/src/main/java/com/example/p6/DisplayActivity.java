@@ -1,5 +1,7 @@
 package com.example.p6;
 
+import static com.example.p6.SelectActivity.getBatteryPercentage;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +10,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -136,6 +139,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     public boolean onLongClick(View v) {
+        Log.i("BatteryLevelStop",Integer.toString(getBatteryPercentage(getApplicationContext())));
         stopActivity();
         return false;
     }
