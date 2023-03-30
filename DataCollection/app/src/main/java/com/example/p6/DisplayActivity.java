@@ -25,33 +25,12 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
-
-    static class Row{
-        String timestamp;
-        String minutes;
-        String heartRate;
-        String step_count;
-        String label;
-
-        public Row(String timestamp, String minutes, String heart_rate, String step_count, String label)
-        {
-            this.timestamp = timestamp;
-            this.minutes = minutes;
-            this.heartRate = heart_rate;
-            this.step_count = step_count;
-            this.label = label;
-        }
-        @NonNull
-        @Override
-        public String toString(){
-            return String.format("%s,%s,%s,%s,%s\n", timestamp, minutes, heartRate, step_count, label);
-        }
-    }
 
     enum Time {
         MINUTES,
@@ -86,14 +65,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Data point variables
-    private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
     private String dataPointsToAdd = "timestamp,minutes,heart_rate,step_count,label\n";
     //endregion
 
     //region Formatters
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss");
-    private final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
     private final DecimalFormat clockFormat = new DecimalFormat("#00");
 
     //endregion
@@ -193,7 +170,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
                 if (numberOfDataPointsAdded < 100){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount, rows);
+                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -255,17 +232,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float step_count, @NonNull List<Row> rows) {
+    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float step_count) {
         int label = activityToTrack.ordinal();
-        Row row = new Row(
-                Long.toString(timestamp),
-                Long.toString(minutes),
-                Float.toString(heartRate),
-                Float.toString(step_count),
-                Integer.toString(label)
-        );
-        rows.add(row);
-        dataPointsToAdd += row.toString();
+        List<String> row = Arrays.asList(String.format("%s,%s,%d,%d,%s\n", timestamp, minutes, (long)heartRate,(long)step_count, label));
+        dataPointsToAdd += String.join(",",row);
     }
 
     public void writeToFile(String fileName, String content){
