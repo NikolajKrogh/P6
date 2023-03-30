@@ -8,10 +8,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.p6.databinding.ActivityMainBinding;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements View.OnLongClickListener {
     enum Activity {
         SITTING,
         WALKING,
@@ -46,8 +47,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
+    public void onRestart(){
+        super.onRestart();
         if (!BackButtonPressed){   // If we came from the home menu of the watch
             startCurrentlyRunningActivity();
         }
@@ -107,10 +108,18 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void onExitButtonClick(View view) {
+    public void onExitButtonClick(View view){
         finishAndRemoveTask();
         System.exit(0);
     }
 
+    public void onResetModelClick(View view){
+        Toast.makeText(this, "Press and hold to reset", Toast.LENGTH_SHORT).show();
+    }
 
+    @Override
+    public boolean onLongClick(View v) {
+        Toast.makeText(this, "Model has been reset (but not really)", Toast.LENGTH_SHORT).show();
+        return false;
+    }
 }
