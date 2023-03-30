@@ -56,12 +56,12 @@ def get_step_count_difference_for_budget_time_series_row(data_frame, initial_ste
 
 def clean_data_frames_based_on_z_score(data_frame):
     #since the step data is continually getting bigger we do not clean outliers from it, since that would consider all points to be outliers
-    data_frame_with_minute_heart_rate = data_frame[[heartrate_as_string]]
-    data_frame_with_minute_step = data_frame[[step_count_as_string]]
-    z_values = data_frame_with_minute_heart_rate.apply(zscore)
+    data_frame_at_minute_heart_rate = data_frame[[heartrate_as_string]]
+    data_frame_at_minute_step = data_frame[[step_count_as_string]]
+    z_values = data_frame_at_minute_heart_rate.apply(zscore)
     #according to the z-score a value of higher than 3 or below -3 is considered unusual for a data point and is thus removed
-    data_frame_clean_heart_rate = data_frame_with_minute_heart_rate[(z_values < 3).all(axis = 1) & (z_values > -3).all(axis = 1)]
-    combined = pd.concat([data_frame_clean_heart_rate,data_frame_with_minute_step],axis=1)
+    data_frame_clean_heart_rate = data_frame_at_minute_heart_rate[(z_values < 3).all(axis = 1) & (z_values > -3).all(axis = 1)]
+    combined = pd.concat([data_frame_clean_heart_rate,data_frame_at_minute_step],axis=1)
     combined.dropna(inplace = True)
     return combined
     
@@ -69,11 +69,11 @@ def clean_data_frames_based_on_z_score(data_frame):
 #returns true if row was added to time series, if not it is because no data for the time series with that specific label and minute exists
 def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,session_id):
     data_frame_with_session_id = data_frame_with_label[(data_frame_with_label[session_id_as_string]==session_id)]
-    data_frame_with_minute = data_frame_with_session_id[(data_frame_with_session_id[minute_timestamp_as_string]==minute)]
-    if data_frame_with_minute.empty: #if there is no data for that minute
+    data_frame_at_minute = data_frame_with_session_id[(data_frame_with_session_id[minute_timestamp_as_string]==minute)]
+    if data_frame_at_minute.empty: #if there is no data for that minute
         return False   
     
-    cleaned_data_frame = clean_data_frames_based_on_z_score(data_frame_with_minute)
+    cleaned_data_frame = clean_data_frames_based_on_z_score(data_frame_at_minute)
     if cleaned_data_frame.empty: #if all data for that minute are outliers
         return False
     
