@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     static Screen currentScreen = MAIN;
     static Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
+    private Toast myToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,8 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         Button resetButton = findViewById(R.id.resetModelButton);
         resetButton.setOnClickListener(MainActivity.this);
         resetButton.setOnLongClickListener(MainActivity.this);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -118,14 +121,18 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         System.exit(0);
     }
 
+    // onClick() for resetModelButton
     @Override
     public void onClick(View v) {
-        Toast.makeText(this, "Press and hold to reset", Toast.LENGTH_SHORT).show();
+        myToast.setText("Press and hold to reset");
+        myToast.show();
     }
 
+    // onLongClick() for resetModelButton
     @Override
     public boolean onLongClick(View v) {
-        Toast.makeText(this, "Model has been reset (but not really)", Toast.LENGTH_SHORT).show();
+        myToast.setText("Model has been reset (but not really)");
+        myToast.show();
         return true;
     }
 }

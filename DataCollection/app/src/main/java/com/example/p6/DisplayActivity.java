@@ -107,6 +107,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
+    private Toast myToast;
 
     //endregion
 
@@ -125,6 +126,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -132,12 +135,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setScreenBrightness(HIGH_BRIGHTNESS);
     }
 
+    // onLongClick() for stopActivityButton
     @Override
     public void onClick(View v) {
-        Toast toastMessage = Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT);
-        toastMessage.show();
+        myToast.setText("Press and hold to stop");
+        myToast.show();
     }
 
+    // onLongClick() for stopActivityButton
     @Override
     public boolean onLongClick(View v) {
         stopActivity();
