@@ -110,7 +110,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
 
-        if (mode == RUN_MODEL) {
+        /*if (mode == RUN_MODEL) {
             Context context = getApplicationContext();
             String fileName = "centroids/centroids.csv";
             String filePath = context.getFilesDir() + "/" + fileName;
@@ -118,7 +118,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             if (!csvFile.exists()) {
                 nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
             }
-        }
+        }*/
 
 
     }
