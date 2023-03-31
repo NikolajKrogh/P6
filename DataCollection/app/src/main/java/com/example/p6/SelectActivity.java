@@ -15,7 +15,7 @@ import java.io.IOException;
 public class SelectActivity extends Activity {
 
     enum Activity {
-        IDLE,
+        SITTING,
         WALKING,
         RUNNING,
         CYCLING
@@ -32,7 +32,6 @@ public class SelectActivity extends Activity {
             super.onCreate(savedInstanceState);
             ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
         NearestCentroidActivity a = new NearestCentroidActivity();
         try {
@@ -56,8 +55,8 @@ public class SelectActivity extends Activity {
         startDisplayActivity();
     }
 
-    public void onRadioButtonIdle(View view) {
-        activityToTrack = SelectActivity.Activity.IDLE;
+    public void onRadioButtonSitting(View view) {
+        activityToTrack = SelectActivity.Activity.SITTING;
     }
     public void onRadioButtonWalking(View view) {
         activityToTrack = SelectActivity.Activity.WALKING;

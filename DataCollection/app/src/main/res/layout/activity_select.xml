@@ -35,13 +35,13 @@
                     android:gravity="center">
 
                     <RadioButton
-                        android:id="@+id/radioButtionIdle"
+                        android:id="@+id/radioButtonSitting"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="false"
                         android:gravity="center"
-                        android:onClick="onRadioButtonIdle"
-                        android:text="Idle" />
+                        android:onClick="onRadioButtonSitting"
+                        android:text="Sitting" />
 
                     <RadioButton
                         android:id="@+id/radioButtonWalking"
