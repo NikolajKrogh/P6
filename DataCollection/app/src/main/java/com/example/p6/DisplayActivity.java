@@ -112,8 +112,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i("Mode", mode.name());
-        Log.i("Activity", activityToTrack.name());
         MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
@@ -124,7 +122,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         dateTime = LocalDateTime.now();
         registerListeners();
 
-        Button stopButton = findViewById(R.id.runModelButton);
+        Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
     }
@@ -136,13 +134,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT).show();
+        Toast toastMessage = Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT);
+        toastMessage.show();
     }
 
     @Override
     public boolean onLongClick(View v) {
         stopActivity();
-        return false;
+        return true;
     }
 
     public void setScreenBrightness(float brightness){
@@ -269,7 +268,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
         File path;
         try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND); // Use MODE_APPEND if you don't want to overwrite the content
+            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

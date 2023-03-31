@@ -8,11 +8,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.p6.databinding.ActivityMainBinding;
 
-public class MainActivity extends Activity implements View.OnLongClickListener {
+public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
+
     enum Activity {
         SITTING,
         WALKING,
@@ -37,13 +39,16 @@ public class MainActivity extends Activity implements View.OnLongClickListener {
     static Screen currentScreen = MAIN;
     static Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
-    static boolean HomeButtonPressed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Button resetButton = findViewById(R.id.resetModelButton);
+        resetButton.setOnClickListener(MainActivity.this);
+        resetButton.setOnLongClickListener(MainActivity.this);
     }
 
     @Override
@@ -113,13 +118,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener {
         System.exit(0);
     }
 
-    public void onResetModelClick(View view){
+    @Override
+    public void onClick(View v) {
         Toast.makeText(this, "Press and hold to reset", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public boolean onLongClick(View v) {
         Toast.makeText(this, "Model has been reset (but not really)", Toast.LENGTH_SHORT).show();
-        return false;
+        return true;
     }
 }

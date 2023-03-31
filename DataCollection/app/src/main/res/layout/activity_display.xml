@@ -66,11 +66,9 @@
                     android:rotation="0" />
 
                 <Button
-                    android:id="@+id/runModelButton"
+                    android:id="@+id/stopActivityButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:enabled="true"
-                    android:gravity="center"
                     android:text="Stop activity" />
 
                 <Space

@@ -26,7 +26,7 @@ public class SelectActivity extends Activity {
 
     public void startDisplayActivity(){
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
     }

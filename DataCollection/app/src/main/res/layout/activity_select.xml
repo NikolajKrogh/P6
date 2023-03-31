@@ -75,14 +75,14 @@
                 </RadioGroup>
 
                 <Button
-                    android:id="@+id/runModelButton"
+                    android:id="@+id/startActivityButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="onStartButtonClick"
                     android:text="Start activity" />
 
                 <Button
-                    android:id="@+id/exitButton"
+                    android:id="@+id/selectActivityBackButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="onBackButtonClick"
