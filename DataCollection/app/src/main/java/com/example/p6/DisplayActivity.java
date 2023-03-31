@@ -1,6 +1,8 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Mode.*;
+import static com.example.p6.MainActivity.Screen.*;
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,10 +22,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.p6.classes.NearestCentroid;
 import com.example.p6.databinding.ActivityDisplayBinding;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +39,6 @@ import java.util.List;
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
-
     enum Time {
         MINUTES,
         SECONDS,
@@ -90,9 +94,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //endregion
 
+    private NearestCentroid nearestCentroid = new NearestCentroid();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
+        MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -105,6 +111,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+
+        /*if (mode == RUN_MODEL) {
+            Context context = getApplicationContext();
+            String fileName = "centroids/centroids.csv";
+            String filePath = context.getFilesDir() + "/" + fileName;
+            File csvFile = new File(filePath);
+            if (!csvFile.exists()) {
+                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+            }
+        }*/
+
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }

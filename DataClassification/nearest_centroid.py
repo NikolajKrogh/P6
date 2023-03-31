@@ -9,7 +9,7 @@ from scipy.stats import zscore
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
-NUMBER_OF_INPUT_PARAMETER = 2 #number of columns (heartrate,stepcounter)
+NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
 #endregion
 
 #region imported data 
@@ -25,6 +25,7 @@ session_id_as_string = 'session_id'
 label_as_string = "label"
 #endregion
 
+centroid_sizes = []
 
 def get_unique_session_ids(data_frame):
     return data_frame.loc[:,session_id_as_string].unique()
@@ -32,6 +33,7 @@ def get_unique_session_ids(data_frame):
 #returns a number representing how many rows there should be in the budget time series dataframe
 def get_budget_time_series_row_count(data_frame):
     result = 0
+    previous_result = 0
     for i in range(NUMBER_OF_LABELS): #number of labels = 4, and they are indexed from 0, so we loop from 0 through 3
         data_frame_with_label = data_frame[(data_frame[label_as_string]==i)]
         if np.isnan(data_frame_with_label.loc[:,minute_timestamp_as_string].max()): #if there are no rows with that label
@@ -40,6 +42,8 @@ def get_budget_time_series_row_count(data_frame):
         for session_id in unique_session_ids:
             data_frame_with_session_id = data_frame_with_label[(data_frame_with_label[session_id_as_string]==session_id)]
             result += data_frame_with_session_id.loc[:,minute_timestamp_as_string].nunique()
+        centroid_sizes.append(result-previous_result)
+        previous_result = result
     return result 
 
 def get_data_frame_with_label(data_frame,label):
@@ -86,7 +90,7 @@ def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,
 
 def make_budget_time_series_from_data_frame(data_frame):
     row_count = int(get_budget_time_series_row_count(data_frame))
-    X = np.empty((row_count,NUMBER_OF_INPUT_PARAMETER))  #row,column
+    X = np.empty((row_count,NUMBER_OF_INPUT_PARAMETERS))  #row,column
     y = np.empty((row_count,1)) #row,column. 1 is number of columns (label)
     max_minute = int(data_frame.loc[:,minute_timestamp_as_string].nunique())
     budget_time_series_index = 0
@@ -114,14 +118,29 @@ if __name__ == '__main__':
     
     scaler = preprocessing.StandardScaler()
     X_standard_scaled = scaler.fit_transform(X)
-    
-    
+    print(y)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
-  
     nearest_centroid = NearestCentroid() 
-    
     nearest_centroid.fit(X_train, np.ravel(y_train))
-    print(nearest_centroid.centroids_) 
+    centroids = nearest_centroid.centroids_
+    final_centroids = []
+
+    
+    for i in range(len(centroids)):
+        centroid = []
+        centroid.append(centroids[i][0]) #adds label
+        centroid.append(centroids[i][1]) #adds centroid size (number of datapoints(minutes) for that centroid) 
+        centroid.append(i)
+        centroid.append(centroid_sizes[i])
+        final_centroids.append(centroid)
+        
+        
+        
+    print(final_centroids)
+        
+        
+    #print(centroids)
+    
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
-
+    
