@@ -9,7 +9,7 @@ from scipy.stats import zscore
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
-NUMBER_OF_INPUT_PARAMETER = 2 #number of columns (heartrate,stepcounter)
+NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
 #endregion
 
 #region imported data 
@@ -90,7 +90,7 @@ def add_budget_time_series_row(row_index,data_frame_with_label,X,y,label,minute,
 
 def make_budget_time_series_from_data_frame(data_frame):
     row_count = int(get_budget_time_series_row_count(data_frame))
-    X = np.empty((row_count,NUMBER_OF_INPUT_PARAMETER))  #row,column
+    X = np.empty((row_count,NUMBER_OF_INPUT_PARAMETERS))  #row,column
     y = np.empty((row_count,1)) #row,column. 1 is number of columns (label)
     max_minute = int(data_frame.loc[:,minute_timestamp_as_string].nunique())
     budget_time_series_index = 0

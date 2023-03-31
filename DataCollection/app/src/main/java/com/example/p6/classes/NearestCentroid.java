@@ -1,6 +1,5 @@
 package com.example.p6.classes;
 
-import android.app.Activity;
 import android.content.Context;
 
 import java.io.File;
@@ -8,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-import android.os.Bundle;
 import android.util.Log;
 
 import com.opencsv.CSVReader;
@@ -16,14 +14,14 @@ import com.opencsv.exceptions.CsvValidationException;
 
 public class NearestCentroid {
     int NUMBER_OF_LABELS = 4;
-    int NUMBER_OF_INPUT_PARAMETER = 2;
+    int NUMBER_OF_INPUT_PARAMETERS = 2;
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
         LABEL,
         CENTROID_SIZE
     }
-    double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETER];
+    double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
         {103.66115908541717, 108.26506024096386, 1, 215},
         {168.35690810370753, 163.85714285714286, 2, 96},
@@ -41,7 +39,6 @@ public class NearestCentroid {
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         String fileName = "centroids/centroids.csv";
-
         String filePath = context.getFilesDir() + "/" + fileName;
 
         Log.i("filePath", filePath);
@@ -57,20 +54,17 @@ public class NearestCentroid {
                 centroids[i] = convertStringArrayToDoubleArray(nextEntry);
             }
         }
-        catch (IOException e)
-        {
+        catch (IOException e) {
             throw new IOException();
         }
-        catch (CsvValidationException e)
-        {
+        catch (CsvValidationException e) {
             throw new CsvValidationException();
         }
 
     }
 
 
-    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids)
-    {
+    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
         String result = "heart_rate,step_count,label,centroid_size,update_threshold\n";
         for (int label = 0; label < NUMBER_OF_LABELS; label++) {
             result += String.format("%d,%d,%s,%s,0\n",centroids[HeaderValues.HEART_RATE.ordinal()],
@@ -99,14 +93,11 @@ public class NearestCentroid {
             FileOutputStream writer = new FileOutputStream(file);
             writer.write(content.getBytes());
             writer.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
-
-
 }
 
 
