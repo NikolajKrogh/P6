@@ -1,6 +1,8 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Mode.*;
+import static com.example.p6.MainActivity.Screen.*;
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -96,7 +98,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
+        MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

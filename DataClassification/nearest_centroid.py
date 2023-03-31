@@ -128,8 +128,8 @@ if __name__ == '__main__':
     
     for i in range(len(centroids)):
         centroid = []
-        centroid.append(centroids[i][0])
-        centroid.append(centroids[i][1])
+        centroid.append(centroids[i][0]) #adds label
+        centroid.append(centroids[i][1]) #adds centroid size (number of datapoints(minutes) for that centroid) 
         centroid.append(i)
         centroid.append(centroid_sizes[i])
         final_centroids.append(centroid)
