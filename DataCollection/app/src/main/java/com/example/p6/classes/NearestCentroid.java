@@ -1,4 +1,4 @@
-package com.example.p6;
+package com.example.p6.classes;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,7 +14,7 @@ import android.util.Log;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
-public class NearestCentroidActivity extends Activity {
+public class NearestCentroid {
     int NUMBER_OF_LABELS = 4;
     int NUMBER_OF_INPUT_PARAMETER = 2;
     enum HeaderValues {
@@ -24,23 +24,12 @@ public class NearestCentroidActivity extends Activity {
         CENTROID_SIZE
     }
     double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETER];
-    double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
+    public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
         {103.66115908541717, 108.26506024096386, 1, 215},
         {168.35690810370753, 163.85714285714286, 2, 96},
         {117.41208256764986, 0.19672131147540983, 3, 79}};
 
     //implement such that we create the centroid file if it does not exists based on the above centroids
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Context context = getApplicationContext();
-        String fileName = "centroids/centroids.csv";
-        String filePath = context.getFilesDir() + "/" + fileName;
-        File csvFile = new File(filePath);
-        if (!csvFile.exists()) {
-            writeCentroidsToFile(generalModelCentroids);
-        }
-    }
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
         int arrayLength = stringArray.length;
         double[] result = new double[arrayLength];
@@ -50,8 +39,7 @@ public class NearestCentroidActivity extends Activity {
         return result;
     }
 
-    public void getCentroidsFromFile() throws IOException, CsvValidationException {
-        Context context = getApplicationContext();
+    public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         String fileName = "centroids/centroids.csv";
 
         String filePath = context.getFilesDir() + "/" + fileName;
@@ -95,8 +83,7 @@ public class NearestCentroidActivity extends Activity {
 
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
-    public void writeCentroidsToFile(double[][] centroids) {
-        Context context = getApplicationContext();
+    public void writeCentroidsToFile(double[][] centroids, Context context) {
         String fileName = "centroids/centroids.csv";
         String content = makeStringToInsertIntoCsvFromCentroids(centroids);
         File path;

@@ -1,5 +1,7 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Mode.*;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.p6.classes.NearestCentroid;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -88,6 +91,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //endregion
 
+    private NearestCentroid nearestCentroid = new NearestCentroid();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
@@ -103,6 +108,19 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+
+        if (mode == RUN_MODEL) {
+            Context context = getApplicationContext();
+            String fileName = "centroids/centroids.csv";
+            String filePath = context.getFilesDir() + "/" + fileName;
+            File csvFile = new File(filePath);
+            if (!csvFile.exists()) {
+                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids);
+            }
+        }
+
+
     }
 
     @Override
