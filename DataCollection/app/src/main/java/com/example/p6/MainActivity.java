@@ -15,6 +15,7 @@ import com.example.p6.databinding.ActivityMainBinding;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
+    //region Enums
     enum Activity {
         SITTING,
         WALKING,
@@ -34,11 +35,15 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         SYNCHRONIZE,
         COLLECT_DATA,
     }
+    //endregion
 
+    //region Global variables
     static Activity activityToTrack = WALKING;
     static Screen currentScreen = MAIN;
     static Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
+    //endregion
+
     private Toast myToast;
 
     @Override
@@ -63,57 +68,36 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         BackButtonPressed = false;
     }
 
+    public void goToScreen(Class activityClass){
+        Intent intent = new Intent(MainActivity.this, activityClass);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+    }
+
     public void startCurrentlyRunningActivity(){
         switch (currentScreen){
-            case SELECT:        startSelectActivity();      break;
-            case DISPLAY:       startDisplayActivity();     break;
-            case VIEW_MODEL:    startViewModelActivity();   break;
+            case SELECT:        goToScreen(SelectActivity.class);      break;
+            case DISPLAY:       goToScreen(DisplayActivity.class);     break;
+            case VIEW_MODEL:    goToScreen(ViewModelActivity.class);   break;
         }
     }
 
-    public void startSelectActivity(){
-        Intent intent = new Intent(MainActivity.this, SelectActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
-
-    public void startDisplayActivity(){
-        Intent intent = new Intent(MainActivity.this, DisplayActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
-
-    public void startViewModelActivity(){
-        Intent intent = new Intent(MainActivity.this, ViewModelActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
-    }
-
     public void onRunModelClick(View view){
-        Intent intent = new Intent(MainActivity.this, DisplayActivity.class);
         trackingMode = RUN_MODEL;
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        goToScreen(DisplayActivity.class);
     }
 
     public void onSynchronizeModelClick(View view){
-        Intent intent = new Intent(MainActivity.this, SelectActivity.class);
         trackingMode = SYNCHRONIZE;
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        goToScreen(SelectActivity.class);
     }
 
     public void onViewModelClick(View view){
-        Intent intent = new Intent(MainActivity.this, ViewModelActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        goToScreen(ViewModelActivity.class);
     }
 
     public void onCollectDataClick(View view){
-        Intent intent = new Intent(MainActivity.this, SelectActivity.class);
-        trackingMode = COLLECT_DATA;
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(intent);
+        goToScreen(SelectActivity.class);
     }
 
     public void onExitButtonClick(View view){

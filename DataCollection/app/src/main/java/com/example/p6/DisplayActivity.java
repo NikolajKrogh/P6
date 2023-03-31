@@ -1,5 +1,7 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Mode.*;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -214,7 +216,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
         Intent intent;
-
         if(mode == MainActivity.Mode.RUN_MODEL){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
@@ -270,7 +271,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void writeToFile(String fileName, String content){
-        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
+        myToast.setText("Writing to file ...");
+        myToast.show();
         File path;
         try {
             path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
