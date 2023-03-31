@@ -33,14 +33,6 @@ public class SelectActivity extends Activity {
             ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
         }
-        NearestCentroidActivity a = new NearestCentroidActivity();
-        try {
-            a.getCentroidsFromFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (CsvValidationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void startDisplayActivity(){
