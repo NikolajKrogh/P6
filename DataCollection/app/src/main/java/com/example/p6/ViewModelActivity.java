@@ -13,7 +13,6 @@ public class ViewModelActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i("View model", "Created");
         MainActivity.currentScreen = MainActivity.Screen.VIEW_MODEL;
         super.onCreate(savedInstanceState);
         ActivityViewModelBinding binding = ActivityViewModelBinding.inflate(getLayoutInflater());
