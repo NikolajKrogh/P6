@@ -1,5 +1,7 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Mode.*;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -84,6 +86,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
+    private Toast myToast;
 
     //endregion
 
@@ -102,6 +105,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -109,12 +114,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setScreenBrightness(HIGH_BRIGHTNESS);
     }
 
+    // onLongClick() for stopActivityButton
     @Override
     public void onClick(View v) {
-        Toast toastMessage = Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT);
-        toastMessage.show();
+        myToast.setText("Press and hold to stop");
+        myToast.show();
     }
 
+    // onLongClick() for stopActivityButton
     @Override
     public boolean onLongClick(View v) {
         stopActivity();
@@ -186,7 +193,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
         Intent intent;
-
         if(mode == MainActivity.Mode.RUN_MODEL){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
@@ -235,7 +241,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void writeToFile(String fileName, String content){
-        Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
+        myToast.setText("Writing to file ...");
+        myToast.show();
         File path;
         try {
             path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
