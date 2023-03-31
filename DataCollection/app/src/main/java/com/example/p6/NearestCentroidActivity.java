@@ -4,32 +4,47 @@ import android.app.Activity;
 import android.content.Context;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 public class NearestCentroidActivity extends Activity {
-    double[][] centroids = new double[4][2];
-    double[][] generalModelCentroids = {{ 75.02328728,0.},
+    int NUMBER_OF_LABELS = 4;
+    int NUMBER_OF_INPUT_PARAMETER = 2;
+    enum HeaderValues {
+        HEART_RATE,
+        STEP_COUNT,
+        LABEL,
+        CENTROID_SIZE
+    }
+    double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETER];
+    double[][] generalModelCentroids = {{ 75.02328728,0},
     {103.66115909,108.26506024},
     {168.3569081,163.85714286},
     {117.41208257,0.19672131}};
-    //implement such that we create the centroid file if it does not exists based on the above centroids
-        /* put this into csv file:
-        acc_x,acc_y,acc_z,heart_rate,step_count,label
-        0.0165657,0.0223076,0.01979614,0.24783714,0,0
-        0.38013184,0.40207441,0.32950732,0.54220732,0.44964295,1
-        0.2501793,0.16848506,0.16003128,0.61625866,0.22464558,3
-         */
 
+    //implement such that we create the centroid file if it does not exists based on the above centroids
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Context context = getApplicationContext();
+        String fileName = "centroids/centroids.csv";
+        String filePath = context.getFilesDir() + "/" + fileName;
+        File csvFile = new File(filePath);
+        if (!csvFile.exists())
+        {
+            writeCentroidsToFile(generalModelCentroids);
+        }
+
+
+
+    }
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
         int arrayLength = stringArray.length;
         double[] result = new double[arrayLength];
@@ -44,10 +59,11 @@ public class NearestCentroidActivity extends Activity {
         String fileName = "centroids/centroids.csv";
 
         String filePath = context.getFilesDir() + "/" + fileName;
+
         Log.i("filePath", filePath);
         try {
             FileReader filereader = new FileReader(filePath);
-            CSVReader csvReader = new CSVReader(filereader);        
+            CSVReader csvReader = new CSVReader(filereader);
 
             String[] nextEntry;
             int i = 0;
@@ -69,15 +85,24 @@ public class NearestCentroidActivity extends Activity {
     }
 
 
-    public void formatCentroidsToCsv(double[][] centroids)
+    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids)
     {
-        
+        String result = "heart_rate,step_count,label,centroid_size,update_threshold\n";
+        for (int label = 0; label < NUMBER_OF_LABELS; label++) {
+            result += String.format("%d,%d,%s,%s,0\n",centroids[HeaderValues.HEART_RATE.ordinal()],
+                    centroids[HeaderValues.STEP_COUNT.ordinal()],
+                    centroids[HeaderValues.LABEL.ordinal()],
+                    centroids[HeaderValues.CENTROID_SIZE.ordinal()]);
+        }
+        return result;
     }
+
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
     public void writeCentroidsToFile(double[][] centroids) {
         Context context = getApplicationContext();
         String fileName = "centroids/centroids.csv";
+        String content = makeStringToInsertIntoCsvFromCentroids(centroids);
         File path;
 
         try {
@@ -91,9 +116,6 @@ public class NearestCentroidActivity extends Activity {
             FileOutputStream writer = new FileOutputStream(file);
             writer.write(content.getBytes());
             writer.close();
-
-            // Resets the data points to add
-            dataPointsToAdd = "";
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
