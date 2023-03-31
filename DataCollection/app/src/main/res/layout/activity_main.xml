@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".DisplayActivity"
+    tools:context=".MainActivity"
     tools:deviceIds="wear">
 
     <ScrollView
@@ -27,49 +27,50 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp" />
 
-                <TextView
-                    android:id="@+id/heartRateText"
+                <Button
+                    android:id="@+id/runModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Heart rate" />
-
-                <TextView
-                    android:id="@+id/stepCountText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Step count" />
-
-                <TextView
-                    android:id="@+id/timerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Timer" />
-
-                <TextView
-                    android:id="@+id/timesWrittenToFileText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Times written to file" />
-
-                <ProgressBar
-                    android:id="@+id/dataPointProgressBar"
-                    style="@android:style/Widget.Holo.Light.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:indeterminate="false"
-                    android:max="100"
-                    android:progressTint="#03A9F4"
-                    android:rotation="0" />
+                    android:onClick="onRunModelClick"
+                    android:text="Run model" />
 
                 <Button
-                    android:id="@+id/stopActivityButton"
+                    android:id="@+id/synchronizeModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Stop activity" />
+                    android:onClick="onSynchronizeModelClick"
+                    android:text="Synchronize model" />
+
+                <Button
+                    android:id="@+id/viewModelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onViewModelClick"
+                    android:text="View model" />
+
+                <Button
+                    android:id="@+id/collectDataButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onCollectDataClick"
+                    android:text="Collect data" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp" />
+
+                <Button
+                    android:id="@+id/exitAppButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onExitButtonClick"
+                    android:text="Exit app" />
+
+                <Button
+                    android:id="@+id/resetModelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reset model" />
 
                 <Space
                     android:layout_width="match_parent"

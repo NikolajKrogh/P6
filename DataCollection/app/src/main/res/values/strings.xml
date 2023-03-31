@@ -7,4 +7,7 @@
     <string name="title_activity_nearest_centroid">NearestCentroidActivity!</string>
     <string name="title_activity_display">DisplayActivity</string>
     <string name="title_activity_select">SelectActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_model">ModelActivity</string>
+    <string name="title_activity_view_model">ViewModelActivity</string>
 </resources>
