@@ -218,6 +218,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         else {
             intent = new Intent(DisplayActivity.this, SelectActivity.class);
         }
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
     }
