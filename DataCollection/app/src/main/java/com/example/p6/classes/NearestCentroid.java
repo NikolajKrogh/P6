@@ -83,7 +83,7 @@ public class NearestCentroid {
         File path;
 
         try {
-            path = context.getDir(fileName, Context.MODE_PRIVATE); // Use MODE_APPEND if you don't want to overwrite the content
+            path = context.getDir(fileName, Context.MODE_PRIVATE);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
