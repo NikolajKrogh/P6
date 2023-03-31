@@ -98,6 +98,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("Create", "Create");
         MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
@@ -186,6 +187,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
+                    Log.i("i", String.valueOf(numberOfDataPointsAdded));
                 }
                 else {
                     writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
@@ -218,6 +220,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         else {
             intent = new Intent(DisplayActivity.this, SelectActivity.class);
         }
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
     }

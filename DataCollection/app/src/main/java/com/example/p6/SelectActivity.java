@@ -24,10 +24,6 @@ public class SelectActivity extends Activity {
     }
 
     public void onStartButtonClick(View view){
-        startDisplayActivity();
-    }
-
-    public void startDisplayActivity(){
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
