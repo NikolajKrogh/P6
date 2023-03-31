@@ -1,11 +1,14 @@
 package com.example.p6;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+
 import com.example.p6.databinding.ActivitySelectBinding;
 
 
@@ -33,11 +36,17 @@ public class SelectActivity extends Activity {
         }
     }
 
+    public static int getBatteryPercentage(Context context) {
+        BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+        return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+    }
     public void startDisplayActivity(){
         Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("activityToTrack", activityToTrack.ordinal());
         startActivity(intent);
+
+        Log.i("BatteryLevelStart",Integer.toString(getBatteryPercentage(getApplicationContext())));
         finish();
     }
 

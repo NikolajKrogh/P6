@@ -1,5 +1,7 @@
 package com.example.p6;
 
+import static com.example.p6.SelectActivity.getBatteryPercentage;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,14 +10,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import com.example.p6.databinding.ActivityDisplayBinding;
 
@@ -24,42 +25,12 @@ import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
-
-    static class Row{
-        String timestamp;
-        String minutes;
-        String heartRate;
-        String acc_x;
-        String acc_y;
-        String acc_z;
-        String step_count;
-        String label;
-
-        public Row(String timestamp, String minutes, String heart_rate, String acc_x, String acc_y, String acc_z, String step_count, String label)
-        {
-            this.timestamp = timestamp;
-            this.minutes = minutes;
-            this.heartRate = heart_rate;
-            this.acc_x = acc_x;
-            this.acc_y = acc_y;
-            this.acc_z = acc_z;
-            this.step_count = step_count;
-            this.label = label;
-        }
-        @NonNull
-        @Override
-        public String toString(){
-            return String.format("%s,%s,%s,%s,%s,%s,%s,%s\n", timestamp,minutes, heartRate,
-                    acc_x,acc_y,acc_z,step_count,label);
-        }
-    }
-
     enum Time {
         MINUTES,
         SECONDS,
@@ -81,9 +52,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Heart rate variables
-    private Sensor senHeartRateCounter;
-    private TextView heartRateText;
-    private float heartRate = 0;
     private long firstTimestamp = 0;
     private long latestTimestamp = 0;
     //endregion
@@ -98,7 +66,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Data point variables
-    private List<Row> rows = new ArrayList();
     private short numberOfDataPointsAdded = 0;
     private String dataPointsToAdd = "timestamp,minutes,heart_rate,acc_x,acc_y,acc_z," +
             "step_count,label\n";
@@ -149,6 +116,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     public boolean onLongClick(View v) {
+        Log.i("BatteryLevelStop",Integer.toString(getBatteryPercentage(getApplicationContext())));
         stopActivity();
         return false;
     }
@@ -176,7 +144,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void getSensors(){
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         senAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        senHeartRateCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         senStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
     }
 
@@ -184,7 +151,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         ActivityDisplayBinding binding = ActivityDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         accelerometerText = binding.accelerometerText;
-        heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
         timerText = binding.timerText;
         timesWrittenToFileText = binding.timesWrittenToFileText;
@@ -192,7 +158,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void registerListeners(){
         mSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, senHeartRateCounter, SensorManager.SENSOR_DELAY_FASTEST);
         mSensorManager.registerListener(this, senStepCounter, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
@@ -200,11 +165,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
         }
-        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
-            heartRate = event.values[0];
-            heartRateText.setText("Heart Rate: " + heartRate);
-        }
-        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION && heartRate > 0) {
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
@@ -213,8 +174,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 float z_axis = event.values[2];
                 if (numberOfDataPointsAdded <= 500){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, x_axis,
-                            y_axis, z_axis,  accumulatedStepCount, rows);
+                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, x_axis,
+                            y_axis, z_axis,  accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -251,7 +212,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void unregisterListeners(){
         mSensorManager.unregisterListener(this, senAccelerometer);
-        mSensorManager.unregisterListener(this, senHeartRateCounter);
         mSensorManager.unregisterListener(this, senStepCounter);
     }
 
@@ -280,21 +240,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float acc_x, float acc_y,
-                                      float acc_z, float step_count, @NonNull List<Row> rows) {
+    public void insertDataAtTimeStamp(long timestamp, long minutes, float acc_x, float acc_y, float acc_z, float step_count) {
         int label = activityToTrack.ordinal();
-        Row row = new Row(
-                Long.toString(timestamp),
-                Long.toString(minutes),
-                Float.toString(heartRate),
-                Float.toString(acc_x),
-                Float.toString(acc_y),
-                Float.toString(acc_z),
-                Float.toString(step_count),
-                Integer.toString(label)
-        );
-        rows.add(row);
-        dataPointsToAdd += row.toString();
+        List<String> row = Arrays.asList(String.format("%s,%s,%s,%s,%s,%d,%s\n", timestamp, minutes, acc_x, acc_y, acc_z,(long)step_count, label));
+        dataPointsToAdd += String.join(",",row);
     }
 
     public void writeToFile(String fileName, String content){
