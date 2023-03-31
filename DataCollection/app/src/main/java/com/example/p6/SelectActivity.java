@@ -49,6 +49,7 @@ public class SelectActivity extends Activity {
 
     public void onBackButtonClick(View view) {
         Intent intent = new Intent(SelectActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         MainActivity.BackButtonPressed = true;
         startActivity(intent);
         finish();
