@@ -116,7 +116,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             String filePath = context.getFilesDir() + "/" + fileName;
             File csvFile = new File(filePath);
             if (!csvFile.exists()) {
-                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids);
+                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
             }
         }
 
