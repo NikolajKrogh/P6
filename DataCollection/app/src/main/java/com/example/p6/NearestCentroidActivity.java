@@ -24,10 +24,10 @@ public class NearestCentroidActivity extends Activity {
         CENTROID_SIZE
     }
     double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETER];
-    double[][] generalModelCentroids = {{ 75.02328728,0},
-    {103.66115909,108.26506024},
-    {168.3569081,163.85714286},
-    {117.41208257,0.19672131}};
+    double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
+        {103.66115908541717, 108.26506024096386, 1, 215},
+        {168.35690810370753, 163.85714285714286, 2, 96},
+        {117.41208256764986, 0.19672131147540983, 3, 79}};
 
     //implement such that we create the centroid file if it does not exists based on the above centroids
     @Override
@@ -37,13 +37,9 @@ public class NearestCentroidActivity extends Activity {
         String fileName = "centroids/centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
         File csvFile = new File(filePath);
-        if (!csvFile.exists())
-        {
+        if (!csvFile.exists()) {
             writeCentroidsToFile(generalModelCentroids);
         }
-
-
-
     }
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
         int arrayLength = stringArray.length;

@@ -118,11 +118,8 @@ if __name__ == '__main__':
     
     scaler = preprocessing.StandardScaler()
     X_standard_scaled = scaler.fit_transform(X)
-    
     print(y)
-    print("--------------")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
-    print(y_train)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
     centroids = nearest_centroid.centroids_
