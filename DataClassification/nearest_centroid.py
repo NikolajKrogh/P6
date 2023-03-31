@@ -124,4 +124,4 @@ if __name__ == '__main__':
     print(nearest_centroid.centroids_) 
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
-
+    
