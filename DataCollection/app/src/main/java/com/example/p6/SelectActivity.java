@@ -1,64 +1,53 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Activity.*;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+
 import com.example.p6.databinding.ActivitySelectBinding;
 
 
 public class SelectActivity extends Activity {
-
-    enum Activity {
-        SITTING,
-        WALKING,
-        RUNNING,
-        CYCLING
-    }
-
-    private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(!isTaskRoot()){  // If DisplayActivity is already running, redirect to that
-            startDisplayActivity();
-        }
-        else {
-            super.onCreate(savedInstanceState);
-            ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
-            setContentView(binding.getRoot());
-        }
-    }
-
-    public void startDisplayActivity(){
-        Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("activityToTrack", activityToTrack.ordinal());
-        startActivity(intent);
-        finish();
+        MainActivity.currentScreen = MainActivity.Screen.SELECT;
+        super.onCreate(savedInstanceState);
+        ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
     }
 
     public void onStartButtonClick(View view){
         startDisplayActivity();
     }
 
-    public void onRadioButtonSitting(View view) {
-        activityToTrack = SelectActivity.Activity.SITTING;
-    }
-    public void onRadioButtonWalking(View view) {
-        activityToTrack = SelectActivity.Activity.WALKING;
-    }
-    public void onRadioButtonRunning(View view) {
-        activityToTrack = SelectActivity.Activity.RUNNING;
-    }
-    public void onRadioButtonCycling(View view) {
-        activityToTrack = SelectActivity.Activity.CYCLING;
+    public void startDisplayActivity(){
+        Intent intent = new Intent(SelectActivity.this, DisplayActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        finish();
     }
 
-    public void onExitButtonClick(View view) {
-        finishAndRemoveTask();
-        System.exit(0);
+    public void onRadioButtonSitting(View view) {
+        MainActivity.activityToTrack = SITTING;
+    }
+    public void onRadioButtonWalking(View view) {
+        MainActivity.activityToTrack = WALKING;
+    }
+    public void onRadioButtonRunning(View view) {
+        MainActivity.activityToTrack = RUNNING;
+    }
+    public void onRadioButtonCycling(View view) {
+        MainActivity.activityToTrack = CYCLING;
+    }
+
+    public void onBackButtonClick(View view) {
+        Intent intent = new Intent(SelectActivity.this, MainActivity.class);
+        MainActivity.BackButtonPressed = true;
+        startActivity(intent);
+        finish();
     }
 }

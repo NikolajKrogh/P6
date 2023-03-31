@@ -25,7 +25,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
                 <RadioGroup
                     android:id="@+id/radioButtonGroup"
@@ -68,24 +68,29 @@
                         android:onClick="onRadioButtonCycling"
                         android:text="Cycling" />
 
-                    <Button
-                        android:id="@+id/startButton"
+                    <Space
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:onClick="onStartButtonClick"
-                        android:text="Start activity" />
+                        android:layout_height="25dp" />
+
                 </RadioGroup>
 
                 <Button
-                    android:id="@+id/exitButton"
+                    android:id="@+id/startActivityButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onExitButtonClick"
-                    android:text="Exit app" />
+                    android:onClick="onStartButtonClick"
+                    android:text="Start activity" />
+
+                <Button
+                    android:id="@+id/selectActivityBackButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onBackButtonClick"
+                    android:text="Go back" />
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="53dp" />
+                    android:layout_height="50dp" />
 
             </LinearLayout>
 

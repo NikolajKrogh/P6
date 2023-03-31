@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -76,27 +77,29 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
+    private MainActivity.Activity activityToTrack = MainActivity.activityToTrack;
+    private MainActivity.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
-    private SelectActivity.Activity activityToTrack = SelectActivity.Activity.WALKING;
     private LocalDateTime dateTime;
     private TextView timerText;
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
+
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MainActivity.currentScreen = MainActivity.Screen.DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        retrieveDataFromPreviousActvity();
 
         getSensors();
         bindTextToVariables();
         dateTime = LocalDateTime.now();
         registerListeners();
 
-        Button stopButton = findViewById(R.id.stopButton);
+        Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
     }
@@ -108,33 +111,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT).show();
+        Toast toastMessage = Toast.makeText(this, "Press and hold to stop", Toast.LENGTH_SHORT);
+        toastMessage.show();
     }
 
     @Override
     public boolean onLongClick(View v) {
         stopActivity();
-        return false;
+        return true;
     }
 
     public void setScreenBrightness(float brightness){
         WindowManager.LayoutParams WMLP = getWindow().getAttributes();
         WMLP.screenBrightness = brightness;
         getWindow().setAttributes(WMLP);
-    }
-
-    public void retrieveDataFromPreviousActvity(){
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        if(extras != null){
-            int activityOrdinal = extras.getInt("activityToTrack");
-            activityToTrack = SelectActivity.Activity.values()[activityOrdinal];
-        }
-    }
-
-    // Make back button act as home button
-    public void onBackPressed() {
-        moveTaskToBack(false);
     }
 
     public void getSensors(){
@@ -167,7 +157,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-
                 if (numberOfDataPointsAdded < 100){
                     long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
@@ -196,8 +185,15 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         unregisterListeners();
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
-        Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intent;
+
+        if(mode == MainActivity.Mode.RUN_MODEL){
+            intent = new Intent(DisplayActivity.this, MainActivity.class);
+            MainActivity.BackButtonPressed = true;
+        }
+        else {
+            intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        }
         startActivity(intent);
         finish();
     }
@@ -242,7 +238,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Toast.makeText(getApplicationContext(), "Writing to file ...", Toast.LENGTH_SHORT).show();
         File path;
         try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND); // Use MODE_APPEND if you don't want to overwrite the content
+            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
