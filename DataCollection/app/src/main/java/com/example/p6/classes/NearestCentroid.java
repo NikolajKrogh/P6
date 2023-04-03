@@ -65,9 +65,9 @@ public class NearestCentroid {
 
 
     public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size,update_threshold\n";
+        String result = "heart_rate,step_count,label,centroid_size\n";
         for (int label = 0; label < NUMBER_OF_LABELS; label++) {
-            result += String.format("%d,%d,%s,%s,0\n",centroids[HeaderValues.HEART_RATE.ordinal()],
+            result += String.format("%d,%d,%s,%s\n",centroids[HeaderValues.HEART_RATE.ordinal()],
                     centroids[HeaderValues.STEP_COUNT.ordinal()],
                     centroids[HeaderValues.LABEL.ordinal()],
                     centroids[HeaderValues.CENTROID_SIZE.ordinal()]);
