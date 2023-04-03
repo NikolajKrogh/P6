@@ -200,10 +200,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     numberOfDataPointsAdded++;
                 }
                 else {
-                    writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-                    timesWrittenToFile++;
-                    timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
-                    numberOfDataPointsAdded = 0;
+                    switch (mode){
+                        case RUN_MODEL:     addDataPointsToCorrespondingFile();     break;
+                        case SYNCHRONIZE:                                           break;
+                        case COLLECT_DATA:  addDataPointsToFile();                  break;
+                    }
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
@@ -211,6 +212,21 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 latestTimestamp = currentTimestamp;
             }
         }
+    }
+
+    private void addDataPointsToCorrespondingFile(){
+        preprocessData();
+    }
+
+    private void preprocessData(){
+
+    }
+
+    private void addDataPointsToFile(){
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        timesWrittenToFile++;
+        timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
+        numberOfDataPointsAdded = 0;
     }
 
     @Override
