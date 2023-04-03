@@ -112,7 +112,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
+
+        //Run Model page
         if(mode == RUN_MODEL){
             double[][] newCentroids = {{70.02328727800564, 0.0, 0, 100},
                     {110.66115908541717, 105.26506024096386, 1, 100},
@@ -121,6 +124,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             double[][] placeholder;
             placeholder = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
+
+            String test = nearestCentroid.multiDimensionalArrayToString(placeholder);
+
+            writeToFile("test" + ".csv", test);
+
+
         }
 
         /*if (mode == RUN_MODEL) {
@@ -133,8 +142,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }*/
 
-
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -275,6 +282,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         File path;
         try {
             path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
+            System.out.println(path);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

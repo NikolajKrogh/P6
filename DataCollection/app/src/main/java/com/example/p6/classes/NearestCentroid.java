@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import android.util.Log;
 
@@ -100,18 +101,18 @@ public class NearestCentroid {
         }
     }
 
-
+    //****************
+    // Update model
+    //****************
     static final int HR = 0;
     static final int STEP_COUNT = 1;
     static final int CENTROID_SIZE = 3;
-    // Update model
+
     public double[][] updateModel(double[][] centroids, double[][] newCentroids) {
 
         //preprocessing(newCentroids);
 
-        System.out.println("**************************");
         System.out.println("Before: "+Arrays.deepToString(centroids));
-        System.out.println("**************************");
 
         for(int i = 0; i < 4; i++){
             // maybe check if anything is empty
@@ -123,20 +124,24 @@ public class NearestCentroid {
             centroids[i][CENTROID_SIZE] = centroids[i][CENTROID_SIZE] + newCentroids[i][CENTROID_SIZE];
         }
 
-        System.out.println("**************************");
         System.out.println("After: "+Arrays.deepToString(centroids));
-        System.out.println("**************************");
 
         return centroids;
     }
 
+    public String multiDimensionalArrayToString(double[][] updatedCentroids){
+        StringBuilder sb = new StringBuilder();
+
+        for (double[] row : updatedCentroids) {
+            for (double element: row)
+                sb.append(element).append(",");
+        }
+
+        return sb.toString();
+    }
+
     double addToAverage(double average, double size, double value)
     {
-        // This does not handle increasing the number
-        // of data points in the centroid
-
-
-
         return (size * average + value) / (size + 1);
     }
 
