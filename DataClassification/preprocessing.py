@@ -13,9 +13,6 @@ path = r"data\to_combine"
 timestamp = "timestamp"
 minute_timestamp = "minutes"
 heartrate = "heart_rate"
-x_accelerometer = "acc_x"
-y_accelerometer = "acc_y"
-z_accelerometer = "acc_z"
 step_count = "step_count"
 session_id = "session_id"
 label = "label"
@@ -52,8 +49,7 @@ def add_session_id(file):
     return file
 
 def save_csv(file,filepath):
-    file = file[[timestamp,minute_timestamp,heartrate,x_accelerometer,y_accelerometer,
-                 z_accelerometer,step_count,session_id,label]]
+    file = file[[timestamp,minute_timestamp,heartrate,step_count,session_id,label]]
     file.dropna(inplace = True)
     file.to_csv(filepath,index=False)
 
