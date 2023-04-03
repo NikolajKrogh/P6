@@ -1,8 +1,8 @@
 package com.example.p6;
 
+import static com.example.p6.MainActivity.Activity.*;
 import static com.example.p6.MainActivity.Mode.*;
 import static com.example.p6.MainActivity.Screen.*;
-
 
 import android.app.Activity;
 import android.content.Context;
@@ -91,6 +91,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private TextView timesWrittenToFileText;
     private int timesWrittenToFile = 0;
     private Toast myToast;
+    private TextView activityText;
 
     //endregion
 
@@ -112,6 +113,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
+        setActivityToTrack();
+        activityText.setText("Tracking \"" + activityToTrack + "\"");
+
 
         /*if (mode == RUN_MODEL) {
             Context context = getApplicationContext();
@@ -123,8 +127,15 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }*/
 
+    myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+    }
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+    public void setActivityToTrack(){
+        switch(mode){
+            case RUN_MODEL:     activityToTrack = UNLABELED;                                    break;
+            case SYNCHRONIZE:
+            case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
+        }
     }
 
     @Override
@@ -161,6 +172,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void bindTextToVariables(){
         ActivityDisplayBinding binding = ActivityDisplayBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        activityText = binding.activityText;
         heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
         timerText = binding.timerText;

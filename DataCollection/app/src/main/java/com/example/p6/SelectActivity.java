@@ -1,6 +1,7 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
+import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,7 +18,8 @@ import java.io.IOException;
 public class SelectActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MainActivity.currentScreen = MainActivity.Screen.SELECT;
+        MainActivity.currentScreen = SELECT;
+        MainActivity.activityToTrack = WALKING;
         super.onCreate(savedInstanceState);
         ActivitySelectBinding binding = ActivitySelectBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
