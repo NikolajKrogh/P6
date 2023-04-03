@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 import android.util.Log;
 
@@ -23,9 +24,9 @@ public class NearestCentroid {
     }
     double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
-        {103.66115908541717, 108.26506024096386, 1, 215},
-        {168.35690810370753, 163.85714285714286, 2, 96},
-        {117.41208256764986, 0.19672131147540983, 3, 79}};
+                                               {103.66115908541717, 108.26506024096386, 1, 215},
+                                               {168.35690810370753, 163.85714285714286, 2, 96},
+                                               {117.41208256764986, 0.19672131147540983, 3, 79}};
 
     //implement such that we create the centroid file if it does not exists based on the above centroids
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
@@ -98,6 +99,50 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
+
+
+    static final int HR = 0;
+    static final int STEP_COUNT = 1;
+    static final int CENTROID_SIZE = 3;
+    // Update model
+    public double[][] updateModel(double[][] centroids, double[][] newCentroids) {
+
+        //preprocessing(newCentroids);
+
+        System.out.println("**************************");
+        System.out.println("Before: "+Arrays.deepToString(centroids));
+        System.out.println("**************************");
+
+        for(int i = 0; i < 4; i++){
+            // maybe check if anything is empty
+            centroids[i][HR] = addToAverage(centroids[i][HR],
+                                    centroids[i][CENTROID_SIZE], newCentroids[i][HR]);
+            centroids[i][STEP_COUNT] = addToAverage(centroids[i][STEP_COUNT],
+                                    centroids[i][CENTROID_SIZE], newCentroids[i][STEP_COUNT]);
+
+            centroids[i][CENTROID_SIZE] = centroids[i][CENTROID_SIZE] + newCentroids[i][CENTROID_SIZE];
+        }
+
+        System.out.println("**************************");
+        System.out.println("After: "+Arrays.deepToString(centroids));
+        System.out.println("**************************");
+
+        return centroids;
+    }
+
+    double addToAverage(double average, double size, double value)
+    {
+        // This does not handle increasing the number
+        // of data points in the centroid
+
+
+
+        return (size * average + value) / (size + 1);
+    }
+
 }
+
+
+
 
 
