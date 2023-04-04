@@ -69,8 +69,8 @@ public class NearestCentroid {
         for (double[] centroid: centroids) {
             result += String.format("%f,%f,%d,%d\n", centroid[HeaderValues.HEART_RATE.ordinal()],
                     centroid[HeaderValues.STEP_COUNT.ordinal()],
-                    centroid[HeaderValues.LABEL.ordinal()],
-                    centroid[HeaderValues.CENTROID_SIZE.ordinal()]);
+                    (int)centroid[HeaderValues.LABEL.ordinal()],
+                    (int)centroid[HeaderValues.CENTROID_SIZE.ordinal()]);
         }
         return result;
     }
