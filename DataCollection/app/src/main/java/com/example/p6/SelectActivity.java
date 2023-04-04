@@ -6,13 +6,9 @@ import static com.example.p6.MainActivity.Screen.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.example.p6.databinding.ActivitySelectBinding;
-import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.IOException;
 
 
 public class SelectActivity extends Activity {

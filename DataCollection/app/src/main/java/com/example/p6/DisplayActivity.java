@@ -1,7 +1,7 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
+import static com.example.p6.MainActivity.Mode.*;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -20,10 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.classes.NearestCentroid;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.databinding.ActivityDisplayBinding;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -98,6 +97,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        Context context = getApplicationContext();
         getSensors();
         bindTextToVariables();
         dateTime = LocalDateTime.now();
@@ -120,8 +120,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             //Converts matrix to string
             String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
 
+            showToast();
             //Write the new centroids to file
-            writeToFile("centroids" + ".csv", stringFormattedCentroids);
+            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
+            // Resets the data points to add
+            dataPointsToAdd = "";
         }
 
         setActivityToTrack();
@@ -142,12 +145,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
-
+    public void showToast(){
+        myToast.setText("Writing to file ...");
+        myToast.show();
+    }
     public void setActivityToTrack(){
         switch(mode){
-            case PREDICT_ACTIVITY:     activityToTrack = UNLABELED;                                    break;
+            case PREDICT_ACTIVITY:
+                activityToTrack = UNLABELED;
+                break;
             case UPDATE_WITH_LABELS:
-            case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
+            case COLLECT_DATA:
+                if (activityToTrack == UNLABELED)
+                    activityToTrack = WALKING;
+                break;
         }
 
     }
@@ -199,6 +210,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void onSensorChanged(SensorEvent event) {
+        Context context = getApplicationContext();
+
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
         }
@@ -214,7 +227,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     numberOfDataPointsAdded++;
                 }
                 else {
-                    writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+                    showToast();
+                    CsvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
+                    // Resets the data points to add
+                    dataPointsToAdd = "";
                     timesWrittenToFile++;
                     timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
                     numberOfDataPointsAdded = 0;
@@ -233,9 +249,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void stopActivity() {
+        Context context = getApplicationContext();
         unregisterListeners();
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-
+        showToast();
+        CsvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
+        // Resets the data points to add
+        dataPointsToAdd = "";
         Intent intent;
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
@@ -285,28 +304,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         dataPointsToAdd += String.join(",",row);
     }
 
-    public void writeToFile(String fileName, String content){
-        myToast.setText("Writing to file ...");
-        myToast.show();
-        File path;
-        try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            File file = new File(path.getPath(),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,true);
-            writer.write(content.getBytes());
-            writer.close();
-
-            // Resets the data points to add
-            dataPointsToAdd = "";
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public long[] getTimeSinceStart(long currentTimestamp){
         long[] TimeSinceStart = new long[3];
