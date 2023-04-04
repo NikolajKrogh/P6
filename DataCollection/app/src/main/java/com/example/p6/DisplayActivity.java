@@ -122,25 +122,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     {160.35690810370753, 155.85714285714286, 2, 100},
                     {120.41208256764986, 0.0, 3, 100}};
 
-            double[][] placeholder;
-            placeholder = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
+            double[][] placeholder = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
 
+            //Converts matrix to string
             String test = nearestCentroid.multiDimensionalArrayToString(placeholder);
 
+            //Write the new centroids to file
             writeToFile("test" + ".csv", test);
-
-
         }
-
-        /*if (mode == RUN_MODEL) {
-            Context context = getApplicationContext();
-            String fileName = "centroids/centroids.csv";
-            String filePath = context.getFilesDir() + "/" + fileName;
-            File csvFile = new File(filePath);
-            if (!csvFile.exists()) {
-                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
-            }
-        }*/
 
     }
 
@@ -282,7 +271,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         File path;
         try {
             path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
-            System.out.println(path);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

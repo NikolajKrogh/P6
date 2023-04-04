@@ -101,18 +101,13 @@ public class NearestCentroid {
         }
     }
 
-    //****************
-    // Update model
-    //****************
+
     static final int HR = 0;
     static final int STEP_COUNT = 1;
     static final int CENTROID_SIZE = 3;
 
     public double[][] updateModel(double[][] centroids, double[][] newCentroids) {
-
         //preprocessing(newCentroids);
-
-        System.out.println("Before: "+Arrays.deepToString(centroids));
 
         for(int i = 0; i < 4; i++){
             // maybe check if anything is empty
@@ -124,12 +119,11 @@ public class NearestCentroid {
             centroids[i][CENTROID_SIZE] = centroids[i][CENTROID_SIZE] + newCentroids[i][CENTROID_SIZE];
         }
 
-        System.out.println("After: "+Arrays.deepToString(centroids));
-
         return centroids;
     }
 
-    public String multiDimensionalArrayToString(double[][] updatedCentroids){
+    public String multiDimensionalArrayToString(double[][] updatedCentroids)
+    {
         StringBuilder sb = new StringBuilder();
 
         for (double[] row : updatedCentroids) {
@@ -146,8 +140,3 @@ public class NearestCentroid {
     }
 
 }
-
-
-
-
-
