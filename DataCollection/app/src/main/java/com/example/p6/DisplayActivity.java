@@ -45,6 +45,28 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         MILLISECONDS,
     }
 
+    static class Row{
+        long timestamp;
+        short minutes;
+        short heartRate;
+        int step_count;
+        byte label;
+
+        public Row(long timestamp, short minutes, short heart_rate, int step_count, byte label)
+        {
+            this.timestamp = timestamp;
+            this.minutes = minutes;
+            this.heartRate = heart_rate;
+            this.step_count = step_count;
+            this.label = label;
+        }
+        @NonNull
+        @Override
+        public String toString(){
+            return String.format("%s,%s,%s,%s,%s\n", timestamp, minutes, heartRate, step_count, label);
+        }
+    }
+
     //region Time constants
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
     private static final long SEC_TO_MILLISEC_FACTOR =  1000;
@@ -57,7 +79,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Heart rate variables
     private Sensor senHeartRateCounter;
     private TextView heartRateText;
-    private float heartRate = 0;
+    private short heartRate = 0;
     private long firstTimestamp = 0;
     private long latestTimestamp = 0;
     //endregion
@@ -65,15 +87,16 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Step count variables
     private Sensor senStepCounter;
     private TextView stepCountText;
-    private float initialStepCount = -1; // Initialized as -1 because the initial step count will
+    private int initialStepCount = -1; // Initialized as -1 because the initial step count will
     // never be -1, but it may be 0
-    private float accumulatedStepCount = 0;
-    private float currentStepCount = 0;
+    private int accumulatedStepCount = 0;
+    private int currentStepCount = 0;
     //endregion
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd = "timestamp,minutes,heart_rate,step_count,label\n";
+    private String dataPointHeader = "timestamp,minutes,heart_rate,step_count,label\n";
+    private List<Row> dataPointsToAddArray = new ArrayList<>();
     //endregion
 
     //region Formatters
@@ -114,7 +137,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
         setActivityToTrack();
-        activityText.setText("Tracking \"" + activityToTrack + "\"");
+        activityText.setText("Tracking " + activityToTrack);
 
 
         /*if (mode == RUN_MODEL) {
@@ -189,13 +212,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             updateAccumulatedStepCount(event);
         }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
-            heartRate = event.values[0];
+            heartRate = (short)event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
+            Log.i("Data points", String.valueOf(numberOfDataPointsAdded));
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
                 if (numberOfDataPointsAdded < 100){
-                    long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
+                    short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
+                    Log.i("Timestamp", String.valueOf(currentTimestamp));
+                    Log.i("Minutes", String.valueOf(minutesSinceStart));
+                    Log.i("heartRate", String.valueOf(heartRate));
+                    Log.i("accumulatedStepCount", String.valueOf(accumulatedStepCount));
                     insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
@@ -207,9 +235,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     }
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
+                Log.i("Progressbar", "Yip");
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
                 dataPointProgressBar.setProgress(numberOfDataPointsAdded);
+                Log.i("Progressbar", "Yop");
                 latestTimestamp = currentTimestamp;
+                Log.i("Progressbar", "Yup");
             }
         }
     }
@@ -223,7 +254,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToFile(){
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
         timesWrittenToFile++;
         timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
         numberOfDataPointsAdded = 0;
@@ -236,7 +267,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void stopActivity() {
         unregisterListeners();
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
 
         Intent intent;
         if(mode == MainActivity.Mode.RUN_MODEL){
@@ -257,7 +288,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void updateAccumulatedStepCount(SensorEvent event){
-        currentStepCount = event.values[0];
+        currentStepCount = (int)event.values[0];
         if (initialStepCount == -1){
             initialStepCount = currentStepCount;
         }
@@ -281,13 +312,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float step_count) {
-        int label = activityToTrack.ordinal();
-        List<String> row = Arrays.asList(String.format("%s,%s,%d,%d,%s\n", timestamp, minutes, (long)heartRate,(long)step_count, label));
-        dataPointsToAdd += String.join(",",row);
+    public void insertDataAtTimeStamp(long timestamp, short minutes, short heartRate, int step_count) {
+        byte label = (byte)activityToTrack.ordinal();
+        Row rowToAdd = new Row(timestamp, minutes, heartRate, step_count, label);
+        Log.i("Row", rowToAdd.toString());
+        dataPointsToAddArray.add(rowToAdd);
     }
 
-    public void writeToFile(String fileName, String content){
+    public void writeToFile(String fileName, List<Row> dataPoints){
         myToast.setText("Writing to file ...");
         myToast.show();
         File path;
@@ -300,27 +332,33 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             File file = new File(path.getPath(),fileName);
             file.createNewFile(); // if file already exists, this will do nothing
             FileOutputStream writer = new FileOutputStream(file,true);
-            writer.write(content.getBytes());
+            if (file.length() == 0){
+                writer.write(dataPointHeader.getBytes());
+            }
+            for (Row dataPoint : dataPoints
+                 ) {
+                writer.write(dataPoint.toString().getBytes());
+            }
             writer.close();
 
             // Resets the data points to add
-            dataPointsToAdd = "";
+            dataPointsToAddArray.clear();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public long[] getTimeSinceStart(long currentTimestamp){
-        long[] TimeSinceStart = new long[3];
+    public int[] getTimeSinceStart(long currentTimestamp){
+        int[] TimeSinceStart = new int[3];
 
         long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
         long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
-        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
-        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
+        int secondsSinceStart = (int)(milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR);
+        int minutesSinceStart = (int)(secondsSinceStart / MIN_TO_SEC_FACTOR);
 
         TimeSinceStart[Time.MINUTES.ordinal()] = minutesSinceStart;
         TimeSinceStart[Time.SECONDS.ordinal()] = secondsSinceStart;
-        TimeSinceStart[Time.MILLISECONDS.ordinal()] = milliSecondsSinceStart;
+        TimeSinceStart[Time.MILLISECONDS.ordinal()] = (int)milliSecondsSinceStart;
 
         return TimeSinceStart;
     }
