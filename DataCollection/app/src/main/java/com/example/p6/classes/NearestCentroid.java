@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import android.util.Log;
 
@@ -67,9 +65,9 @@ public class NearestCentroid {
 
 
     public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size,update_threshold\n";
+        String result = "heart_rate,step_count,label,centroid_size\n";
         for (int label = 0; label < NUMBER_OF_LABELS; label++) {
-            result += String.format("%d,%d,%s,%s,0\n",centroids[HeaderValues.HEART_RATE.ordinal()],
+            result += String.format("%d,%d,%s,%s\n",centroids[HeaderValues.HEART_RATE.ordinal()],
                     centroids[HeaderValues.STEP_COUNT.ordinal()],
                     centroids[HeaderValues.LABEL.ordinal()],
                     centroids[HeaderValues.CENTROID_SIZE.ordinal()]);
@@ -102,21 +100,21 @@ public class NearestCentroid {
     }
 
 
-    static final int HR = 0;
-    static final int STEP_COUNT = 1;
-    static final int CENTROID_SIZE = 3;
+    static final int HR_INDEX = 0;
+    static final int STEP_COUNT_INDEX = 1;
+    static final int CENTROID_SIZE_INDEX = 3;
 
     public double[][] updateModel(double[][] centroids, double[][] newCentroids) {
         //preprocessing(newCentroids);
 
         for(int i = 0; i < 4; i++){
             // maybe check if anything is empty
-            centroids[i][HR] = addToAverage(centroids[i][HR],
-                                    centroids[i][CENTROID_SIZE], newCentroids[i][HR]);
-            centroids[i][STEP_COUNT] = addToAverage(centroids[i][STEP_COUNT],
-                                    centroids[i][CENTROID_SIZE], newCentroids[i][STEP_COUNT]);
+            centroids[i][HR_INDEX] = addToAverage(centroids[i][HR_INDEX],
+                                    centroids[i][CENTROID_SIZE_INDEX], newCentroids[i][HR_INDEX]);
+            centroids[i][STEP_COUNT_INDEX] = addToAverage(centroids[i][STEP_COUNT_INDEX],
+                                    centroids[i][CENTROID_SIZE_INDEX], newCentroids[i][STEP_COUNT_INDEX]);
 
-            centroids[i][CENTROID_SIZE] = centroids[i][CENTROID_SIZE] + newCentroids[i][CENTROID_SIZE];
+            centroids[i][CENTROID_SIZE_INDEX] = centroids[i][CENTROID_SIZE_INDEX] + newCentroids[i][CENTROID_SIZE_INDEX];
         }
 
         return centroids;
