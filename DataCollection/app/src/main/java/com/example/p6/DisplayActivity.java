@@ -113,12 +113,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         //Run Model page
         if(mode == PREDICT_ACTIVITY){
-            double[][] newCentroids = {{70.02328727800564, 0.0, 0, 100},
-                    {110.66115908541717, 105.26506024096386, 1, 100},
-                    {160.35690810370753, 155.85714285714286, 2, 100},
-                    {120.41208256764986, 0.0, 3, 100}};
+            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
 
-            double[][] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
+            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
 
             //Converts matrix to string
             String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
