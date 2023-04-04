@@ -1,18 +1,17 @@
 package com.example.p6;
 
-import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Screen.*;
+import static com.example.p6.MainActivity.Activity.CYCLING;
+import static com.example.p6.MainActivity.Activity.RUNNING;
+import static com.example.p6.MainActivity.Activity.SITTING;
+import static com.example.p6.MainActivity.Activity.WALKING;
+import static com.example.p6.MainActivity.Screen.SELECT;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import com.example.p6.databinding.ActivitySelectBinding;
-import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.IOException;
 
 
 public class SelectActivity extends Activity {
