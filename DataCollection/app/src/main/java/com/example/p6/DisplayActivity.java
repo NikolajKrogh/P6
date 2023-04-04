@@ -116,19 +116,19 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
 
         //Run Model page
-        if(mode == RUN_MODEL){
+        if(mode == PREDICT_ACTIVITY){
             double[][] newCentroids = {{70.02328727800564, 0.0, 0, 100},
                     {110.66115908541717, 105.26506024096386, 1, 100},
                     {160.35690810370753, 155.85714285714286, 2, 100},
                     {120.41208256764986, 0.0, 3, 100}};
 
-            double[][] placeholder = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
+            double[][] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
 
             //Converts matrix to string
-            String test = nearestCentroid.multiDimensionalArrayToString(placeholder);
+            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
 
             //Write the new centroids to file
-            writeToFile("test" + ".csv", test);
+            writeToFile("centroids" + ".csv", stringFormattedCentroids);
         }
 
         /*if (mode == RUN_MODEL) {
