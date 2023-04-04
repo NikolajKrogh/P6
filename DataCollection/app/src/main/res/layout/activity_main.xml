@@ -28,18 +28,18 @@
                     android:layout_height="50dp" />
 
                 <Button
-                    android:id="@+id/runModelButton"
+                    android:id="@+id/PredictActivityButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="onRunModelClick"
-                    android:text="Run model" />
+                    android:text="Predict Activity " />
 
                 <Button
-                    android:id="@+id/synchronizeModelButton"
+                    android:id="@+id/UpdateWithLabelsButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="onSynchronizeModelClick"
-                    android:text="Synchronize model" />
+                    android:text="Update with labels" />
 
                 <Button
                     android:id="@+id/viewModelButton"
