@@ -1,6 +1,7 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
+import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -239,7 +240,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
         Intent intent;
-        if(mode == MainActivity.Mode.PREDICT_ACTIVITY){
+        if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
         }
