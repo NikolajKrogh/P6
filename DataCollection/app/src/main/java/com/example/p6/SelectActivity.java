@@ -1,10 +1,7 @@
 package com.example.p6;
 
-import static com.example.p6.MainActivity.Activity.CYCLING;
-import static com.example.p6.MainActivity.Activity.RUNNING;
-import static com.example.p6.MainActivity.Activity.SITTING;
-import static com.example.p6.MainActivity.Activity.WALKING;
-import static com.example.p6.MainActivity.Screen.SELECT;
+import static com.example.p6.MainActivity.Activity.*;
+import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
 import android.content.Intent;

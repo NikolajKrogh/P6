@@ -11,7 +11,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class csvHandler {
+public class CsvHandler {
     //region Centroid constants
     int NUMBER_OF_LABELS = 4;
     int NUMBER_OF_INPUT_PARAMETERS = 2;
@@ -46,7 +46,6 @@ public class csvHandler {
     }
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-
         double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
         String fileName = "centroids/centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;

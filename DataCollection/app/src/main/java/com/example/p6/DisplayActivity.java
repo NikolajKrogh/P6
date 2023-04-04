@@ -1,9 +1,8 @@
 package com.example.p6;
 
-import static com.example.p6.MainActivity.Activity.UNLABELED;
-import static com.example.p6.MainActivity.Activity.WALKING;
-import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
-import static com.example.p6.MainActivity.Screen.DISPLAY;
+import static com.example.p6.MainActivity.Activity.*;
+import static com.example.p6.MainActivity.Mode.*;
+import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -21,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.classes.NearestCentroid;
-import com.example.p6.classes.csvHandler;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.databinding.ActivityDisplayBinding;
 
 import java.text.DecimalFormat;
@@ -126,7 +125,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             showToast();
             //Write the new centroids to file
-            csvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
+            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
             // Resets the data points to add
             dataPointsToAdd = "";
         }
@@ -232,7 +231,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 }
                 else {
                     showToast();
-                    csvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
+                    CsvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
                     // Resets the data points to add
                     dataPointsToAdd = "";
                     timesWrittenToFile++;
@@ -256,7 +255,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Context context = getApplicationContext();
         unregisterListeners();
         showToast();
-        csvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
+        CsvHandler.writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
         // Resets the data points to add
         dataPointsToAdd = "";
         Intent intent;
