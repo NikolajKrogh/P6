@@ -106,8 +106,29 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+
+
+        //Run Model page
+        if(mode == PREDICT_ACTIVITY){
+            double[][] newCentroids = {{70.02328727800564, 0.0, 0, 100},
+                    {110.66115908541717, 105.26506024096386, 1, 100},
+                    {160.35690810370753, 155.85714285714286, 2, 100},
+                    {120.41208256764986, 0.0, 3, 100}};
+
+            double[][] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids, newCentroids);
+
+            //Converts matrix to string
+            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
+
+            //Write the new centroids to file
+            writeToFile("centroids" + ".csv", stringFormattedCentroids);
+        }
+
         setActivityToTrack();
         activityText.setText("Tracking \"" + activityToTrack + "\"");
+
 
 
         /*if (mode == PREDICT_ACTIVITY) {
@@ -120,6 +141,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }*/
 
+
     myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
@@ -129,6 +151,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             case UPDATE_WITH_LABELS:
             case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
         }
+
     }
 
     @Override
