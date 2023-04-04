@@ -32,8 +32,8 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     }
 
     enum Mode {
-        RUN_MODEL,
-        SYNCHRONIZE,
+        PREDICT_ACTIVITY,
+        UPDATE_WITH_LABELS,
         COLLECT_DATA,
     }
     //endregion
@@ -84,12 +84,12 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     }
 
     public void onRunModelClick(View view){
-        trackingMode = RUN_MODEL;
+        trackingMode = PREDICT_ACTIVITY;
         goToScreen(DisplayActivity.class);
     }
 
     public void onSynchronizeModelClick(View view){
-        trackingMode = SYNCHRONIZE;
+        trackingMode = UPDATE_WITH_LABELS;
         goToScreen(SelectActivity.class);
     }
 

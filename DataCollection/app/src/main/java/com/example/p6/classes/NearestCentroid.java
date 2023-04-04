@@ -21,11 +21,11 @@ public class NearestCentroid {
         LABEL,
         CENTROID_SIZE
     }
-    double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
+    public double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
-        {103.66115908541717, 108.26506024096386, 1, 215},
-        {168.35690810370753, 163.85714285714286, 2, 96},
-        {117.41208256764986, 0.19672131147540983, 3, 79}};
+                                               {103.66115908541717, 108.26506024096386, 1, 215},
+                                               {168.35690810370753, 163.85714285714286, 2, 96},
+                                               {117.41208256764986, 0.19672131147540983, 3, 79}};
 
     //implement such that we create the centroid file if it does not exists based on the above centroids
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
@@ -65,12 +65,12 @@ public class NearestCentroid {
 
 
     public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size,update_threshold\n";
-        for (int label = 0; label < NUMBER_OF_LABELS; label++) {
-            result += String.format("%d,%d,%s,%s,0\n",centroids[HeaderValues.HEART_RATE.ordinal()],
-                    centroids[HeaderValues.STEP_COUNT.ordinal()],
-                    centroids[HeaderValues.LABEL.ordinal()],
-                    centroids[HeaderValues.CENTROID_SIZE.ordinal()]);
+        String result = "heart_rate,step_count,label,centroid_size\n";
+        for (double[] centroid: centroids) {
+            result += String.format("%f,%f,%d,%d\n", centroid[HeaderValues.HEART_RATE.ordinal()],
+                    centroid[HeaderValues.STEP_COUNT.ordinal()],
+                    (int)centroid[HeaderValues.LABEL.ordinal()],
+                    (int)centroid[HeaderValues.CENTROID_SIZE.ordinal()]);
         }
         return result;
     }
@@ -78,7 +78,7 @@ public class NearestCentroid {
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
     public void writeCentroidsToFile(double[][] centroids, Context context) {
-        String fileName = "centroids/centroids.csv";
+        String fileName = "centroids.csv";
         String content = makeStringToInsertIntoCsvFromCentroids(centroids);
         File path;
 
@@ -98,6 +98,41 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
+
+
+    static final int HR_INDEX = 0;
+    static final int STEP_COUNT_INDEX = 1;
+    static final int CENTROID_SIZE_INDEX = 3;
+
+    public double[] updateModel(double[] centroid, double[] vectorToAddToCentroid) {
+        //preprocessing(vectorToAddToCentroid);
+
+        // maybe check if anything is empty
+        centroid[HR_INDEX] = addToAverage(centroid[HR_INDEX],
+                                          centroid[CENTROID_SIZE_INDEX],
+                                          vectorToAddToCentroid[HR_INDEX]);
+        centroid[STEP_COUNT_INDEX] = addToAverage(centroid[STEP_COUNT_INDEX],
+                                                  centroid[CENTROID_SIZE_INDEX],
+                                                  vectorToAddToCentroid[STEP_COUNT_INDEX]);
+
+        centroid[CENTROID_SIZE_INDEX] = centroid[CENTROID_SIZE_INDEX] + vectorToAddToCentroid[CENTROID_SIZE_INDEX];
+
+        return centroid;
+    }
+
+    public String multiDimensionalArrayToString(double[] updatedCentroid)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for (double element : updatedCentroid)
+            sb.append(element).append(",");
+
+        return sb.toString();
+    }
+
+    double addToAverage(double average, double size, double value)
+    {
+        return (size * average + value) / (size + 1);
+    }
+
 }
-
-

@@ -1,7 +1,9 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.*;
+import static com.example.p6.MainActivity.Mode.COLLECT_DATA;
+import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
+import static com.example.p6.MainActivity.Mode.UPDATE_WITH_LABELS;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -12,15 +14,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.databinding.ActivityDisplayBinding;
@@ -32,7 +31,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -122,6 +120,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Context context = getApplicationContext();
         MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
@@ -139,26 +138,32 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
-        /*if (mode == RUN_MODEL) {
-            Context context = getApplicationContext();
-            String fileName = "centroids/centroids.csv";
+        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
+            String fileName = "centroids.csv";
             String filePath = context.getFilesDir() + "/" + fileName;
             File csvFile = new File(filePath);
             if (!csvFile.exists()) {
                 nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
             }
-        }*/
+        }
+
+
+        setActivityToTrack();
+        activityText.setText("Tracking \"" + activityToTrack + "\"");
+
 
     myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
     public void setActivityToTrack(){
         switch(mode){
-            case RUN_MODEL:     activityToTrack = UNLABELED;                                    break;
-            case SYNCHRONIZE:
+            case PREDICT_ACTIVITY:     activityToTrack = UNLABELED;                                    break;
+            case UPDATE_WITH_LABELS:
             case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
         }
+
     }
 
     @Override
@@ -176,7 +181,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     // onLongClick() for stopActivityButton
     @Override
     public boolean onLongClick(View v) {
-        stopActivity();
+        try {
+            stopActivity();
+        } catch (CsvValidationException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -265,12 +276,43 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     }
 
-    public void stopActivity() {
+    public void stopActivity() throws CsvValidationException, IOException {
+        Context context = getApplicationContext();
         unregisterListeners();
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+        if (mode == COLLECT_DATA)
+            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
+            //do preprocessing
+        }
+        if (mode == PREDICT_ACTIVITY) {
+            /*
+            SitRows;
+            walkRows;
+            runRows;
+            cycleRows;
+
+            for row in rows:
+                returnedRow = runModel(row) //this returned row should contain a label for the row
+                put returned row i den rigtige XXRows (baseret på dens label)
+            for hver af de 4 XXRows:
+                append til hver deres fil (sitting.csv, walking.csv, etc...)
+                Hvis det at vi appender til filen betyder at filen har mindst X rækker:
+                    opdaterer modellen
+             */
+        }
+        else if (mode == UPDATE_WITH_LABELS) {
+            nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
+            //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
+            //it should also be the processed data
+
+            //double[][] updatedCentroids = nearestCentroid.updateModel(nearestCentroid.centroids, newDataPoints);
+
+            //Write the new centroids to file
+            //nearestCentroid.writeCentroidsToFile(updatedCentroids,context);
+        }
 
         Intent intent;
-        if(mode == MainActivity.Mode.RUN_MODEL){
+        if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
         }
