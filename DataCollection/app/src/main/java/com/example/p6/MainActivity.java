@@ -20,7 +20,8 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         SITTING,
         WALKING,
         RUNNING,
-        CYCLING
+        CYCLING,
+        UNLABELED
     }
 
     enum Screen {
@@ -31,14 +32,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     }
 
     enum Mode {
-        RUN_MODEL,
-        SYNCHRONIZE,
+        PREDICT_ACTIVITY,
+        UPDATE_WITH_LABELS,
         COLLECT_DATA,
     }
     //endregion
 
     //region Global variables
-    static Activity activityToTrack = WALKING;
+    static Activity activityToTrack = UNLABELED;
     static Screen currentScreen = MAIN;
     static Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
@@ -83,12 +84,12 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     }
 
     public void onRunModelClick(View view){
-        trackingMode = RUN_MODEL;
+        trackingMode = PREDICT_ACTIVITY;
         goToScreen(DisplayActivity.class);
     }
 
     public void onSynchronizeModelClick(View view){
-        trackingMode = SYNCHRONIZE;
+        trackingMode = UPDATE_WITH_LABELS;
         goToScreen(SelectActivity.class);
     }
 
@@ -97,6 +98,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     }
 
     public void onCollectDataClick(View view){
+        trackingMode = COLLECT_DATA;
         goToScreen(SelectActivity.class);
     }
 
