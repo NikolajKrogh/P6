@@ -1,7 +1,6 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.*;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -12,7 +11,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,19 +18,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.databinding.ActivityDisplayBinding;
-import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -117,7 +110,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         activityText.setText("Tracking \"" + activityToTrack + "\"");
 
 
-        /*if (mode == RUN_MODEL) {
+        /*if (mode == PREDICT_ACTIVITY) {
             Context context = getApplicationContext();
             String fileName = "centroids/centroids.csv";
             String filePath = context.getFilesDir() + "/" + fileName;
@@ -132,8 +125,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     public void setActivityToTrack(){
         switch(mode){
-            case RUN_MODEL:     activityToTrack = UNLABELED;                                    break;
-            case SYNCHRONIZE:
+            case PREDICT_ACTIVITY:     activityToTrack = UNLABELED;                                    break;
+            case UPDATE_WITH_LABELS:
             case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
         }
     }
@@ -223,7 +216,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
 
         Intent intent;
-        if(mode == MainActivity.Mode.RUN_MODEL){
+        if(mode == MainActivity.Mode.PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
         }
