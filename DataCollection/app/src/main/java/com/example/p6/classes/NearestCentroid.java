@@ -104,30 +104,28 @@ public class NearestCentroid {
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;
 
-    public double[][] updateModel(double[][] centroids, double[][] newCentroids) {
-        //preprocessing(newCentroids);
+    public double[] updateModel(double[] centroid, double[] vectorToAddToCentroid) {
+        //preprocessing(vectorToAddToCentroid);
 
-        for(int i = 0; i < 4; i++){
-            // maybe check if anything is empty
-            centroids[i][HR_INDEX] = addToAverage(centroids[i][HR_INDEX],
-                                    centroids[i][CENTROID_SIZE_INDEX], newCentroids[i][HR_INDEX]);
-            centroids[i][STEP_COUNT_INDEX] = addToAverage(centroids[i][STEP_COUNT_INDEX],
-                                    centroids[i][CENTROID_SIZE_INDEX], newCentroids[i][STEP_COUNT_INDEX]);
+        // maybe check if anything is empty
+        centroid[HR_INDEX] = addToAverage(centroid[HR_INDEX],
+                                          centroid[CENTROID_SIZE_INDEX],
+                                          vectorToAddToCentroid[HR_INDEX]);
+        centroid[STEP_COUNT_INDEX] = addToAverage(centroid[STEP_COUNT_INDEX],
+                                                  centroid[CENTROID_SIZE_INDEX],
+                                                  vectorToAddToCentroid[STEP_COUNT_INDEX]);
 
-            centroids[i][CENTROID_SIZE_INDEX] = centroids[i][CENTROID_SIZE_INDEX] + newCentroids[i][CENTROID_SIZE_INDEX];
-        }
+        centroid[CENTROID_SIZE_INDEX] = centroid[CENTROID_SIZE_INDEX] + vectorToAddToCentroid[CENTROID_SIZE_INDEX];
 
-        return centroids;
+        return centroid;
     }
 
-    public String multiDimensionalArrayToString(double[][] updatedCentroids)
+    public String multiDimensionalArrayToString(double[] updatedCentroid)
     {
         StringBuilder sb = new StringBuilder();
 
-        for (double[] row : updatedCentroids) {
-            for (double element: row)
-                sb.append(element).append(",");
-        }
+        for (double element : updatedCentroid)
+            sb.append(element).append(",");
 
         return sb.toString();
     }
