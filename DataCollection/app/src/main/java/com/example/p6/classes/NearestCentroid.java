@@ -1,20 +1,6 @@
 package com.example.p6.classes;
 
-import android.content.Context;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-
-import android.util.Log;
-
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-
 public class NearestCentroid {
-    int NUMBER_OF_LABELS = 4;
-    int NUMBER_OF_INPUT_PARAMETERS = 2;
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
@@ -98,8 +84,7 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
-
-
+    
     static final int HR_INDEX = 0;
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;

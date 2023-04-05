@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.p6.classes.NearestCentroid;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -128,6 +129,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        Context context = getApplicationContext();
         getSensors();
         bindTextToVariables();
         dateTime = LocalDateTime.now();
@@ -136,6 +138,25 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+
+
+        //Run Model page
+        if(mode == PREDICT_ACTIVITY){
+            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
+
+            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
+
+            //Converts matrix to string
+            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
+
+            showToast();
+            //Write the new centroids to file
+            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
+            // Resets the data points to add
+            dataPointsToAdd = "";
+        }
 
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
@@ -158,12 +179,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
-
+    public void showToast(){
+        myToast.setText("Writing to file ...");
+        myToast.show();
+    }
     public void setActivityToTrack(){
         switch(mode){
-            case PREDICT_ACTIVITY:     activityToTrack = UNLABELED;                                    break;
+            case PREDICT_ACTIVITY:
+                activityToTrack = UNLABELED;
+                break;
             case UPDATE_WITH_LABELS:
-            case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
+            case COLLECT_DATA:
+                if (activityToTrack == UNLABELED)
+                    activityToTrack = WALKING;
+                break;
         }
 
     }
@@ -221,6 +250,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void onSensorChanged(SensorEvent event) {
+        Context context = getApplicationContext();
+
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
         }
@@ -312,7 +343,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             //Write the new centroids to file
             //nearestCentroid.writeCentroidsToFile(updatedCentroids,context);
         }
-
         Intent intent;
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
