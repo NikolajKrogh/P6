@@ -1,7 +1,6 @@
 package com.example.p6.classes;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -36,8 +35,10 @@ public class NearestCentroid {
     }
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-        String fileName = "centroids.csv";
-        String filePath = context.getFilesDir() + "/" + fileName;
+        File fileName = new File("centroids.csv");
+        File filePath = new File(context.getFilesDir(), String.valueOf(fileName));
+        //String fileName = "centroids.csv";
+        //String filePath = context.getFilesDir() + "/" + fileName;
 
         try {
             FileReader filereader = new FileReader(filePath);
