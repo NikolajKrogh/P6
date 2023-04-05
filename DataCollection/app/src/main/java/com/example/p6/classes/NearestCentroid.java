@@ -1,7 +1,6 @@
 package com.example.p6.classes;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -20,21 +19,11 @@ public class NearestCentroid {
     }
     CsvHandler csvHandler = new CsvHandler();
     public Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
-    public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
-                                               {103.66115908541717, 108.26506024096386, 1, 215},
-                                               {168.35690810370753, 163.85714285714286, 2, 96},
-                                               {117.41208256764986, 0.19672131147540983, 3, 79}};
-
-    //implement such that we create the centroid file if it does not exists based on the above centroids
-    private double[] convertStringArrayToDoubleArray(String[] stringArray) {
-        int arrayLength = stringArray.length;
-        double[] result = new double[arrayLength];
-            for (int i = 0; i <= arrayLength; i++) {
-                result[i] = Double.parseDouble(stringArray[i]);
-            }
-        return result;
-    }
-
+    public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
+                                               new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
+                                               new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
+                                               new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
+                                              };
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
@@ -48,7 +37,7 @@ public class NearestCentroid {
             // we are going to read data line by line
             while ((nextEntry = csvReader.readNext()) != null) {
                 //vi håber den skipper header ellers skal vi gøre et eller andet ved det
-                //centroids[i] = convertStringArrayToDoubleArray(nextEntry);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3]);
             }
         }
         catch (IOException e) {
@@ -88,30 +77,13 @@ public class NearestCentroid {
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;
 
-    public double[] updateModel(double[] centroid, double[] vectorToAddToCentroid) {
-        //preprocessing(vectorToAddToCentroid);
-
+    public Centroid updateModel(Centroid centroid, Row row) {
         // maybe check if anything is empty
-        centroid[HR_INDEX] = addToAverage(centroid[HR_INDEX],
-                                          centroid[CENTROID_SIZE_INDEX],
-                                          vectorToAddToCentroid[HR_INDEX]);
-        centroid[STEP_COUNT_INDEX] = addToAverage(centroid[STEP_COUNT_INDEX],
-                                                  centroid[CENTROID_SIZE_INDEX],
-                                                  vectorToAddToCentroid[STEP_COUNT_INDEX]);
-
-        centroid[CENTROID_SIZE_INDEX] = centroid[CENTROID_SIZE_INDEX] + vectorToAddToCentroid[CENTROID_SIZE_INDEX];
+        centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, row.heartRate);
+        centroid.step_count = addToAverage(centroid.step_count, centroid.size, row.step_count);
+        centroid.size++;
 
         return centroid;
-    }
-
-    public String multiDimensionalArrayToString(double[] updatedCentroid)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        for (double element : updatedCentroid)
-            sb.append(element).append(",");
-
-        return sb.toString();
     }
 
     double addToAverage(double average, double size, double value)

@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.p6.classes.Centroid;
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.Row;
@@ -117,23 +118,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
-
-        //Run Model page
-        if(mode == PREDICT_ACTIVITY){
-            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
-
-            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
-
-            //Converts matrix to string
-            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
-
-            showToast();
-            //Write the new centroids to file
-            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
-            // Resets the data points to add
-            dataPointsToAddArray.clear();
-        }
-
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
@@ -144,8 +128,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             String filePath = context.getFilesDir() + "/" + fileName;
             File csvFile = new File(filePath);
             if (!csvFile.exists()) {
-                //TODO: implement proper centroid instead
-                //nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
             }
         }
 
