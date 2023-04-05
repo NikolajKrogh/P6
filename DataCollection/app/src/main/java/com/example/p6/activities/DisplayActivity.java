@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -133,9 +134,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }
 
-        setActivityToTrack();
-        activityText.setText("Tracking" + activityToTrack);
-
         Random rand = new Random();
         int upperBound = Integer.MAX_VALUE;
         sessionId = String.valueOf(rand.nextInt(upperBound));
@@ -232,9 +230,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 else {
                     switch (mode){
                         case PREDICT_ACTIVITY:
-                        case UPDATE_WITH_LABELS:    addDataPointsToCorrespondingFile();     break;
-                        case COLLECT_DATA:          addDataPointsToFile();                  break;
+                        case UPDATE_WITH_LABELS:
+                            addDataPointsToCorrespondingFile();
+                            break;
+                        case COLLECT_DATA:
+                            writeToFile(activityToTrack.name().toLowerCase() + "_" +
+                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+                            break;
                     }
+                    timesWrittenToFile++;
+                    timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
+                    numberOfDataPointsAdded = 0;
+                    dataPointsToAddArray.clear();
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
@@ -248,17 +255,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         PreProcessing.makeBudgetTimeSeries(dataPointsToAddArray, sessionId);
         // Give each timeSeries labels by finding their nearest centroid
         // Write to corresponding file using CsvHandler.writeToFile();
-    }
-
-    private void preprocessData(){
-
-    }
-
-    private void addDataPointsToFile(){
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
-        timesWrittenToFile++;
-        timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
-        numberOfDataPointsAdded = 0;
     }
 
     @Override
@@ -291,7 +287,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
              */
         }
         else if (mode == UPDATE_WITH_LABELS) {
-            nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
+            //nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
             //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
             //it should also be the processed data
 
@@ -370,9 +366,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 writer.write(dataPoint.toString().getBytes());
             }
             writer.close();
-
-            // Resets the data points to add
-            dataPointsToAddArray.clear();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

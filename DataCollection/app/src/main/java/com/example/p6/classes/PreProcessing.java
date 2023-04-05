@@ -1,5 +1,7 @@
 package com.example.p6.classes;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,13 +13,11 @@ public class PreProcessing {
     static short numberOfDataPointsInMinute = 0;
     static int stepCountAtStartOfMinute = 0;
     static int prevStepCount;
-    static boolean isFirstDataPoint = true;
-    public static void makeBudgetTimeSeries(List<Row> dataPointsToAddArray, String sessionId) {
-        for (Row row : dataPointsToAddArray
-             ) {
+    public static List<Row> makeBudgetTimeSeries(List<Row> dataPointsToAddArray, String sessionId) {
+        for (Row row : dataPointsToAddArray){
             minute = row.minutes;
 
-            if (minute != prevMinute && !isFirstDataPoint){
+            if (minute != prevMinute && numberOfDataPointsInMinute > 0){
                 addTimeSeriesToArray(row, sessionId);
                 resetValues();
             }
@@ -29,14 +29,17 @@ public class PreProcessing {
             accumulatedHeartRate += row.heartRate;
             prevMinute = minute;
             prevStepCount = row.step_count;
-
-            isFirstDataPoint = false;
+            numberOfDataPointsInMinute++;
         }
+
+        return timeSeriesArray;
     }
 
     private static void addTimeSeriesToArray(Row row, String sessionId){
         short avgHeartRate = (short) (accumulatedHeartRate / numberOfDataPointsInMinute);
-        int stepCountDiff = stepCountAtStartOfMinute - prevStepCount;
+        int stepCountDiff = prevStepCount - stepCountAtStartOfMinute;
+
+        // should these rows have labels though?
         timeSeriesArray.add(new Row(avgHeartRate, stepCountDiff, row.label, sessionId));
     }
 
@@ -44,9 +47,5 @@ public class PreProcessing {
         accumulatedHeartRate = 0;
         stepCountAtStartOfMinute = 0;
         numberOfDataPointsInMinute = 0;
-    }
-
-    public static void preprocessData(List<Row> dataPointsToAddArray){
-
     }
 }
