@@ -47,7 +47,7 @@ public class CsvHandler {
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
-        String fileName = "centroids/centroids.csv";
+        String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
 
         Log.i("filePath", filePath);
@@ -86,7 +86,7 @@ public class CsvHandler {
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
     public void writeCentroidsToFile(double[][] centroids, Context context) {
-        String fileName = "centroids/centroids.csv";
+        String fileName = "centroids.csv";
         String content = makeStringToInsertIntoCsvFromCentroids(centroids);
         File path;
 

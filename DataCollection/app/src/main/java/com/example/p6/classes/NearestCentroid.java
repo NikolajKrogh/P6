@@ -19,7 +19,7 @@ public class NearestCentroid {
         CENTROID_SIZE
     }
     CsvHandler csvHandler = new CsvHandler();
-    public double[][] centroids = new double[csvHandler.NUMBER_OF_LABELS][csvHandler.NUMBER_OF_INPUT_PARAMETERS];
+    public Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
                                                {103.66115908541717, 108.26506024096386, 1, 215},
                                                {168.35690810370753, 163.85714285714286, 2, 96},
@@ -36,7 +36,7 @@ public class NearestCentroid {
     }
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-        String fileName = "centroids/centroids.csv";
+        String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
 
         Log.i("filePath", filePath);
@@ -49,7 +49,7 @@ public class NearestCentroid {
             // we are going to read data line by line
             while ((nextEntry = csvReader.readNext()) != null) {
                 //vi håber den skipper header ellers skal vi gøre et eller andet ved det
-                centroids[i] = convertStringArrayToDoubleArray(nextEntry);
+                //centroids[i] = convertStringArrayToDoubleArray(nextEntry);
             }
         }
         catch (IOException e) {

@@ -240,10 +240,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
                 if (numberOfDataPointsAdded < 100){
                     short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-                    Log.i("Timestamp", String.valueOf(currentTimestamp));
-                    Log.i("Minutes", String.valueOf(minutesSinceStart));
-                    Log.i("heartRate", String.valueOf(heartRate));
-                    Log.i("accumulatedStepCount", String.valueOf(accumulatedStepCount));
                     addDataPointToArray(minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
@@ -255,12 +251,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     }
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
-                Log.i("Progressbar", "Yip");
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
                 dataPointProgressBar.setProgress(numberOfDataPointsAdded);
-                Log.i("Progressbar", "Yop");
                 latestTimestamp = currentTimestamp;
-                Log.i("Progressbar", "Yup");
             }
         }
     }
