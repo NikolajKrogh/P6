@@ -77,16 +77,11 @@ public class NearestCentroid {
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;
 
-    public double[] updateModel(double[] centroid, Row row) {
+    public Centroid updateModel(Centroid centroid, Row row) {
         // maybe check if anything is empty
-        centroid[HR_INDEX] = addToAverage(centroid[HR_INDEX],
-                                          centroid[CENTROID_SIZE_INDEX],
-                                          row.heartRate);
-        centroid[STEP_COUNT_INDEX] = addToAverage(centroid[STEP_COUNT_INDEX],
-                                                  centroid[CENTROID_SIZE_INDEX],
-                                                  row.step_count);
-
-        centroid[CENTROID_SIZE_INDEX] = centroid[CENTROID_SIZE_INDEX] + 1;
+        centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, row.heartRate);
+        centroid.step_count = addToAverage(centroid.step_count, centroid.size, row.step_count);
+        centroid.size++;
 
         return centroid;
     }
