@@ -24,16 +24,6 @@ public class NearestCentroid {
                                                new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
                                                new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
                                               };
-    //implement such that we create the centroid file if it does not exists based on the above centroids
-    private double[] convertStringArrayToCentroidArray(String[] array) {
-        int arrayLength = array.length;
-        double[] result = new double[arrayLength];
-            for (int i = 0; i <= arrayLength; i++) {
-                result[i] = Double.parseDouble(array[i]);
-            }
-        return result;
-    }
-
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
