@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd 
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
@@ -13,7 +14,7 @@ NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
 #endregion
 
 #region imported data 
-data = pd.read_csv(r"data\combined.csv")
+data = pd.read_csv(os.path.join("data","combined.csv"))
 #endregion
 
 #region column names
