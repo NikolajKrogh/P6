@@ -1,8 +1,8 @@
-package com.example.p6;
+package com.example.p6.activities;
 
-import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.*;
-import static com.example.p6.MainActivity.Screen.*;
+import static com.example.p6.activities.MainActivity.Activity.*;
+import static com.example.p6.activities.MainActivity.Mode.*;
+import static com.example.p6.activities.MainActivity.Screen.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,10 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.p6.classes.Centroid;
-import com.example.p6.classes.NearestCentroid;
+import com.example.p6.R;
 import com.example.p6.classes.CsvHandler;
+import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.Row;
+import com.example.p6.classes.PreProcessing;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -35,7 +35,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Random;
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
@@ -94,6 +94,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private int timesWrittenToFile = 0;
     private Toast myToast;
     private TextView activityText;
+    private String sessionId;
 
     //endregion
 
@@ -132,12 +133,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }
 
-
         setActivityToTrack();
-        activityText.setText("Tracking \"" + activityToTrack + "\"");
+        activityText.setText("Tracking" + activityToTrack);
 
+        Random rand = new Random();
+        int upperBound = Integer.MAX_VALUE;
+        sessionId = String.valueOf(rand.nextInt(upperBound));
 
-    myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
     public void showToast(){
         myToast.setText("Writing to file ...");
@@ -228,9 +231,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 }
                 else {
                     switch (mode){
-                        case PREDICT_ACTIVITY:     addDataPointsToCorrespondingFile();     break;
-                        case UPDATE_WITH_LABELS:                                           break;
-                        case COLLECT_DATA:  addDataPointsToFile();                  break;
+                        case PREDICT_ACTIVITY:
+                        case UPDATE_WITH_LABELS:    addDataPointsToCorrespondingFile();     break;
+                        case COLLECT_DATA:          addDataPointsToFile();                  break;
                     }
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
@@ -242,7 +245,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingFile(){
-        preprocessData();
+        PreProcessing.makeBudgetTimeSeries(dataPointsToAddArray, sessionId);
+        // Give each timeSeries labels by finding their nearest centroid
+        // Write to corresponding file using CsvHandler.writeToFile();
     }
 
     private void preprocessData(){
