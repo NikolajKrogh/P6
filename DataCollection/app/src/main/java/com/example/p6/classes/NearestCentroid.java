@@ -1,5 +1,16 @@
 package com.example.p6.classes;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class NearestCentroid {
     enum HeaderValues {
         HEART_RATE,
@@ -7,7 +18,8 @@ public class NearestCentroid {
         LABEL,
         CENTROID_SIZE
     }
-    public double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
+    CsvHandler csvHandler = new CsvHandler();
+    public double[][] centroids = new double[csvHandler.NUMBER_OF_LABELS][csvHandler.NUMBER_OF_INPUT_PARAMETERS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
                                                {103.66115908541717, 108.26506024096386, 1, 215},
                                                {168.35690810370753, 163.85714285714286, 2, 96},

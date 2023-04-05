@@ -20,10 +20,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.CsvHandler;
+import com.example.p6.classes.Row;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -34,7 +33,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -74,7 +72,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private String dataPointHeader = "timestamp,minutes,heart_rate,step_count,label\n";
+    private String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
+    private String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
     private List<Row> dataPointsToAddArray = new ArrayList<>();
     //endregion
 
@@ -107,7 +106,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        Context context = getApplicationContext();
         getSensors();
         bindTextToVariables();
         dateTime = LocalDateTime.now();
@@ -133,7 +131,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             //Write the new centroids to file
             CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
             // Resets the data points to add
-            dataPointsToAdd = "";
+            dataPointsToAddArray.clear();
         }
 
         setActivityToTrack();
@@ -246,7 +244,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     Log.i("Minutes", String.valueOf(minutesSinceStart));
                     Log.i("heartRate", String.valueOf(heartRate));
                     Log.i("accumulatedStepCount", String.valueOf(accumulatedStepCount));
-                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
+                    addDataPointToArray(minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
                 else {
@@ -364,9 +362,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, short minutes, short heartRate, int step_count) {
+    public void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
-        Row rowToAdd = new Row(timestamp, minutes, heartRate, step_count, label);
+        Row rowToAdd = new Row(heartRate, step_count, label, minutes);
         Log.i("Row", rowToAdd.toString());
         dataPointsToAddArray.add(rowToAdd);
     }
@@ -385,7 +383,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             file.createNewFile(); // if file already exists, this will do nothing
             FileOutputStream writer = new FileOutputStream(file,true);
             if (file.length() == 0){
-                writer.write(dataPointHeader.getBytes());
+                writer.write(dataPointHeaderBeforePreprocessing.getBytes());
             }
             for (Row dataPoint : dataPoints
                  ) {
