@@ -16,6 +16,10 @@ public class Centroid {
         this.size = size;
     }
 
+    public Centroid(String heart_rate, String step_count, String label, String size) {
+        this(Double.parseDouble(heart_rate),Double.parseDouble(step_count),Byte.parseByte(label), Integer.parseInt(size));
+    }
+
     @NonNull
     @Override
     public String toString(){
