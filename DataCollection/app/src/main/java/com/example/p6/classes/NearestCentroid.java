@@ -60,23 +60,11 @@ public class NearestCentroid {
 
     }
 
-
-    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size\n";
-        for (double[] centroid: centroids) {
-            result += String.format("%f,%f,%d,%d\n", centroid[HeaderValues.HEART_RATE.ordinal()],
-                    centroid[HeaderValues.STEP_COUNT.ordinal()],
-                    (int)centroid[HeaderValues.LABEL.ordinal()],
-                    (int)centroid[HeaderValues.CENTROID_SIZE.ordinal()]);
-        }
-        return result;
-    }
-
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
-    public void writeCentroidsToFile(double[][] centroids, Context context) {
+    public void writeCentroidsToFile(Centroid[] centroids, Context context) {
         String fileName = "centroids.csv";
-        String content = makeStringToInsertIntoCsvFromCentroids(centroids);
+        String content = centroids.toString();
         File path;
 
         try {
