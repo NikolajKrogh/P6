@@ -45,28 +45,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         MILLISECONDS,
     }
 
-    static class Row{
-        long timestamp;
-        short minutes;
-        short heartRate;
-        int step_count;
-        byte label;
-
-        public Row(long timestamp, short minutes, short heart_rate, int step_count, byte label)
-        {
-            this.timestamp = timestamp;
-            this.minutes = minutes;
-            this.heartRate = heart_rate;
-            this.step_count = step_count;
-            this.label = label;
-        }
-        @NonNull
-        @Override
-        public String toString(){
-            return String.format("%s,%s,%s,%s,%s\n", timestamp, minutes, heartRate, step_count, label);
-        }
-    }
-
     //region Time constants
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
     private static final long SEC_TO_MILLISEC_FACTOR =  1000;
