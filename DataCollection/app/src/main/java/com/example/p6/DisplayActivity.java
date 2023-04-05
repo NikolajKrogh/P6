@@ -1,9 +1,7 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.COLLECT_DATA;
-import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
-import static com.example.p6.MainActivity.Mode.UPDATE_WITH_LABELS;
+import static com.example.p6.MainActivity.Mode.*;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -14,12 +12,15 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.databinding.ActivityDisplayBinding;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -240,8 +242,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 }
                 else {
                     switch (mode){
-                        case RUN_MODEL:     addDataPointsToCorrespondingFile();     break;
-                        case SYNCHRONIZE:                                           break;
+                        case PREDICT_ACTIVITY:     addDataPointsToCorrespondingFile();     break;
+                        case UPDATE_WITH_LABELS:                                           break;
                         case COLLECT_DATA:  addDataPointsToFile();                  break;
                     }
                     setScreenBrightness(LOW_BRIGHTNESS);
@@ -280,7 +282,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Context context = getApplicationContext();
         unregisterListeners();
         if (mode == COLLECT_DATA)
-            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
             //do preprocessing
         }
