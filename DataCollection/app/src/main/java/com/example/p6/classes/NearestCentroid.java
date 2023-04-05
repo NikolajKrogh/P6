@@ -25,8 +25,10 @@ public class NearestCentroid {
                                                new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
                                               };
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-        String fileName = "centroids.csv";
-        String filePath = context.getFilesDir() + "/" + fileName;
+        File fileName = new File("centroids.csv");
+        File filePath = new File(context.getFilesDir(), String.valueOf(fileName));
+        //String fileName = "centroids.csv";
+        //String filePath = context.getFilesDir() + "/" + fileName;
 
         try {
             FileReader filereader = new FileReader(filePath);
