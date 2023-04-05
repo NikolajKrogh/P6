@@ -110,18 +110,24 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
-
         //Run Model page
         if(mode == PREDICT_ACTIVITY){
-            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
+            double[] vectorToAddToCentroid = {70.0, 0.0, 0, 100};
 
-            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
+            nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
-            //Converts matrix to string
-            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
+            // Collect data from sensors
 
-            //Write the new centroids to file
-            writeToFile("centroids" + ".csv", stringFormattedCentroids);
+
+            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
+            /*
+            if(){
+
+            }
+             */
+
+            // Display the predicted activity
+
         }
 
         setActivityToTrack();
@@ -240,6 +246,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
+
+            //Run Model page
+            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
+
+            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
+
+            //Converts matrix to string
+            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
+
+            //Write the new centroids to file
+            writeToFile("centroids" + ".csv", stringFormattedCentroids);
         }
         else {
             intent = new Intent(DisplayActivity.this, SelectActivity.class);

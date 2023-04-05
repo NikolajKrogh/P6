@@ -1,5 +1,7 @@
 package com.example.p6.classes;
 
+import static java.lang.Math.*;
+
 import android.content.Context;
 
 import java.io.File;
@@ -26,6 +28,45 @@ public class NearestCentroid {
                                                {103.66115908541717, 108.26506024096386, 1, 215},
                                                {168.35690810370753, 163.85714285714286, 2, 96},
                                                {117.41208256764986, 0.19672131147540983, 3, 79}};
+
+    public double[][] nearestCentroidAlgorithm(double[] vectorToAddToCentroid, double[][] personalizedModel) {
+
+                                    //vectorToAddToCentroid = {70.0, 0.0, 0, 100}
+
+         if (personalizedModel.length != 0) {
+             // use personalized model
+
+             return null;
+         }
+
+        // use general model
+
+
+        return null;
+    }
+
+    public double distanceMetric(double[] vectorToAddToCentroid, double[][] personalizedModel) {
+        double[] delta;
+        double[] sum;
+
+        for (int i = 0; i < NUMBER_OF_LABELS; i++) {
+            delta[i] = vectorToAddToCentroid[i] - personalizedModel[i];
+            sum[i] += delta[i] * delta[i];
+
+
+            deltaHR = personalizedModel[i][HR_INDEX] =;
+
+            personalizedModel[i][STEP_COUNT_INDEX] =;
+
+            personalizedModel[i][CENTROID_SIZE_INDEX] =;
+        }
+
+        double deltaX = abs(ycoord - other.ycoord);
+        double deltaY = abs(xcoord - other.xcoord);
+        double result = sqrt(deltaX * deltaX + deltaY * deltaY);
+        return result;
+    }
+
 
     //implement such that we create the centroid file if it does not exists based on the above centroids
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
