@@ -14,6 +14,16 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class NearestCentroid {
+    int NUMBER_OF_LABELS = 4;
+    int NUMBER_OF_INPUT_PARAMETERS = 2;
+    static final int HR_INDEX = 0;
+    static final int STEP_COUNT_INDEX = 1;
+    static final int CENTROID_SIZE_INDEX = 3;
+    static final int SITTING = 0;
+    static final int WALKING = 1;
+    static final int RUNNING = 2;
+    static final int CYCLING = 3;
+
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
@@ -48,15 +58,13 @@ public class NearestCentroid {
         double[] sum;
 
         for (int i = 0; i < NUMBER_OF_LABELS; i++) {
-            delta[i] = vectorToAddToCentroid[i] - personalizedModel[i];
-            sum[i] += delta[i] * delta[i];
+            delta[SITTING] += (a[i] - b[i]) * (a[i] - b[i]);
+            delta[WALKING] += (a[i] - b[i]) * (a[i] - b[i]) ;
+            delta[RUNNING] += (a[i] - b[i]) * (a[i] - b[i]) ;
+            delta[CYCLING] += (a[i] - b[i]) * (a[i] - b[i]) ;
 
-
-            deltaHR = personalizedModel[i][HR_INDEX] =;
-
-            personalizedModel[i][STEP_COUNT_INDEX] =;
-
-            personalizedModel[i][CENTROID_SIZE_INDEX] =;
+            delta[i] =;
+            delta[i] += (a[i] - b[i]) * (a[i] - b[i]);
         }
 
         double deltaX = abs(ycoord - other.ycoord);
@@ -124,10 +132,6 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
-    
-    static final int HR_INDEX = 0;
-    static final int STEP_COUNT_INDEX = 1;
-    static final int CENTROID_SIZE_INDEX = 3;
 
     public double[] updateModel(double[] centroid, double[] vectorToAddToCentroid) {
         //preprocessing(vectorToAddToCentroid);
