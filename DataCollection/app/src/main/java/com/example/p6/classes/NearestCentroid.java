@@ -39,7 +39,6 @@ public class NearestCentroid {
         String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
 
-        Log.i("filePath", filePath);
         try {
             FileReader filereader = new FileReader(filePath);
             CSVReader csvReader = new CSVReader(filereader);

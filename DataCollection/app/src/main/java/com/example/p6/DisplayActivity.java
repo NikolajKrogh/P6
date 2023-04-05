@@ -236,7 +236,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             heartRateText.setText("Heart Rate: " + heartRate);
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
-            Log.i("Data points", String.valueOf(numberOfDataPointsAdded));
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
                 if (numberOfDataPointsAdded < 100){
                     short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
@@ -358,7 +357,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
         Row rowToAdd = new Row(heartRate, step_count, label, minutes);
-        Log.i("Row", rowToAdd.toString());
         dataPointsToAddArray.add(rowToAdd);
     }
 
