@@ -1,7 +1,7 @@
 package com.example.p6;
 
 import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Mode.PREDICT_ACTIVITY;
+import static com.example.p6.MainActivity.Mode.*;
 import static com.example.p6.MainActivity.Screen.*;
 
 import android.app.Activity;
@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,14 +21,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.classes.NearestCentroid;
+import com.example.p6.classes.CsvHandler;
+import com.example.p6.classes.Row;
 import com.example.p6.databinding.ActivityDisplayBinding;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,7 +56,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Heart rate variables
     private Sensor senHeartRateCounter;
     private TextView heartRateText;
-    private float heartRate = 0;
+    private short heartRate = 0;
     private long firstTimestamp = 0;
     private long latestTimestamp = 0;
     //endregion
@@ -59,15 +64,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Step count variables
     private Sensor senStepCounter;
     private TextView stepCountText;
-    private float initialStepCount = -1; // Initialized as -1 because the initial step count will
+    private int initialStepCount = -1; // Initialized as -1 because the initial step count will
     // never be -1, but it may be 0
-    private float accumulatedStepCount = 0;
-    private float currentStepCount = 0;
+    private int accumulatedStepCount = 0;
+    private int currentStepCount = 0;
     //endregion
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private String dataPointsToAdd = "timestamp,minutes,heart_rate,step_count,label\n";
+    private String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
+    private String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
+    private List<Row> dataPointsToAddArray = new ArrayList<>();
     //endregion
 
     //region Formatters
@@ -93,6 +100,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Context context = getApplicationContext();
         MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
@@ -106,7 +114,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
-
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
@@ -128,32 +135,50 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             // Display the predicted activity
 
+            showToast();
+            //Write the new centroids to file
+            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
+            // Resets the data points to add
+            dataPointsToAddArray.clear();
+
         }
+
+        setActivityToTrack();
+        activityText.setText("Tracking " + activityToTrack);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+
+        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
+            String fileName = "centroids.csv";
+            String filePath = context.getFilesDir() + "/" + fileName;
+            File csvFile = new File(filePath);
+            if (!csvFile.exists()) {
+                //TODO: implement proper centroid instead
+                //nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+            }
+        }
+
 
         setActivityToTrack();
         activityText.setText("Tracking \"" + activityToTrack + "\"");
 
 
-
-        /*if (mode == PREDICT_ACTIVITY) {
-            Context context = getApplicationContext();
-            String fileName = "centroids/centroids.csv";
-            String filePath = context.getFilesDir() + "/" + fileName;
-            File csvFile = new File(filePath);
-            if (!csvFile.exists()) {
-                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
-            }
-        }*/
-
-
     myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
-
+    public void showToast(){
+        myToast.setText("Writing to file ...");
+        myToast.show();
+    }
     public void setActivityToTrack(){
         switch(mode){
-            case PREDICT_ACTIVITY:     activityToTrack = UNLABELED;                                    break;
+            case PREDICT_ACTIVITY:
+                activityToTrack = UNLABELED;
+                break;
             case UPDATE_WITH_LABELS:
-            case COLLECT_DATA:  if (activityToTrack == UNLABELED) activityToTrack = WALKING;    break;
+            case COLLECT_DATA:
+                if (activityToTrack == UNLABELED)
+                    activityToTrack = WALKING;
+                break;
         }
 
     }
@@ -173,7 +198,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     // onLongClick() for stopActivityButton
     @Override
     public boolean onLongClick(View v) {
-        stopActivity();
+        try {
+            stopActivity();
+        } catch (CsvValidationException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -205,25 +236,28 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void onSensorChanged(SensorEvent event) {
+        Context context = getApplicationContext();
+
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
         }
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE && event.values[0] > 0) {
-            heartRate = event.values[0];
+            heartRate = (short)event.values[0];
             heartRateText.setText("Heart Rate: " + heartRate);
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
                 if (numberOfDataPointsAdded < 100){
-                    long minutesSinceStart = getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
-                    insertDataAtTimeStamp(currentTimestamp, minutesSinceStart, heartRate, accumulatedStepCount);
+                    short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
+                    addDataPointToArray(minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
                 }
                 else {
-                    writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-                    timesWrittenToFile++;
-                    timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
-                    numberOfDataPointsAdded = 0;
+                    switch (mode){
+                        case PREDICT_ACTIVITY:     addDataPointsToCorrespondingFile();     break;
+                        case UPDATE_WITH_LABELS:                                           break;
+                        case COLLECT_DATA:  addDataPointsToFile();                  break;
+                    }
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
@@ -233,15 +267,60 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
+    private void addDataPointsToCorrespondingFile(){
+        preprocessData();
+    }
+
+    private void preprocessData(){
+
+    }
+
+    private void addDataPointsToFile(){
+        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+        timesWrittenToFile++;
+        timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
+        numberOfDataPointsAdded = 0;
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
 
-    public void stopActivity() {
+    public void stopActivity() throws CsvValidationException, IOException {
+        Context context = getApplicationContext();
         unregisterListeners();
-        writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+        if (mode == COLLECT_DATA)
+            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
+            //do preprocessing
+        }
+        if (mode == PREDICT_ACTIVITY) {
+            /*
+            SitRows;
+            walkRows;
+            runRows;
+            cycleRows;
 
+            for row in rows:
+                returnedRow = runModel(row) //this returned row should contain a label for the row
+                put returned row i den rigtige XXRows (baseret på dens label)
+            for hver af de 4 XXRows:
+                append til hver deres fil (sitting.csv, walking.csv, etc...)
+                Hvis det at vi appender til filen betyder at filen har mindst X rækker:
+                    opdaterer modellen
+             */
+        }
+        else if (mode == UPDATE_WITH_LABELS) {
+            nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
+            //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
+            //it should also be the processed data
+
+            //double[][] updatedCentroids = nearestCentroid.updateModel(nearestCentroid.centroids, newDataPoints);
+
+            //Write the new centroids to file
+            //nearestCentroid.writeCentroidsToFile(updatedCentroids,context);
+        }
         Intent intent;
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
@@ -272,7 +351,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void updateAccumulatedStepCount(SensorEvent event){
-        currentStepCount = event.values[0];
+        currentStepCount = (int)event.values[0];
         if (initialStepCount == -1){
             initialStepCount = currentStepCount;
         }
@@ -296,13 +375,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 + ":" + clockFormat.format(secondsToDisplay));
     }
 
-    public void insertDataAtTimeStamp(long timestamp, long minutes, float heartRate, float step_count) {
-        int label = activityToTrack.ordinal();
-        List<String> row = Arrays.asList(String.format("%s,%s,%d,%d,%s\n", timestamp, minutes, (long)heartRate,(long)step_count, label));
-        dataPointsToAdd += String.join(",",row);
+    public void addDataPointToArray(short minutes, short heartRate, int step_count) {
+        byte label = (byte)activityToTrack.ordinal();
+        Row rowToAdd = new Row(heartRate, step_count, label, minutes);
+        dataPointsToAddArray.add(rowToAdd);
     }
 
-    public void writeToFile(String fileName, String content){
+    public void writeToFile(String fileName, List<Row> dataPoints){
         myToast.setText("Writing to file ...");
         myToast.show();
         File path;
@@ -315,27 +394,33 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             File file = new File(path.getPath(),fileName);
             file.createNewFile(); // if file already exists, this will do nothing
             FileOutputStream writer = new FileOutputStream(file,true);
-            writer.write(content.getBytes());
+            if (file.length() == 0){
+                writer.write(dataPointHeaderBeforePreprocessing.getBytes());
+            }
+            for (Row dataPoint : dataPoints
+                 ) {
+                writer.write(dataPoint.toString().getBytes());
+            }
             writer.close();
 
             // Resets the data points to add
-            dataPointsToAdd = "";
+            dataPointsToAddArray.clear();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public long[] getTimeSinceStart(long currentTimestamp){
-        long[] TimeSinceStart = new long[3];
+    public int[] getTimeSinceStart(long currentTimestamp){
+        int[] TimeSinceStart = new int[3];
 
         long nanosecondsSinceStart = currentTimestamp - firstTimestamp;
         long milliSecondsSinceStart = nanosecondsSinceStart / MILLISEC_TO_NANOSEC_FACTOR;
-        long secondsSinceStart = milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR;
-        long minutesSinceStart = secondsSinceStart / MIN_TO_SEC_FACTOR;
+        int secondsSinceStart = (int)(milliSecondsSinceStart / SEC_TO_MILLISEC_FACTOR);
+        int minutesSinceStart = (int)(secondsSinceStart / MIN_TO_SEC_FACTOR);
 
         TimeSinceStart[Time.MINUTES.ordinal()] = minutesSinceStart;
         TimeSinceStart[Time.SECONDS.ordinal()] = secondsSinceStart;
-        TimeSinceStart[Time.MILLISECONDS.ordinal()] = milliSecondsSinceStart;
+        TimeSinceStart[Time.MILLISECONDS.ordinal()] = (int)milliSecondsSinceStart;
 
         return TimeSinceStart;
     }

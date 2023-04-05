@@ -3,27 +3,25 @@ package com.example.p6.classes;
 import static java.lang.Math.*;
 
 import android.content.Context;
+import android.util.Log;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
-import android.util.Log;
-
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-
 public class NearestCentroid {
-    int NUMBER_OF_LABELS = 4;
-    int NUMBER_OF_INPUT_PARAMETERS = 2;
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
         LABEL,
         CENTROID_SIZE
     }
-    double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
+    CsvHandler csvHandler = new CsvHandler();
+    public Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
     public double[][] generalModelCentroids = {{75.02328727800564, 0.0, 0, 180},
                                                {103.66115908541717, 108.26506024096386, 1, 215},
                                                {168.35690810370753, 163.85714285714286, 2, 96},
@@ -79,10 +77,9 @@ public class NearestCentroid {
     }
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-        String fileName = "centroids/centroids.csv";
+        String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
 
-        Log.i("filePath", filePath);
         try {
             FileReader filereader = new FileReader(filePath);
             CSVReader csvReader = new CSVReader(filereader);
@@ -92,7 +89,7 @@ public class NearestCentroid {
             // we are going to read data line by line
             while ((nextEntry = csvReader.readNext()) != null) {
                 //vi håber den skipper header ellers skal vi gøre et eller andet ved det
-                centroids[i] = convertStringArrayToDoubleArray(nextEntry);
+                //centroids[i] = convertStringArrayToDoubleArray(nextEntry);
             }
         }
         catch (IOException e) {
@@ -104,23 +101,11 @@ public class NearestCentroid {
 
     }
 
-
-    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size\n";
-        for (int label = 0; label < NUMBER_OF_LABELS; label++) {
-            result += String.format("%d,%d,%s,%s\n",centroids[HeaderValues.HEART_RATE.ordinal()],
-                    centroids[HeaderValues.STEP_COUNT.ordinal()],
-                    centroids[HeaderValues.LABEL.ordinal()],
-                    centroids[HeaderValues.CENTROID_SIZE.ordinal()]);
-        }
-        return result;
-    }
-
     //this function can both be used to write the general centroid but also to write the updated ones
     //here we should then pass file location as a parameter as well then
-    public void writeCentroidsToFile(double[][] centroids, Context context) {
-        String fileName = "centroids/centroids.csv";
-        String content = makeStringToInsertIntoCsvFromCentroids(centroids);
+    public void writeCentroidsToFile(Centroid[] centroids, Context context) {
+        String fileName = "centroids.csv";
+        String content = centroids.toString();
         File path;
 
         try {
@@ -139,8 +124,7 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
-
-
+    
     static final int HR_INDEX = 0;
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;

@@ -6,7 +6,7 @@ import os
 
 
 def data_combiner():
-    result_path = r"data\combined.csv"
+    result_path = os.path.join("data","combined.csv")
     if os.path.exists(result_path):
         print("combined file already exists")
         prompt = ""
