@@ -37,12 +37,14 @@ public class NearestCentroid {
                                                {168.35690810370753, 163.85714285714286, 2, 96},
                                                {117.41208256764986, 0.19672131147540983, 3, 79}};
 
-    public double[][] nearestCentroidAlgorithm(double[] vectorToAddToCentroid, double[][] personalizedModel) {
+    public double[][] nearestCentroidAlgorithm(double[] vectorToAddToCentroid, Centroid[] personalizedModel) {
 
                                     //vectorToAddToCentroid = {70.0, 0.0, 0, 100}
 
          if (personalizedModel.length != 0) {
-             // use personalized model
+            // use personalized model
+            int closestCentroid = distanceMetric(vectorToAddToCentroid, personalizedModel);
+
 
              return null;
          }
@@ -53,24 +55,35 @@ public class NearestCentroid {
         return null;
     }
 
-    public double distanceMetric(double[] vectorToAddToCentroid, double[][] personalizedModel) {
-        double[] delta;
-        double[] sum;
+    public int distanceMetric(double[] vectorToAddToCentroid, Centroid[] personalizedModel) {
+        double[] delta={0,0,0,0};
 
         for (int i = 0; i < NUMBER_OF_LABELS; i++) {
-            delta[SITTING] += (a[i] - b[i]) * (a[i] - b[i]);
-            delta[WALKING] += (a[i] - b[i]) * (a[i] - b[i]) ;
-            delta[RUNNING] += (a[i] - b[i]) * (a[i] - b[i]) ;
-            delta[CYCLING] += (a[i] - b[i]) * (a[i] - b[i]) ;
-
-            delta[i] =;
-            delta[i] += (a[i] - b[i]) * (a[i] - b[i]);
+            delta[SITTING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
+                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
+            delta[WALKING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
+                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
+            delta[RUNNING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
+                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
+            delta[CYCLING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
+                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
         }
 
-        double deltaX = abs(ycoord - other.ycoord);
-        double deltaY = abs(xcoord - other.xcoord);
-        double result = sqrt(deltaX * deltaX + deltaY * deltaY);
-        return result;
+        // This method returns the label is closest to vectorToAddToCentroid
+        return minimumDistance(delta);
+    }
+
+    // Returns the index that contains the smallest valued element.
+    static int minimumDistance(double[] delta)
+    {
+        // Initialize index for minimum valued element
+        int minValueIndex = 0;
+
+        for (int i = 1; i < delta.length; i++)
+            if (delta[i] < delta[minValueIndex])
+                minValueIndex = i;
+
+        return minValueIndex;
     }
 
 
