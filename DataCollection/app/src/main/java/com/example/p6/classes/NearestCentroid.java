@@ -1,7 +1,11 @@
 package com.example.p6.classes;
 
+import static com.example.p6.activities.MainActivity.Activity.*;
+import static java.lang.Math.*;
+
 import android.content.Context;
 
+import com.example.p6.activities.MainActivity;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -11,6 +15,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class NearestCentroid {
+    int NUMBER_OF_LABELS = 4;
+    int NUMBER_OF_INPUT_PARAMETERS = 2;
+
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
@@ -20,11 +27,46 @@ public class NearestCentroid {
     CsvHandler csvHandler = new CsvHandler();
     private Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
     public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
-                                               new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
-                                               new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
-                                               new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
-                                              };
+            new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
+            new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
+            new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
+    };
 
+    // Calculates the distance from vectorToAddToCentroid to every centroid
+    // Returns the label of the centroid that is closest to vectorToAddToCentroid
+    public MainActivity.Activity runNearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
+        double[] delta={0,0,0,0};
+
+        for (int i = 0; i < NUMBER_OF_LABELS; i++)
+            delta[i] = sqrt(pow((model[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((model[i].step_count - vectorToAddToCentroid.stepCount),2));
+
+        // Returns the label that is closest to vectorToAddToCentroid
+        return getMinimumDistanceCentroid(delta);
+    }
+
+    // Returns the index that contains the smallest valued element.
+    private MainActivity.Activity getMinimumDistanceCentroid(double[] delta)
+    {
+        MainActivity.Activity minValueIndex = SITTING;
+
+        for (int i = 1; i < delta.length; i++)
+            if (delta[i] < delta[minValueIndex.ordinal()])
+                minValueIndex = MainActivity.Activity.values()[i];
+
+        return minValueIndex;
+    }
+
+    //implement such that we create the centroid file if it does not exists based on the above centroids
+    private double[] convertStringArrayToDoubleArray(String[] stringArray) {
+        int arrayLength = stringArray.length;
+        double[] result = new double[arrayLength];
+            for (int i = 0; i <= arrayLength; i++) {
+                result[i] = Double.parseDouble(stringArray[i]);
+            }
+        return result;
+    }
+    
     private void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         File fileName = new File("centroids.csv");
         File filePath = new File(context.getFilesDir(), String.valueOf(fileName));
@@ -75,10 +117,6 @@ public class NearestCentroid {
             throw new RuntimeException(e);
         }
     }
-    
-    static final int HR_INDEX = 0;
-    static final int STEP_COUNT_INDEX = 1;
-    static final int CENTROID_SIZE_INDEX = 3;
 
     private Centroid updateModel(Centroid centroid, Row row) {
         // maybe check if anything is empty
