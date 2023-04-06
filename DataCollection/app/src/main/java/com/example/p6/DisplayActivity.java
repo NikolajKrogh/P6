@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.p6.classes.Centroid;
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.Row;
@@ -117,6 +118,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
 
+
         //Run Model page
         if(mode == PREDICT_ACTIVITY){
             double[] vectorToAddToCentroid = {70.0, 0.0, 0, 100};
@@ -153,8 +155,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             String filePath = context.getFilesDir() + "/" + fileName;
             File csvFile = new File(filePath);
             if (!csvFile.exists()) {
-                //TODO: implement proper centroid instead
-                //nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
             }
         }
 
