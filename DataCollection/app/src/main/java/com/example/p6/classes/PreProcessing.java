@@ -5,7 +5,7 @@ import java.util.List;
 
 public class PreProcessing {
     private static final byte NOT_SET = -1;
-    public static List<DataPoint> timeSeries = new ArrayList<>();
+    public static List<DataPoint> aggregatedDataPoints = new ArrayList<>();
     static short minute = 0;
     static short prevMinute = NOT_SET;
     static short accumulatedHeartRate = 0;
@@ -31,13 +31,13 @@ public class PreProcessing {
             numberOfDataPointsInMinute++;
         }
 
-        return timeSeries;
+        return aggregatedDataPoints;
     }
 
     private static void addTimeSeriesToList(String sessionId) {
         short avgHeartRate = (short) (accumulatedHeartRate / numberOfDataPointsInMinute);
         short stepCountDiff = (short) (prevStepCount - stepCountAtStartOfMinute);
-        timeSeries.add(new DataPoint(avgHeartRate, stepCountDiff, sessionId));
+        aggregatedDataPoints.add(new DataPoint(avgHeartRate, stepCountDiff, sessionId));
     }
 
     private static void resetValues() {

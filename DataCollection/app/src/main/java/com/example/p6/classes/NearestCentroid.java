@@ -15,7 +15,7 @@ public class NearestCentroid {
 
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
-    public Constants.Activity runNearestCentroidAlgorithm(DataPoint dataPoint, Centroid[] model) {
+    public static Constants.Activity predict(DataPoint dataPoint, Centroid[] model) {
         double[] distanceToCentroids={0,0,0,0};
 
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++)
@@ -27,7 +27,7 @@ public class NearestCentroid {
     }
 
     // Returns the index that contains the smallest valued element.
-    private Constants.Activity getActivityWithSmallestDistanceToDataPoint(double[] distanceToCentroids) {
+    private static Constants.Activity getActivityWithSmallestDistanceToDataPoint(double[] distanceToCentroids) {
         Constants.Activity activity = SITTING;
         byte length = (byte)distanceToCentroids.length;
         for (byte i = 1; i < length; i++)

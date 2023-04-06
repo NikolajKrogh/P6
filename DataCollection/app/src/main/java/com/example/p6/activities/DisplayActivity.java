@@ -1,6 +1,5 @@
 package com.example.p6.activities;
 
-import static com.example.p6.classes.Constants.Activity.*;
 import static com.example.p6.classes.Constants.Mode.*;
 import static com.example.p6.classes.Constants.Screen.*;
 
@@ -12,6 +11,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -35,6 +35,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -53,6 +54,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private static final long HOUR_TO_MIN_FACTOR =  60;
     private static final float LOW_BRIGHTNESS = 0.05F;
     private static final float HIGH_BRIGHTNESS = 1F;
+    private static final short NUMBER_OF_DATA_POINTS_LIMIT = 1000;
     //endregion
 
     //region Heart rate variables
@@ -72,8 +74,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private final String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
     private List<DataPoint> dataPointsToAdd = new ArrayList<>();
+
+    private List<DataPoint> aggregatedDataPointsSitting = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+
+
     //endregion
 
     //region Formatters
@@ -133,29 +141,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
              */
             DataPoint vectorToAddToCentroid = new DataPoint((short) 160, 160, (byte) 0, (short) 1);
-            Constants.Activity nearestCentroidLabel = nearestCentroid.runNearestCentroidAlgorithm(
+            Constants.Activity nearestCentroidLabel = nearestCentroid.predict(
                                                             vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
-            switch (nearestCentroidLabel){
-                case SITTING:
-                    showToast("Predicted activity: Sitting");
-                    break;
-                case WALKING:
-                    showToast("Predicted activity: Walking");
-                    break;
-                case RUNNING:
-                    showToast("Predicted activity: Running");
-                    break;
-                case CYCLING:
-                    showToast("Predicted activity: Cycling");
-                    break;
-            }
-
+            showToast("Predicted activity: " + nearestCentroidLabel.name());
             //model[closestCentroidIndex] = updateModel(model[closestCentroidIndex], (Row) vectorToAddToCentroid);
-
         }
 
-        setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
@@ -175,20 +167,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void showToast(String text) {
         myToast.setText(text);
         myToast.show();
-    }
-
-    private void setActivityToTrack() {
-        switch(mode){
-            case PREDICT_ACTIVITY:
-                activityToTrack = UNLABELED;
-                break;
-            case UPDATE_WITH_LABELS:
-            case COLLECT_DATA:
-                if (activityToTrack == UNLABELED)
-                    activityToTrack = WALKING;
-                break;
-        }
-
     }
 
     @Override
@@ -254,7 +232,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-                if (numberOfDataPointsAdded < 100){
+                if (numberOfDataPointsAdded < NUMBER_OF_DATA_POINTS_LIMIT){
                     short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     addDataPointToArray(minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
@@ -262,8 +240,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 else {
                     switch (mode){
                         case PREDICT_ACTIVITY:
-                        case UPDATE_WITH_LABELS:
                             addDataPointsToCorrespondingFile();
+                            break;
+                        case UPDATE_WITH_LABELS:
+                            PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
                             break;
                         case COLLECT_DATA:
                             writeToFile(activityToTrack.name().toLowerCase() + "_" +
@@ -285,8 +265,25 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void addDataPointsToCorrespondingFile(){
         PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
-        // Give each timeSeries labels by finding their nearest centroid
-        // Write to corresponding file using CsvHandler.writeToFile();
+        for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
+            Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+
+            switch (predictedActivity){
+                case SITTING:
+                    aggregatedDataPointsSitting.add(dataPoint);
+                    break;
+                case WALKING:
+                    aggregatedDataPointsWalking.add(dataPoint);
+                    break;
+                case RUNNING:
+                    aggregatedDataPointsRunning.add(dataPoint);
+                    break;
+                case CYCLING:
+                    aggregatedDataPointsCycling.add(dataPoint);
+                    break;
+            }
+        }
+        PreProcessing.aggregatedDataPoints.clear();
     }
 
     @Override
