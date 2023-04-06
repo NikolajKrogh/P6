@@ -1,7 +1,9 @@
 package com.example.p6.classes;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -12,20 +14,17 @@ import java.io.IOException;
 
 public class CsvHandler {
     //region Centroid constants
-    int NUMBER_OF_LABELS = 4;
-    int NUMBER_OF_INPUT_PARAMETERS = 2;
     //endregion
-    public static void writeToFile(String fileName, String content, Context context){
-        File path;
+    public static void writeToFile(String fileName, String content, Context context, boolean appendMode){
+        int mode; //either Context.MODE_APPEND or Context.MODE_PRIVATE
+        if (appendMode)
+            mode = Context.MODE_APPEND;
+        else
+            mode = context.MODE_PRIVATE;
         try {
-            path = context.getDir(fileName, Context.MODE_APPEND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            File file = new File(path.getPath(),fileName);
+            File file = new File(context.getDir(fileName, mode),fileName);
             file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,true);
+            FileOutputStream writer = new FileOutputStream(file,appendMode);
             writer.write(content.getBytes());
             writer.close();
 
@@ -44,23 +43,29 @@ public class CsvHandler {
         return result;
     }
 
-    public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
-        double[][] centroids = new double[NUMBER_OF_LABELS][NUMBER_OF_INPUT_PARAMETERS];
-        File fileName = new File("centroids.csv");
-        File filePath = new File(context.getFilesDir(), String.valueOf(fileName));
-        //String fileName = "centroids.csv";
-        //String filePath = context.getFilesDir() + "/" + fileName;
+    public static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
+        String result = "";
+        for (Centroid centroid : centroids) {
+            result += centroid.toString();
+            result += delimiter;
+        }
+        return result;
+    }
 
+    public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
+        Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
+        String fileName = "centroids.csv";
         try {
-            FileReader filereader = new FileReader(filePath);
+            File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
+            FileReader filereader = new FileReader(file);
             CSVReader csvReader = new CSVReader(filereader);
-
+            csvReader.readNext(); //skip header
             String[] nextEntry;
             int i = 0;
             // we are going to read data line by line
             while ((nextEntry = csvReader.readNext()) != null) {
-                //vi håber den skipper header ellers skal vi gøre et eller andet ved det
-                centroids[i] = convertStringArrayToDoubleArray(nextEntry);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3]);
+                i++;
             }
         }
         catch (IOException e) {
@@ -69,41 +74,7 @@ public class CsvHandler {
         catch (CsvValidationException e) {
             throw new CsvValidationException();
         }
-
+        return centroids;
     }
 
-    private String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
-        String result = "heart_rate,step_count,label,centroid_size\n";
-        for (int label = 0; label < NUMBER_OF_LABELS; label++) {
-            result += String.format("%d,%d,%s,%s\n",centroids[NearestCentroid.HeaderValues.HEART_RATE.ordinal()],
-                    centroids[NearestCentroid.HeaderValues.STEP_COUNT.ordinal()],
-                    centroids[NearestCentroid.HeaderValues.LABEL.ordinal()],
-                    centroids[NearestCentroid.HeaderValues.CENTROID_SIZE.ordinal()]);
-        }
-        return result;
-    }
-
-    //this function can both be used to write the general centroid but also to write the updated ones
-    //here we should then pass file location as a parameter as well then
-    public void writeCentroidsToFile(double[][] centroids, Context context) {
-        String fileName = "centroids.csv";
-        String content = makeStringToInsertIntoCsvFromCentroids(centroids);
-        File path;
-
-        try {
-            path = context.getDir(fileName, Context.MODE_PRIVATE);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            File file = new File(path.getPath(),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file);
-            writer.write(content.getBytes());
-            writer.close();
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

@@ -1,8 +1,8 @@
 package com.example.p6.activities;
 
-import static com.example.p6.activities.MainActivity.Activity.*;
-import static com.example.p6.activities.MainActivity.Screen.*;
-import static com.example.p6.activities.MainActivity.Mode.*;
+import static com.example.p6.classes.Constants.Activity.*;
+import static com.example.p6.classes.Constants.Screen.*;
+import static com.example.p6.classes.Constants.Mode.*;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,37 +12,15 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.Constants;
 import com.example.p6.databinding.ActivityMainBinding;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
-    //region Enums
-    public enum Activity {
-        SITTING,
-        WALKING,
-        RUNNING,
-        CYCLING,
-        UNLABELED
-    }
-
-    public enum Screen {
-        MAIN,
-        SELECT,
-        DISPLAY,
-        VIEW_MODEL
-    }
-
-    public enum Mode {
-        PREDICT_ACTIVITY,
-        UPDATE_WITH_LABELS,
-        COLLECT_DATA,
-    }
-    //endregion
-
     //region Global variables
-    static Activity activityToTrack = UNLABELED;
-    static Screen currentScreen = MAIN;
-    static Mode trackingMode = COLLECT_DATA;
+    static Constants.Activity activityToTrack = UNLABELED;
+    static Constants.Screen currentScreen = MAIN;
+    static Constants.Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
     //endregion
 

@@ -1,8 +1,8 @@
 package com.example.p6.activities;
 
-import static com.example.p6.activities.MainActivity.Activity.*;
-import static com.example.p6.activities.MainActivity.Mode.*;
-import static com.example.p6.activities.MainActivity.Screen.*;
+import static com.example.p6.classes.Constants.Activity.*;
+import static com.example.p6.classes.Constants.Mode.*;
+import static com.example.p6.classes.Constants.Screen.*;
 
 import static java.lang.Math.abs;
 
@@ -14,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -22,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.Constants;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.Row;
 import com.example.p6.classes.PreProcessing;
@@ -83,8 +86,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
-    private MainActivity.Activity activityToTrack = MainActivity.activityToTrack;
-    private final MainActivity.Mode mode = MainActivity.trackingMode;
+    private Constants.Activity activityToTrack = MainActivity.activityToTrack;
+    private final Constants.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
     private LocalDateTime dateTime;
     private TextView timerText;
@@ -115,22 +118,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
-
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
-
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
             String fileName = "centroids.csv";
-            String filePath = context.getFilesDir() + "/" + fileName;
-            File csvFile = new File(filePath);
-            if (!csvFile.exists()) {
-                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+            File file = new File(context.getFilesDir(), fileName);
+            if (!file.exists()) {
+                String content = Constants.centroidHeader;
+                content += CsvHandler.convertArrayOfCentroidsToString(nearestCentroid.generalModelCentroids,"\n");
+                CsvHandler.writeToFile(fileName,content,context,false);
             }
         }
-
         Random rand = new Random();
         sessionId = String.valueOf(rand.nextInt(Integer.MAX_VALUE));
 
@@ -283,7 +282,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
              */
         }
         else if (mode == UPDATE_WITH_LABELS) {
-            //nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
+            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(context);
             //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
             //it should also be the processed data
 
