@@ -159,19 +159,42 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         activityText.setText("Tracking " + activityToTrack);
 
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
-            String fileName = "centroids.csv";
-            File file = new File(context.getFilesDir(), fileName);
-            if (!file.exists()) {
-                String content = Constants.centroidHeader;
-                content += CsvHandler.convertArrayOfCentroidsToString(nearestCentroid.generalModelCentroids,"\n");
-                CsvHandler.writeToFile(fileName,content,context,false);
-            }
+            handleWritingCentroidsToFile(false,context);
+            handleWritingCentroidsToFile(true,context); //this file has a trailing comma - if anything goes wrong look here
+
         }
         Random rand = new Random();
         sessionId = String.valueOf(rand.nextInt(Integer.MAX_VALUE));
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
+
+    private void handleWritingCentroidsToFile(boolean shouldWriteToCentroidHistory, Context context)
+    {
+        String header;
+        String fileName;
+        String delimiter;
+        if (shouldWriteToCentroidHistory) {
+            header = Constants.centroidHistoryHeader;
+            fileName = "centroids_history.csv";
+            delimiter = ",";
+        }
+        else {
+            header = Constants.centroidHeader;
+            fileName = "centroids.csv";
+            delimiter = "\n";
+
+        }
+        File file = new File(context.getFilesDir(), fileName);
+        if (!file.exists()) {
+            String content = header;
+            content += CsvHandler.convertArrayOfCentroidsToString(nearestCentroid.generalModelCentroids,delimiter);
+            if (shouldWriteToCentroidHistory)
+                content += "\n";
+            CsvHandler.writeToFile(fileName,content,context,false);
+        }
+    }
+
     private void showToast(String text) {
         myToast.setText(text);
         myToast.show();
@@ -188,7 +211,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     activityToTrack = WALKING;
                 break;
         }
-
     }
 
     @Override
