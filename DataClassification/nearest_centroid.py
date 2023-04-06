@@ -7,6 +7,8 @@ from sklearn import preprocessing
 from sklearn.neighbors import NearestCentroid
 from scipy.stats import zscore
 
+import pyperclip
+
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
@@ -108,6 +110,22 @@ def make_budget_time_series_from_data_frame(data_frame):
                     budget_time_series_index += 1
     return X,y
 
+def format_final_centroid_to_java(centroids):
+    result = "{"
+    for centroid in centroids:
+        result += "new Centroid("
+        for i in range(len(centroid)):
+            if i == 2:
+                result += "(byte) "
+            result += str(centroid[i])
+            result += ", "
+        result = result.rstrip(", ")#removes trailing comma
+        result += "),"
+     
+    result = result.rstrip(", ") #removes trailing comma
+    result += "};"
+    return result
+
 if __name__ == '__main__':
     X,y = make_budget_time_series_from_data_frame(data)
     
@@ -119,7 +137,8 @@ if __name__ == '__main__':
     
     scaler = preprocessing.StandardScaler()
     X_standard_scaled = scaler.fit_transform(X)
-    print(y)
+    print(y) #if this is removed it may not work
+    y = [value for value in y if not( value < 0.05 and value != 0)] #attempt at removing those very small values that may appear
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
@@ -136,12 +155,9 @@ if __name__ == '__main__':
         final_centroids.append(centroid)
         
         
+
+    pyperclip.copy(format_final_centroid_to_java(final_centroids))
         
-    print(final_centroids)
-        
-        
-    #print(centroids)
-    
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
     
