@@ -1,7 +1,7 @@
-package com.example.p6;
+package com.example.p6.activities;
 
-import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Screen.*;
+import static com.example.p6.activities.MainActivity.Activity.*;
+import static com.example.p6.activities.MainActivity.Screen.*;
 
 import android.app.Activity;
 import android.content.Intent;

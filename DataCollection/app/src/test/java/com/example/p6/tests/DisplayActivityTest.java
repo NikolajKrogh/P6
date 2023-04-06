@@ -27,34 +27,34 @@ public class DisplayActivityTest {
     }
 
     @Test
-    public void onSensorChanged() {
+    private void onSensorChanged() {
     }
 
     @Test
-    public void onAccuracyChanged() {
+    private void onAccuracyChanged() {
     }
 
     @Test
-    public void onStopButtonClick() {
+    private void onStopButtonClick() {
     }
 
     @Test
-    public void updateAccumulatedStepCount() {
+    private void updateAccumulatedStepCount() {
     }
 
     @Test
-    public void updateTimer() {
+    private void updateTimer() {
     }
 
     @Test
-    public void getTimeSinceStart() {
+    private void getTimeSinceStart() {
     }
 
     @Test
-    public void insertDataAtTimeStamp() {
+    private void insertDataAtTimeStamp() {
     }
 
     @Test
-    public void writeToFile() {
+    private void writeToFile() {
     }
 }

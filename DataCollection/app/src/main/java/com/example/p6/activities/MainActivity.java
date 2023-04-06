@@ -1,8 +1,8 @@
-package com.example.p6;
+package com.example.p6.activities;
 
-import static com.example.p6.MainActivity.Activity.*;
-import static com.example.p6.MainActivity.Screen.*;
-import static com.example.p6.MainActivity.Mode.*;
+import static com.example.p6.activities.MainActivity.Activity.*;
+import static com.example.p6.activities.MainActivity.Screen.*;
+import static com.example.p6.activities.MainActivity.Mode.*;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,12 +11,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.p6.R;
 import com.example.p6.databinding.ActivityMainBinding;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
     //region Enums
-    enum Activity {
+    public enum Activity {
         SITTING,
         WALKING,
         RUNNING,
@@ -24,14 +25,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         UNLABELED
     }
 
-    enum Screen {
+    public enum Screen {
         MAIN,
         SELECT,
         DISPLAY,
         VIEW_MODEL
     }
 
-    enum Mode {
+    public enum Mode {
         PREDICT_ACTIVITY,
         UPDATE_WITH_LABELS,
         COLLECT_DATA,
@@ -69,13 +70,13 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         BackButtonPressed = false;
     }
 
-    public void goToScreen(Class activityClass){
+    private void goToScreen(Class activityClass){
         Intent intent = new Intent(MainActivity.this, activityClass);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
-    public void startCurrentlyRunningActivity(){
+    private void startCurrentlyRunningActivity(){
         switch (currentScreen){
             case SELECT:        goToScreen(SelectActivity.class);      break;
             case DISPLAY:       goToScreen(DisplayActivity.class);     break;
