@@ -4,8 +4,6 @@ import static com.example.p6.activities.MainActivity.Activity.*;
 import static com.example.p6.activities.MainActivity.Mode.*;
 import static com.example.p6.activities.MainActivity.Screen.*;
 
-import static java.lang.Math.abs;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +33,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -47,13 +43,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         SECONDS,
         MILLISECONDS,
     }
-
-    //region label constants
-    static final int SITTING_LABEL = 0;
-    static final int WALKING_LABEL = 1;
-    static final int RUNNING_LABEL = 2;
-    static final int CYCLING_LABEL = 3;
-    //endregion
 
     //region Time constants
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
@@ -142,19 +131,19 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
              */
             Row vectorToAddToCentroid = new Row((short) 160, 160, (byte) 0, (short) 1);
-            int nearestCentroidLabel = nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+            MainActivity.Activity nearestCentroidLabel = (MainActivity.Activity) nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
             switch (nearestCentroidLabel){
-                case SITTING_LABEL:
+                case SITTING:
                     showToast("Predicted activity: Sitting");
                     break;
-                case WALKING_LABEL:
+                case WALKING:
                     showToast("Predicted activity: Walking");
                     break;
-                case RUNNING_LABEL:
+                case RUNNING:
                     showToast("Predicted activity: Running");
                     break;
-                case CYCLING_LABEL:
+                case CYCLING:
                     showToast("Predicted activity: Cycling");
                     break;
             }

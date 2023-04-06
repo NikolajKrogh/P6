@@ -1,9 +1,11 @@
 package com.example.p6.classes;
 
+import static com.example.p6.activities.MainActivity.Activity.*;
 import static java.lang.Math.*;
 
 import android.content.Context;
 
+import com.example.p6.activities.MainActivity;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -32,7 +34,7 @@ public class NearestCentroid {
 
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
-    public int nearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
+    public MainActivity.Activity nearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
         double[] delta={0,0,0,0};
 
         for (int i = 0; i < NUMBER_OF_LABELS; i++)
@@ -44,13 +46,13 @@ public class NearestCentroid {
     }
 
     // Returns the index that contains the smallest valued element.
-    private int minimumDistanceCentroid(double[] delta)
+    private MainActivity.Activity minimumDistanceCentroid(double[] delta)
     {
-        int minValueIndex = 0;
+        MainActivity.Activity minValueIndex = SITTING;
 
         for (int i = 1; i < delta.length; i++)
-            if (delta[i] < delta[minValueIndex])
-                minValueIndex = i;
+            if (delta[i] < delta[minValueIndex.ordinal()])
+                minValueIndex = MainActivity.Activity.values()[i];
 
         return minValueIndex;
     }
