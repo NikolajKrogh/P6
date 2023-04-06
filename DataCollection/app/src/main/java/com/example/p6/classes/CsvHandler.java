@@ -72,7 +72,7 @@ public class CsvHandler {
 
     }
 
-    public String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
+    private String makeStringToInsertIntoCsvFromCentroids(double[][] centroids) {
         String result = "heart_rate,step_count,label,centroid_size\n";
         for (int label = 0; label < NUMBER_OF_LABELS; label++) {
             result += String.format("%d,%d,%s,%s\n",centroids[NearestCentroid.HeaderValues.HEART_RATE.ordinal()],
