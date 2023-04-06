@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         SECONDS,
         MILLISECONDS,
     }
+
+    //region label constants
+    static final int SITTING_LABEL = 0;
+    static final int WALKING_LABEL = 1;
+    static final int RUNNING_LABEL = 2;
+    static final int CYCLING_LABEL = 3;
+    //endregion
 
     //region Time constants
     private static final long MILLISEC_TO_NANOSEC_FACTOR = 1000000;
@@ -126,21 +134,41 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
             /*
-            if(){
+            if (personalizedModel.length != 0) {
+
+            }else{
 
             }
-             */
 
-            Centroid vectorToAddToCentroid = new Centroid(160.0, 160.0, (byte) 0, 100);
-            nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+             */
+            Row vectorToAddToCentroid = new Row((short) 160, 160, (byte) 0, (short) 1);
+            int nearestCentroidLabel = nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+
+            switch (nearestCentroidLabel){
+                case SITTING_LABEL:
+                    showToast("Predicted activity: Sitting");
+                    break;
+                case WALKING_LABEL:
+                    showToast("Predicted activity: Walking");
+                    break;
+                case RUNNING_LABEL:
+                    showToast("Predicted activity: Running");
+                    break;
+                case CYCLING_LABEL:
+                    showToast("Predicted activity: Cycling");
+                    break;
+            }
+
+            //model[closestCentroidIndex] = updateModel(model[closestCentroidIndex], (Row) vectorToAddToCentroid);
+
 
             // Display the predicted activity
 
-            showToast();
+            //showToast();
             //Write the new centroids to file
             //CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
             // Resets the data points to add
-            dataPointsToAddArray.clear();
+            dataPointsToAdd.clear();
 
         }
 
@@ -323,15 +351,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
-
-            Centroid vectorToAddToCentroid = new Centroid(70.0, 0.0, (byte) 0, 100);
-
-            Centroid[] updatedCentroids = nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
-
-            for (int i = 0; i < updatedCentroids.length; i++){
-                System.out.println(updatedCentroids.toString());
-            }
-
 
             // Collect data from sensors
 
