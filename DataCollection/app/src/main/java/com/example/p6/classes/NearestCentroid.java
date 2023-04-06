@@ -15,39 +15,38 @@ public class NearestCentroid {
 
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
-    public Constants.Activity runNearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
+    public Constants.Activity runNearestCentroidAlgorithm(DataPoint dataPoint, Centroid[] model) {
         double[] distanceToCentroids={0,0,0,0};
 
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++)
-            distanceToCentroids[i] = sqrt(pow((model[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
-                    sqrt(pow((model[i].stepCount - vectorToAddToCentroid.stepCount),2));
+            distanceToCentroids[i] = sqrt(pow((model[i].heartRate - dataPoint.heartRate),2)) +
+                    sqrt(pow((model[i].stepCount - dataPoint.stepCount),2));
 
         // Returns the label that is closest to vectorToAddToCentroid
-        return getMinimumDistanceCentroid(distanceToCentroids);
+        return getActivityWithSmallestDistanceToDataPoint(distanceToCentroids);
     }
 
     // Returns the index that contains the smallest valued element.
-    private Constants.Activity getMinimumDistanceCentroid(double[] delta)
-    {
-        Constants.Activity minValueIndex = SITTING;
-        for (int i = 1; i < delta.length; i++)
-            if (delta[i] < delta[minValueIndex.ordinal()])
-                minValueIndex = Constants.Activity.values()[i];
+    private Constants.Activity getActivityWithSmallestDistanceToDataPoint(double[] distanceToCentroids) {
+        Constants.Activity activity = SITTING;
+        byte length = (byte)distanceToCentroids.length;
+        for (byte i = 1; i < length; i++)
+            if (distanceToCentroids[i] < distanceToCentroids[activity.ordinal()])
+                activity = Constants.Activity.values()[i];
 
-        return minValueIndex;
+        return activity;
     }
 
-    private Centroid updateModel(Centroid centroid, Row row) {
+    private Centroid updateModel(Centroid centroid, DataPoint dataPoint) {
         // maybe check if anything is empty
-        centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, row.heartRate);
-        centroid.stepCount = addToAverage(centroid.stepCount, centroid.size, row.stepCount);
+        centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, dataPoint.heartRate);
+        centroid.stepCount = addToAverage(centroid.stepCount, centroid.size, dataPoint.stepCount);
         centroid.size++;
 
         return centroid;
     }
 
-    double addToAverage(double average, double size, double value)
-    {
+    double addToAverage(double average, double size, double value) {
         return (size * average + value) / (size + 1);
     }
 
