@@ -1,27 +1,10 @@
 package com.example.p6.classes;
 
-import static com.example.p6.classes.Constants.Activity.*;
-import static java.lang.Math.*;
-
-import android.content.Context;
-
-import com.example.p6.activities.MainActivity;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import static com.example.p6.classes.Constants.Activity.SITTING;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 public class NearestCentroid {
-    int NUMBER_OF_LABELS = 4;
-    int NUMBER_OF_INPUT_PARAMETERS = 2;
-
-    enum HeaderValues {
-        HEART_RATE,
-        STEP_COUNT,
-        LABEL,
-        CENTROID_SIZE
-    }
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
     public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
@@ -33,14 +16,14 @@ public class NearestCentroid {
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
     public Constants.Activity runNearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
-        double[] delta={0,0,0,0};
+        double[] distanceToCentroids={0,0,0,0};
 
-        for (int i = 0; i < NUMBER_OF_LABELS; i++)
-            delta[i] = sqrt(pow((model[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++)
+            distanceToCentroids[i] = sqrt(pow((model[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
                     sqrt(pow((model[i].stepCount - vectorToAddToCentroid.stepCount),2));
 
         // Returns the label that is closest to vectorToAddToCentroid
-        return getMinimumDistanceCentroid(delta);
+        return getMinimumDistanceCentroid(distanceToCentroids);
     }
 
     // Returns the index that contains the smallest valued element.
