@@ -12,7 +12,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.R;
-import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.NearestCentroid;
 import com.example.p6.classes.Row;
 import com.example.p6.classes.PreProcessing;
@@ -76,7 +74,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private short numberOfDataPointsAdded = 0;
     private String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
     private String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
-    private List<Row> dataPointsToAddArray = new ArrayList<>();
+    private List<Row> dataPointsToAdd = new ArrayList<>();
     //endregion
 
     //region Formatters
@@ -235,13 +233,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                             break;
                         case COLLECT_DATA:
                             writeToFile(activityToTrack.name().toLowerCase() + "_" +
-                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
                             break;
                     }
                     timesWrittenToFile++;
                     timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
                     numberOfDataPointsAdded = 0;
-                    dataPointsToAddArray.clear();
+                    dataPointsToAdd.clear();
                     setScreenBrightness(LOW_BRIGHTNESS);
                 }
                 ProgressBar dataPointProgressBar = findViewById(R.id.dataPointProgressBar); // initiate the progress bar
@@ -252,7 +250,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingFile(){
-        PreProcessing.makeBudgetTimeSeries(dataPointsToAddArray, sessionId);
+        PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
         // Give each timeSeries labels by finding their nearest centroid
         // Write to corresponding file using CsvHandler.writeToFile();
     }
@@ -266,7 +264,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Context context = getApplicationContext();
         unregisterListeners();
         if (mode == COLLECT_DATA)
-            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAddArray);
+            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
             //do preprocessing
         }
@@ -342,7 +340,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
         Row rowToAdd = new Row(heartRate, step_count, label, minutes);
-        dataPointsToAddArray.add(rowToAdd);
+        dataPointsToAdd.add(rowToAdd);
     }
 
     public void writeToFile(String fileName, List<Row> dataPoints){

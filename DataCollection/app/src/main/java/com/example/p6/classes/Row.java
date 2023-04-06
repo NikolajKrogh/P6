@@ -20,10 +20,9 @@ public class Row{
     }
 
     //for after preprocessing
-    public Row(short heartRate, int stepCount, byte label, String sessionId)  {
+    public Row(short heartRate, int stepCount, String sessionId)  {
         this.heartRate = heartRate;
         this.step_count = stepCount;
-        this.label = label;
         this.sessionId = sessionId;
         hasBeenPreprocessed = true;
     }
