@@ -7,23 +7,23 @@ import org.junit.Test;
 public class DisplayActivityTest {
 
     @Test
-    private void onCreate() {
+    public void onCreate() {
     }
 
     @Test
-    private void getSensors() {
+    public void getSensors() {
     }
 
     @Test
-    private void bindTextToVariables() {
+    public void bindTextToVariables() {
     }
 
     @Test
-    private void registerListeners() {
+    public void registerListeners() {
     }
 
     @Test
-    private void unregisterListeners() {
+    public void unregisterListeners() {
     }
 
     @Test
