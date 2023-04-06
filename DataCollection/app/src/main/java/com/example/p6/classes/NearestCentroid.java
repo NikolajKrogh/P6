@@ -37,16 +37,18 @@ public class NearestCentroid {
         return activity;
     }
 
-    private Centroid updateModel(Centroid centroid, DataPoint dataPoint) {
+    public static Centroid updateModel(Constants.Activity activity, DataPoint dataPoint) {
         // maybe check if anything is empty
-        centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, dataPoint.heartRate);
-        centroid.stepCount = addToAverage(centroid.stepCount, centroid.size, dataPoint.stepCount);
-        centroid.size++;
+        centroids[activity.ordinal()].heartRate = addToAverage(centroids[activity.ordinal()].heartRate,
+                centroids[activity.ordinal()].size, dataPoint.heartRate);
+        centroids[activity.ordinal()].stepCount = addToAverage(centroids[activity.ordinal()].stepCount,
+                centroids[activity.ordinal()].size, dataPoint.stepCount);
+        centroids[activity.ordinal()].size++;
 
-        return centroid;
+        return centroids[activity.ordinal()];
     }
 
-    double addToAverage(double average, double size, double value) {
+    private static double addToAverage(double average, double size, double value) {
         return (size * average + value) / (size + 1);
     }
 

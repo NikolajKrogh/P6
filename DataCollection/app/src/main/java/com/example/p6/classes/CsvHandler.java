@@ -46,6 +46,7 @@ public class CsvHandler {
     public static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
         String result = "";
         for (Centroid centroid : centroids) {
+            Log.i("Centroid", centroid.toString());
             result += centroid.toString();
             result += delimiter;
         }
