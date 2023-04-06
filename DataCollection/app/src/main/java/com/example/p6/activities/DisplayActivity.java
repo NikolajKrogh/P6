@@ -131,7 +131,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
              */
             Row vectorToAddToCentroid = new Row((short) 160, 160, (byte) 0, (short) 1);
-            MainActivity.Activity nearestCentroidLabel = (MainActivity.Activity) nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+            MainActivity.Activity nearestCentroidLabel = (MainActivity.Activity) nearestCentroid.runNearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
             switch (nearestCentroidLabel){
                 case SITTING:

@@ -34,7 +34,7 @@ public class NearestCentroid {
 
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
-    public MainActivity.Activity nearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
+    public MainActivity.Activity runNearestCentroidAlgorithm(Row vectorToAddToCentroid, Centroid[] model) {
         double[] delta={0,0,0,0};
 
         for (int i = 0; i < NUMBER_OF_LABELS; i++)
@@ -42,11 +42,11 @@ public class NearestCentroid {
                     sqrt(pow((model[i].step_count - vectorToAddToCentroid.stepCount),2));
 
         // Returns the label that is closest to vectorToAddToCentroid
-        return minimumDistanceCentroid(delta);
+        return getMinimumDistanceCentroid(delta);
     }
 
     // Returns the index that contains the smallest valued element.
-    private MainActivity.Activity minimumDistanceCentroid(double[] delta)
+    private MainActivity.Activity getMinimumDistanceCentroid(double[] delta)
     {
         MainActivity.Activity minValueIndex = SITTING;
 
