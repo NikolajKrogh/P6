@@ -34,6 +34,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -121,10 +122,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         //Run Model page
         if(mode == PREDICT_ACTIVITY){
-            double[] vectorToAddToCentroid = {70.0, 0.0, 0, 100};
-
-            nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
-
             // Collect data from sensors
 
 
@@ -135,11 +132,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
              */
 
+            Centroid vectorToAddToCentroid = new Centroid(160.0, 160.0, (byte) 0, 100);
+            nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+
             // Display the predicted activity
 
             showToast();
             //Write the new centroids to file
-            CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
+            //CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
             // Resets the data points to add
             dataPointsToAddArray.clear();
 
@@ -327,16 +327,27 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
 
-            //Run Model page
-            double[] newCentroid = {70.02328727800564, 0.0, 0, 100};
+            Centroid vectorToAddToCentroid = new Centroid(70.0, 0.0, (byte) 0, 100);
 
-            double[] updatedCentroid = nearestCentroid.updateModel(nearestCentroid.generalModelCentroids[1], newCentroid);
+            Centroid[] updatedCentroids = nearestCentroid.nearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
-            //Converts matrix to string
-            String stringFormattedCentroids = nearestCentroid.multiDimensionalArrayToString(updatedCentroid);
+            for (int i = 0; i < updatedCentroids.length; i++){
+                System.out.println(updatedCentroids.toString());
+            }
 
-            //Write the new centroids to file
-            writeToFile("centroids" + ".csv", stringFormattedCentroids);
+
+            // Collect data from sensors
+
+
+            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
+            /*
+            if(){
+
+            }
+             */
+
+            // Display the predicted activity
+
         }
         else {
             intent = new Intent(DisplayActivity.this, SelectActivity.class);

@@ -23,6 +23,12 @@ public class NearestCentroid {
     static final int RUNNING = 2;
     static final int CYCLING = 3;
 
+    public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
+            new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
+            new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
+            new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
+    };
+
     enum HeaderValues {
         HEART_RATE,
         STEP_COUNT,
@@ -32,17 +38,20 @@ public class NearestCentroid {
     CsvHandler csvHandler = new CsvHandler();
     public Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
 
-    public double[][] nearestCentroidAlgorithm(double[] vectorToAddToCentroid, Centroid[] personalizedModel) {
+    public Centroid[] nearestCentroidAlgorithm(Centroid vectorToAddToCentroid, Centroid[] personalizedModel) {
 
                                     //vectorToAddToCentroid = {70.0, 0.0, 0, 100}
 
-         if (personalizedModel.length != 0) {
+        if (personalizedModel.length != 0) {
             // use personalized model
+
+            // Returns the label of the centroid that is closest to the vectorToAddToCentroid
             int closestCentroid = distanceMetric(vectorToAddToCentroid, personalizedModel);
 
+            System.out.println("Closest Centroid is: " + closestCentroid);
 
              return null;
-         }
+        }
 
         // use general model
 
@@ -50,26 +59,34 @@ public class NearestCentroid {
         return null;
     }
 
-    public int distanceMetric(double[] vectorToAddToCentroid, Centroid[] personalizedModel) {
+    private int distanceMetric(Centroid vectorToAddToCentroid, Centroid[] personalizedModel) {
         double[] delta={0,0,0,0};
 
         for (int i = 0; i < NUMBER_OF_LABELS; i++) {
-            delta[SITTING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
-                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
-            delta[WALKING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
-                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
-            delta[RUNNING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
-                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
-            delta[CYCLING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid[HR_INDEX]),2)) +
-                             sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid[STEP_COUNT_INDEX]),2));
+            delta[i] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid.step_count),2));
+
+            System.out.println(delta[i]);
+
+            /*
+            delta[SITTING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid.step_count),2));
+            delta[WALKING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid.step_count),2));
+            delta[RUNNING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid.step_count),2));
+            delta[CYCLING] = sqrt(pow((personalizedModel[i].heartRate - vectorToAddToCentroid.heartRate),2)) +
+                    sqrt(pow((personalizedModel[i].step_count - vectorToAddToCentroid.step_count),2));
+            */
+
         }
 
         // This method returns the label is closest to vectorToAddToCentroid
-        return minimumDistance(delta);
+        return minimumDistanceCentroid(delta);
     }
 
     // Returns the index that contains the smallest valued element.
-    static int minimumDistance(double[] delta)
+    private int minimumDistanceCentroid(double[] delta)
     {
         // Initialize index for minimum valued element
         int minValueIndex = 0;
@@ -81,7 +98,6 @@ public class NearestCentroid {
         return minValueIndex;
     }
 
-
     //implement such that we create the centroid file if it does not exists based on the above centroids
     private double[] convertStringArrayToDoubleArray(String[] stringArray) {
         int arrayLength = stringArray.length;
@@ -91,12 +107,6 @@ public class NearestCentroid {
             }
         return result;
     }
-
-    public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
-                                               new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
-                                               new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
-                                               new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
-                                              };
 
     public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         File fileName = new File("centroids.csv");
