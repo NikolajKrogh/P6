@@ -5,27 +5,27 @@ import org.junit.Test;
 
 public class SelectActivityTest {
     @Test
-    public void onStartButtonClick() {
+    private void onStartButtonClick() {
 
     }
 
     @Test
-    public void onRadioButtonIdle() {
+    private void onRadioButtonIdle() {
     }
 
     @Test
-    public void onRadioButtonWalking() {
+    private void onRadioButtonWalking() {
     }
 
     @Test
-    public void onRadioButtonRunning() {
+    private void onRadioButtonRunning() {
     }
 
     @Test
-    public void onRadioButtonCycling() {
+    private void onRadioButtonCycling() {
     }
 
     @Test
-    public void onExitButtonClick() {
+    private void onExitButtonClick() {
     }
 }

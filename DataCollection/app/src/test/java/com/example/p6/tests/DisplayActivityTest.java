@@ -7,54 +7,54 @@ import org.junit.Test;
 public class DisplayActivityTest {
 
     @Test
-    public void onCreate() {
+    private void onCreate() {
     }
 
     @Test
-    public void getSensors() {
+    private void getSensors() {
     }
 
     @Test
-    public void bindTextToVariables() {
+    private void bindTextToVariables() {
     }
 
     @Test
-    public void registerListeners() {
+    private void registerListeners() {
     }
 
     @Test
-    public void unregisterListeners() {
+    private void unregisterListeners() {
     }
 
     @Test
-    public void onSensorChanged() {
+    private void onSensorChanged() {
     }
 
     @Test
-    public void onAccuracyChanged() {
+    private void onAccuracyChanged() {
     }
 
     @Test
-    public void onStopButtonClick() {
+    private void onStopButtonClick() {
     }
 
     @Test
-    public void updateAccumulatedStepCount() {
+    private void updateAccumulatedStepCount() {
     }
 
     @Test
-    public void updateTimer() {
+    private void updateTimer() {
     }
 
     @Test
-    public void getTimeSinceStart() {
+    private void getTimeSinceStart() {
     }
 
     @Test
-    public void insertDataAtTimeStamp() {
+    private void insertDataAtTimeStamp() {
     }
 
     @Test
-    public void writeToFile() {
+    private void writeToFile() {
     }
 }

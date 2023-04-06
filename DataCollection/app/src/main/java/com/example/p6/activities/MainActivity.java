@@ -25,14 +25,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         UNLABELED
     }
 
-    enum Screen {
+    public enum Screen {
         MAIN,
         SELECT,
         DISPLAY,
         VIEW_MODEL
     }
 
-    enum Mode {
+    public enum Mode {
         PREDICT_ACTIVITY,
         UPDATE_WITH_LABELS,
         COLLECT_DATA,
@@ -70,13 +70,13 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         BackButtonPressed = false;
     }
 
-    public void goToScreen(Class activityClass){
+    private void goToScreen(Class activityClass){
         Intent intent = new Intent(MainActivity.this, activityClass);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
     }
 
-    public void startCurrentlyRunningActivity(){
+    private void startCurrentlyRunningActivity(){
         switch (currentScreen){
             case SELECT:        goToScreen(SelectActivity.class);      break;
             case DISPLAY:       goToScreen(DisplayActivity.class);     break;

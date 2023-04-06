@@ -18,13 +18,13 @@ public class NearestCentroid {
         CENTROID_SIZE
     }
     CsvHandler csvHandler = new CsvHandler();
-    public Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
+    private Centroid[] centroids = new Centroid[csvHandler.NUMBER_OF_LABELS];
     public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
                                                new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
                                                new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
                                                new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
                                               };
-    public void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
+    private void getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         String fileName = "centroids.csv";
         String filePath = context.getFilesDir() + "/" + fileName;
 
@@ -77,10 +77,10 @@ public class NearestCentroid {
     static final int STEP_COUNT_INDEX = 1;
     static final int CENTROID_SIZE_INDEX = 3;
 
-    public Centroid updateModel(Centroid centroid, Row row) {
+    private Centroid updateModel(Centroid centroid, Row row) {
         // maybe check if anything is empty
         centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, row.heartRate);
-        centroid.step_count = addToAverage(centroid.step_count, centroid.size, row.step_count);
+        centroid.step_count = addToAverage(centroid.step_count, centroid.size, row.stepCount);
         centroid.size++;
 
         return centroid;
