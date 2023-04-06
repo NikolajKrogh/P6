@@ -4,8 +4,6 @@ import static com.example.p6.classes.Constants.Activity.*;
 import static com.example.p6.classes.Constants.Mode.*;
 import static com.example.p6.classes.Constants.Screen.*;
 
-import static java.lang.Math.abs;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -117,6 +115,45 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Button stopButton = findViewById(R.id.stopActivityButton);
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
+
+        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+
+
+        //Run Model page
+        if(mode == PREDICT_ACTIVITY){
+            // Collect data from sensors
+
+
+            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
+            /*
+            if (personalizedModel.length != 0) {
+
+            }else{
+
+            }
+
+             */
+            Row vectorToAddToCentroid = new Row((short) 160, 160, (byte) 0, (short) 1);
+            MainActivity.Activity nearestCentroidLabel = (MainActivity.Activity) nearestCentroid.runNearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+
+            switch (nearestCentroidLabel){
+                case SITTING:
+                    showToast("Predicted activity: Sitting");
+                    break;
+                case WALKING:
+                    showToast("Predicted activity: Walking");
+                    break;
+                case RUNNING:
+                    showToast("Predicted activity: Running");
+                    break;
+                case CYCLING:
+                    showToast("Predicted activity: Cycling");
+                    break;
+            }
+
+            //model[closestCentroidIndex] = updateModel(model[closestCentroidIndex], (Row) vectorToAddToCentroid);
+
+        }
 
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
@@ -295,6 +332,19 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if(mode == PREDICT_ACTIVITY){
             intent = new Intent(DisplayActivity.this, MainActivity.class);
             MainActivity.BackButtonPressed = true;
+
+            // Collect data from sensors
+
+
+            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
+            /*
+            if(){
+
+            }
+             */
+
+            // Display the predicted activity
+
         }
         else {
             intent = new Intent(DisplayActivity.this, SelectActivity.class);
