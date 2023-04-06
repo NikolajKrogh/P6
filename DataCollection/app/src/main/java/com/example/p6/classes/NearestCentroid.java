@@ -19,10 +19,6 @@ public class NearestCentroid {
                                                new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
                                               };
 
-    static final int HR_INDEX = 0;
-    static final int STEP_COUNT_INDEX = 1;
-    static final int CENTROID_SIZE_INDEX = 3;
-
     private Centroid updateModel(Centroid centroid, Row row) {
         // maybe check if anything is empty
         centroid.heartRate = addToAverage(centroid.heartRate, centroid.size, row.heartRate);
