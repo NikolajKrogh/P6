@@ -2,7 +2,7 @@ package com.example.p6.classes;
 
 import androidx.annotation.NonNull;
 
-public class Row{
+public class DataPoint {
     short heartRate;
     int stepCount;
     byte label;
@@ -11,7 +11,7 @@ public class Row{
     boolean hasBeenPreprocessed;
 
     //for before preprocessing
-    public Row(short heartRate, int stepCount, byte label, short minutes) {
+    public DataPoint(short heartRate, int stepCount, byte label, short minutes) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
         this.label = label;
@@ -20,7 +20,7 @@ public class Row{
     }
 
     //for after preprocessing
-    public Row(short heartRate, int stepCount, String sessionId) {
+    public DataPoint(short heartRate, int stepCount, String sessionId) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
         this.sessionId = sessionId;

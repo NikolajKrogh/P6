@@ -1,5 +1,7 @@
 package com.example.p6.activities;
 
+import static com.example.p6.classes.Constants.Screen.*;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +14,7 @@ public class ViewModelActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MainActivity.currentScreen = MainActivity.Screen.VIEW_MODEL;
+        MainActivity.currentScreen = VIEW_MODEL;
         super.onCreate(savedInstanceState);
         ActivityViewModelBinding binding = ActivityViewModelBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

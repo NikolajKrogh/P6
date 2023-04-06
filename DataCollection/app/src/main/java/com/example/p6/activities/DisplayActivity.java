@@ -1,8 +1,8 @@
 package com.example.p6.activities;
 
-import static com.example.p6.activities.MainActivity.Activity.*;
-import static com.example.p6.activities.MainActivity.Mode.*;
-import static com.example.p6.activities.MainActivity.Screen.*;
+import static com.example.p6.classes.Constants.Activity.*;
+import static com.example.p6.classes.Constants.Mode.*;
+import static com.example.p6.classes.Constants.Screen.*;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,8 +20,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.Constants;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.NearestCentroid;
-import com.example.p6.classes.Row;
+import com.example.p6.classes.DataPoint;
 import com.example.p6.classes.PreProcessing;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
@@ -71,7 +73,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
     private final String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
-    private List<Row> dataPointsToAdd = new ArrayList<>();
+    private List<DataPoint> dataPointsToAdd = new ArrayList<>();
     //endregion
 
     //region Formatters
@@ -81,8 +83,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
-    private MainActivity.Activity activityToTrack = MainActivity.activityToTrack;
-    private final MainActivity.Mode mode = MainActivity.trackingMode;
+    private Constants.Activity activityToTrack = MainActivity.activityToTrack;
+    private final Constants.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
     private LocalDateTime dateTime;
     private TextView timerText;
@@ -130,8 +132,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
 
              */
-            Row vectorToAddToCentroid = new Row((short) 160, 160, (byte) 0, (short) 1);
-            MainActivity.Activity nearestCentroidLabel = (MainActivity.Activity) nearestCentroid.runNearestCentroidAlgorithm(vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
+            DataPoint vectorToAddToCentroid = new DataPoint((short) 160, 160, (byte) 0, (short) 1);
+            Constants.Activity nearestCentroidLabel = nearestCentroid.runNearestCentroidAlgorithm(
+                                                            vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
 
             switch (nearestCentroidLabel){
                 case SITTING:
@@ -150,31 +153,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             //model[closestCentroidIndex] = updateModel(model[closestCentroidIndex], (Row) vectorToAddToCentroid);
 
-
-            // Display the predicted activity
-
-            //showToast();
-            //Write the new centroids to file
-            //CsvHandler.writeToFile("centroids" + ".csv", stringFormattedCentroids, context);
-            // Resets the data points to add
-            dataPointsToAdd.clear();
-
         }
 
         setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
-
         if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
             String fileName = "centroids.csv";
-            String filePath = context.getFilesDir() + "/" + fileName;
-            File csvFile = new File(filePath);
-            if (!csvFile.exists()) {
-                nearestCentroid.writeCentroidsToFile(nearestCentroid.generalModelCentroids, context);
+            File file = new File(context.getFilesDir(), fileName);
+            if (!file.exists()) {
+                String content = Constants.centroidHeader;
+                content += CsvHandler.convertArrayOfCentroidsToString(nearestCentroid.generalModelCentroids,"\n");
+                CsvHandler.writeToFile(fileName,content,context,false);
             }
         }
-
         Random rand = new Random();
         sessionId = String.valueOf(rand.nextInt(Integer.MAX_VALUE));
 
@@ -327,7 +319,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
              */
         }
         else if (mode == UPDATE_WITH_LABELS) {
-            //nearestCentroid.getCentroidsFromFile(context); //this saves the centroids to the nearestCentroid.centroids
+            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(context);
             //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
             //it should also be the processed data
 
@@ -394,11 +386,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
-        Row rowToAdd = new Row(heartRate, step_count, label, minutes);
-        dataPointsToAdd.add(rowToAdd);
+        DataPoint dataPointToAdd = new DataPoint(heartRate, step_count, label, minutes);
+        dataPointsToAdd.add(dataPointToAdd);
     }
 
-    private void writeToFile(String fileName, List<Row> dataPoints) {
+    private void writeToFile(String fileName, List<DataPoint> dataPoints) {
         showToast("Writing to file ...");
         File path;
         try {
@@ -414,7 +406,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
                 writer.write(dataPointHeaderBeforePreprocessing.getBytes());
             }
-            for (Row dataPoint : dataPoints
+            for (DataPoint dataPoint : dataPoints
                  ) {
                 writer.write(dataPoint.toString().getBytes());
             }
