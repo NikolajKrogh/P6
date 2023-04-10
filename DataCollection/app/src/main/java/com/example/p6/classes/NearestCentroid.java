@@ -4,10 +4,13 @@ import static com.example.p6.classes.Constants.Activity.SITTING;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
+import android.util.Log;
+
 public class NearestCentroid {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
-    public Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
+
+    public static Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
                                                new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
                                                new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
                                                new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
@@ -39,7 +42,7 @@ public class NearestCentroid {
 
     public static Centroid updateModel(Constants.Activity activity, DataPoint dataPoint) {
         // maybe check if anything is empty
-        centroids[activity.ordinal()].heartRate = addToAverage(centroids[activity.ordinal()].heartRate,
+               centroids[activity.ordinal()].heartRate = addToAverage(centroids[activity.ordinal()].heartRate,
                 centroids[activity.ordinal()].size, dataPoint.heartRate);
         centroids[activity.ordinal()].stepCount = addToAverage(centroids[activity.ordinal()].stepCount,
                 centroids[activity.ordinal()].size, dataPoint.stepCount);
