@@ -56,9 +56,17 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
 
     private void startCurrentlyRunningActivity(){
         switch (currentScreen){
-            case SELECT:        goToScreen(SelectActivity.class);      break;
-            case DISPLAY:       goToScreen(DisplayActivity.class);     break;
-            case VIEW_MODEL:    goToScreen(ViewModelActivity.class);   break;
+            case SELECT:
+                goToScreen(SelectActivity.class);
+                break;
+            case DISPLAY:
+                goToScreen(DisplayActivity.class);
+                break;
+            case VIEW_MODEL:
+                goToScreen(ViewModelActivity.class);
+                break;
+            default:
+                throw new RuntimeException("Screen " + currentScreen + " not recognized");
         }
     }
 
