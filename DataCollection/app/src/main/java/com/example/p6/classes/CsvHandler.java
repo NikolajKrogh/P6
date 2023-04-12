@@ -77,41 +77,45 @@ public class CsvHandler {
         return result.toString();
     }
 
-    public static void writeCentroidsToFile(boolean shouldWriteToCentroidHistory, Centroid[] centroids, Context context) {
-        String fileName;
-        String delimiter;
-        String content = "";
-        boolean appendMode;
-        if (shouldWriteToCentroidHistory) {
-            fileName = "centroids_history.csv";
-            delimiter = ",";
-            appendMode = true;
+    public static void writeToCentroidHistory(Centroid[] centroids, Context context){
+        String updatedCentroid = "";
+        String fileName = "centroids_history.csv";
 
-            File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
-            if (file.length() == 0){
-                content += Constants.centroidHistoryHeader;
-            }
-        }
-        else {
-            content += Constants.centroidHeader;
-            fileName = "centroids.csv";
-            delimiter = "\n";
-            appendMode = false;
+        if (fileIsEmpty(fileName, context)){
+            updatedCentroid += Constants.centroidHistoryHeader;
         }
 
-        content += CsvHandler.convertArrayOfCentroidsToString(centroids, delimiter);
-        if (shouldWriteToCentroidHistory)
-            content += "\n";
-        CsvHandler.writeToFile(fileName,content,context,appendMode);
+        updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
+        CsvHandler.writeToFile(fileName, updatedCentroid, context, true);
+    }
+
+    public static void writeToCentroidFile(Centroid[] centroids, Context context){
+        String updatedCentroid = Constants.centroidHeader;
+        String fileName = "centroids.csv";
+
+        if (fileIsEmpty(fileName, context)){
+            updatedCentroid += Constants.centroidHistoryHeader;
+        }
+
+        updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
+        CsvHandler.writeToFile(fileName, updatedCentroid, context, false);
+    }
+
+    private static boolean fileIsEmpty(String fileName, Context context){
+        File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
+        if (file.length() == 0){
+            return true;
+        }
+        return false;
     }
 
     public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
         String fileName = "centroids.csv";
-        try {
+        try {adb
             File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
             if (file.length() == 0){
-                writeCentroidsToFile(false, NearestCentroid.generalModelCentroids, context);
+                writeToCentroidFile(NearestCentroid.generalModelCentroids, context);
             }
             FileReader filereader = new FileReader(file);
             CSVReader csvReader = new CSVReader(filereader);
