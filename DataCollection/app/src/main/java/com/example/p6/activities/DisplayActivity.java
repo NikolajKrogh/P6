@@ -235,15 +235,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void addDataPointsToCorrespondingList(){
         PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
         for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
-            Constants.Activity predictedActivity = activityToTrack;
+            Constants.Activity activity = activityToTrack;
 
             if (mode == PREDICT_ACTIVITY){
-                predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
-                predictedActivities.add(predictedActivity.name().toLowerCase());
-                predictedActivityText.setText("Predicted " + predictedActivity.name());
+                activity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                predictedActivityText.setText("Predicted " + activity.name());
             }
 
-            switch (predictedActivity){
+            if (mode == UPDATE_WITH_LABELS){
+                Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                predictedActivityText.setText("Predicted " + predictedActivity.name());
+                predictedActivities.add(predictedActivity.name().toLowerCase());
+            }
+
+            switch (activity){
                 case SITTING:
                     aggregatedDataPointsSitting.add(dataPoint);
                     break;
@@ -257,7 +262,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     aggregatedDataPointsCycling.add(dataPoint);
                     break;
                 default:
-                    throw new RuntimeException("Activity " + predictedActivity + " not recognized");
+                    throw new RuntimeException("Activity " + activity + " not recognized");
             }
         }
 
@@ -281,6 +286,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 break;
             case UPDATE_WITH_LABELS:
                 updateModelForPredictedActivities();
+                CsvHandler.writePredictedActivityToFile("predicted_" + activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".csv", predictedActivities, getPredictionAccuracy(), getApplicationContext());
                 break;
             case COLLECT_DATA:
                 showToast("Writing to file ...");
@@ -293,6 +300,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
+    }
+
+    private double getPredictionAccuracy(){
+        short numberOfPredictions = (short) predictedActivities.size();
+        short numberOfCorrectPredictions = 0;
+        for (String activity : predictedActivities) {
+            if (activity == activityToTrack.name().toLowerCase()){
+                numberOfCorrectPredictions++;
+            }
+        }
+        double accuracy = numberOfCorrectPredictions / numberOfPredictions;
+        return accuracy;
     }
 
     private void updateModelForPredictedActivities(){

@@ -75,15 +75,14 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writePredictedActivityToFile(String fileName, List<String> predictedActivities, Context context) {
-        String content = "";
+    public static void writePredictedActivityToFile(String fileName, List<String> predictedActivities, double accuracy, Context context) {
+        String content = "Accuracy: " + accuracy + "\n";
 
-        if (fileIsEmpty(fileName, context)){
-            content += "minutes,heart_rate,step_count,label\n";
-        }
-
+        short i = 0;
+        content += "\nPredictions per minute:\n";
         for (String activity : predictedActivities) {
-            content += activity + "\n";
+            content += i + ": " + activity + "\n";
+            i++;
         }
 
         CsvHandler.writeToFile(fileName, content, context, true);
