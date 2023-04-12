@@ -3,7 +3,6 @@ package com.example.p6.classes;
 import android.content.Context;
 import android.util.Log;
 
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -12,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 public class CsvHandler {
     //region Centroid constants
@@ -112,7 +110,7 @@ public class CsvHandler {
     public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
         String fileName = "centroids.csv";
-        try {adb
+        try {
             File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
             if (file.length() == 0){
                 writeToCentroidFile(NearestCentroid.generalModelCentroids, context);

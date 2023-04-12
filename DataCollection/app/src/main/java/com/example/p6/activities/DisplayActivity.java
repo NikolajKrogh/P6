@@ -299,8 +299,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
-            CsvHandler.writeCentroidsToFile(false, NearestCentroid.centroids, getApplicationContext());
-            CsvHandler.writeCentroidsToFile(true, NearestCentroid.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, getApplicationContext());
         }
     }
 
