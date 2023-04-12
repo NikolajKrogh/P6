@@ -80,8 +80,8 @@ public class CsvHandler {
         String fileName = "centroids_history.csv";
 
         if (fileIsEmpty(fileName, context)){
-            content += Constants.centroidHistoryHeader + "\n";
-            content += NearestCentroid.generalModelCentroids;
+            content += Constants.centroidHistoryHeader;
+            content += convertArrayOfCentroidsToString(NearestCentroid.generalModelCentroids, ",") +"\n";
         }
 
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",");
