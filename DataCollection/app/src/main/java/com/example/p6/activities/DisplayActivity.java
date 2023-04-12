@@ -1,17 +1,16 @@
 package com.example.p6.activities;
 
-import static com.example.p6.classes.Constants.Activity.*;
 import static com.example.p6.classes.Constants.Mode.*;
 import static com.example.p6.classes.Constants.Screen.*;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -28,14 +27,13 @@ import com.example.p6.classes.PreProcessing;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 
@@ -53,6 +51,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private static final long HOUR_TO_MIN_FACTOR =  60;
     private static final float LOW_BRIGHTNESS = 0.05F;
     private static final float HIGH_BRIGHTNESS = 1F;
+    private static final short NUMBER_OF_DATA_POINTS_LIMIT = 100;
     //endregion
 
     //region Heart rate variables
@@ -72,8 +71,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private final String dataPointHeaderAfterPreprocessing = "session_id,heart_rate,step_count,label\n";
     private List<DataPoint> dataPointsToAdd = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsSitting = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
+    private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+
+
     //endregion
 
     //region Formatters
@@ -83,7 +87,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
-    private Constants.Activity activityToTrack = MainActivity.activityToTrack;
+    private final Constants.Activity activityToTrack = MainActivity.activityToTrack;
     private final Constants.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
     private LocalDateTime dateTime;
@@ -93,18 +97,24 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private Toast myToast;
     private TextView activityText;
     private String sessionId;
+    private boolean modelWasUpdated = false;
 
     //endregion
 
-    private NearestCentroid nearestCentroid = new NearestCentroid();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Context context = getApplicationContext();
         MainActivity.currentScreen = DISPLAY;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        Locale.setDefault(Locale.US);   // Makes String.Format language-insensitive
+
+        try {
+            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
+        } catch (IOException | CsvValidationException e) {
+            throw new RuntimeException(e);
+        }
 
         getSensors();
         bindTextToVariables();
@@ -116,101 +126,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
-
-
-        //Run Model page
-        if(mode == PREDICT_ACTIVITY){
-            // Collect data from sensors
-
-
-            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
-            /*
-            if (personalizedModel.length != 0) {
-
-            }else{
-
-            }
-
-             */
-            DataPoint vectorToAddToCentroid = new DataPoint((short) 160, 160, (byte) 0, (short) 1);
-            Constants.Activity nearestCentroidLabel = nearestCentroid.runNearestCentroidAlgorithm(
-                                                            vectorToAddToCentroid, nearestCentroid.generalModelCentroids);
-
-            switch (nearestCentroidLabel){
-                case SITTING:
-                    showToast("Predicted activity: Sitting");
-                    break;
-                case WALKING:
-                    showToast("Predicted activity: Walking");
-                    break;
-                case RUNNING:
-                    showToast("Predicted activity: Running");
-                    break;
-                case CYCLING:
-                    showToast("Predicted activity: Cycling");
-                    break;
-            }
-
-            //model[closestCentroidIndex] = updateModel(model[closestCentroidIndex], (Row) vectorToAddToCentroid);
-
-        }
-
-        setActivityToTrack();
         activityText.setText("Tracking " + activityToTrack);
 
-        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
-            handleWritingCentroidsToFile(false,context);
-            handleWritingCentroidsToFile(true,context); //this file has a trailing comma - if anything goes wrong look here
-
-        }
         Random rand = new Random();
         sessionId = String.valueOf(rand.nextInt(Integer.MAX_VALUE));
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
 
-    private void handleWritingCentroidsToFile(boolean shouldWriteToCentroidHistory, Context context)
-    {
-        String header;
-        String fileName;
-        String delimiter;
-        if (shouldWriteToCentroidHistory) {
-            header = Constants.centroidHistoryHeader;
-            fileName = "centroids_history.csv";
-            delimiter = ",";
-        }
-        else {
-            header = Constants.centroidHeader;
-            fileName = "centroids.csv";
-            delimiter = "\n";
-
-        }
-        File file = new File(context.getFilesDir(), fileName);
-        if (!file.exists()) {
-            String content = header;
-            content += CsvHandler.convertArrayOfCentroidsToString(nearestCentroid.generalModelCentroids,delimiter);
-            if (shouldWriteToCentroidHistory)
-                content += "\n";
-            CsvHandler.writeToFile(fileName,content,context,false);
-        }
-    }
-
     private void showToast(String text) {
         myToast.setText(text);
         myToast.show();
-    }
-
-    private void setActivityToTrack() {
-        switch(mode){
-            case PREDICT_ACTIVITY:
-                activityToTrack = UNLABELED;
-                break;
-            case UPDATE_WITH_LABELS:
-            case COLLECT_DATA:
-                if (activityToTrack == UNLABELED)
-                    activityToTrack = WALKING;
-                break;
-        }
     }
 
     @Override
@@ -229,9 +155,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     public boolean onLongClick(View v) {
         try {
             stopActivity();
-        } catch (CsvValidationException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (CsvValidationException | IOException e) {
             throw new RuntimeException(e);
         }
         return true;
@@ -265,8 +189,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     public void onSensorChanged(SensorEvent event) {
-        Context context = getApplicationContext();
-
         if(event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
             updateAccumulatedStepCount(event);
         }
@@ -276,7 +198,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             long currentTimestamp = event.timestamp;
             updateTimeSinceStart(currentTimestamp);
             if (currentTimestamp - latestTimestamp > 100 * MILLISEC_TO_NANOSEC_FACTOR) {
-                if (numberOfDataPointsAdded < 100){
+                if (numberOfDataPointsAdded < NUMBER_OF_DATA_POINTS_LIMIT){
                     short minutesSinceStart = (short)getTimeSinceStart(currentTimestamp)[Time.MINUTES.ordinal()];
                     addDataPointToArray(minutesSinceStart, heartRate, accumulatedStepCount);
                     numberOfDataPointsAdded++;
@@ -285,12 +207,14 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     switch (mode){
                         case PREDICT_ACTIVITY:
                         case UPDATE_WITH_LABELS:
-                            addDataPointsToCorrespondingFile();
+                            addDataPointsToCorrespondingList();
                             break;
                         case COLLECT_DATA:
-                            writeToFile(activityToTrack.name().toLowerCase() + "_" +
-                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
+                            CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
+                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
                             break;
+                        default:
+                            throw new RuntimeException("Mode " + mode + " not recognized");
                     }
                     timesWrittenToFile++;
                     timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
@@ -305,10 +229,35 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
-    private void addDataPointsToCorrespondingFile(){
+    private void addDataPointsToCorrespondingList(){
         PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
-        // Give each timeSeries labels by finding their nearest centroid
-        // Write to corresponding file using CsvHandler.writeToFile();
+        for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
+            Constants.Activity predictedActivity = activityToTrack;
+
+            if (mode == PREDICT_ACTIVITY){
+                predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                Log.i("Predicted activity", predictedActivity.name());
+            }
+
+            switch (predictedActivity){
+                case SITTING:
+                    aggregatedDataPointsSitting.add(dataPoint);
+                    break;
+                case WALKING:
+                    aggregatedDataPointsWalking.add(dataPoint);
+                    break;
+                case RUNNING:
+                    aggregatedDataPointsRunning.add(dataPoint);
+                    break;
+                case CYCLING:
+                    aggregatedDataPointsCycling.add(dataPoint);
+                    break;
+                default:
+                    throw new RuntimeException("Activity " + predictedActivity + " not recognized");
+            }
+        }
+
+        PreProcessing.aggregatedDataPoints.clear();
     }
 
     @Override
@@ -317,63 +266,64 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void stopActivity() throws CsvValidationException, IOException {
-        Context context = getApplicationContext();
         unregisterListeners();
-        if (mode == COLLECT_DATA)
-            writeToFile(activityToTrack.name().toLowerCase() + "_" + dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd);
-        if (mode == PREDICT_ACTIVITY || mode == UPDATE_WITH_LABELS) {
-            PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
-        }
-        if (mode == PREDICT_ACTIVITY) {
-            /*
-            SitRows;
-            walkRows;
-            runRows;
-            cycleRows;
+        Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
 
-            for row in rows:
-                returnedRow = runModel(row) //this returned row should contain a label for the row
-                put returned row i den rigtige XXRows (baseret på dens label)
-            for hver af de 4 XXRows:
-                append til hver deres fil (sitting.csv, walking.csv, etc...)
-                Hvis det at vi appender til filen betyder at filen har mindst X rækker:
-                    opdaterer modellen
-             */
-        }
-        else if (mode == UPDATE_WITH_LABELS) {
-            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(context);
-            //double[][] newDataPoints = new double[][](); //this should be a list/array of rows, and should be made on the go
-            //it should also be the processed data
-
-            //double[][] updatedCentroids = nearestCentroid.updateModel(nearestCentroid.centroids, newDataPoints);
-
-            //Write the new centroids to file
-            //nearestCentroid.writeCentroidsToFile(updatedCentroids,context);
-        }
-        Intent intent;
-        if(mode == PREDICT_ACTIVITY){
-            intent = new Intent(DisplayActivity.this, MainActivity.class);
-            MainActivity.BackButtonPressed = true;
-
-            // Collect data from sensors
-
-
-            // On every x number of sensorUpdate, run nearestCentroidAlgorithm on preprocessed data.
-            /*
-            if(){
-
-            }
-             */
-
-            // Display the predicted activity
-
-        }
-        else {
-            intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        switch (mode){
+            case PREDICT_ACTIVITY:
+                updateModelForPredictedActivities();
+                intent = new Intent(DisplayActivity.this, MainActivity.class);
+                MainActivity.BackButtonPressed = true;
+                break;
+            case UPDATE_WITH_LABELS:
+                updateModelForPredictedActivities();
+                break;
+            case COLLECT_DATA:
+                showToast("Writing to file ...");
+                CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
+                break;
+            default:
+                throw new RuntimeException("Mode " + mode + " not recognized");
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
+    }
+
+    private void updateModelForPredictedActivities(){
+        addDataPointsToCorrespondingList();
+        for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
+            List<DataPoint> listForActivity = getListForActivity(Constants.Activity.values()[i]);
+            updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
+        }
+        if (modelWasUpdated){
+            showToast("Updated model");
+            CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, getApplicationContext());
+        }
+    }
+
+    private List<DataPoint> getListForActivity(Constants.Activity activity){
+        switch (activity){
+            case SITTING:
+                return aggregatedDataPointsSitting;
+            case WALKING:
+                return aggregatedDataPointsWalking;
+            case RUNNING:
+                return aggregatedDataPointsRunning;
+            case CYCLING:
+                return  aggregatedDataPointsCycling;
+            default:
+                throw new RuntimeException("Activity " + activity + " does not correspond to any list");
+        }
+    }
+
+    private void updateCentroidForActivity(List<DataPoint> aggregatedDataPointsForActivity, Constants.Activity activity){
+        for (DataPoint dataPoint : aggregatedDataPointsForActivity) {
+            modelWasUpdated = true;
+            NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
+        }
     }
 
     private void unregisterListeners(){
@@ -387,7 +337,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             initialStepCount = currentStepCount;
         }
         accumulatedStepCount = currentStepCount - initialStepCount;
-        stepCountText.setText("Total steps: " + (int)accumulatedStepCount);
+        stepCountText.setText("Total steps: " + accumulatedStepCount);
     }
 
     private void updateTimeSinceStart(long currentTimestamp){
@@ -410,32 +360,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         byte label = (byte)activityToTrack.ordinal();
         DataPoint dataPointToAdd = new DataPoint(heartRate, step_count, label, minutes);
         dataPointsToAdd.add(dataPointToAdd);
-    }
-
-    private void writeToFile(String fileName, List<DataPoint> dataPoints) {
-        showToast("Writing to file ...");
-        File path;
-        try {
-            path = getApplicationContext().getDir(fileName, Context.MODE_APPEND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            File file = new File(path.getPath(),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,true);
-            if (file.length() == 0){
-                String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
-                writer.write(dataPointHeaderBeforePreprocessing.getBytes());
-            }
-            for (DataPoint dataPoint : dataPoints
-                 ) {
-                writer.write(dataPoint.toString().getBytes());
-            }
-            writer.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private int[] getTimeSinceStart(long currentTimestamp) {

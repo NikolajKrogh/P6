@@ -1,14 +1,15 @@
 package com.example.p6.classes;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 public class DataPoint {
     short heartRate;
     int stepCount;
     byte label;
-    short minutes;
+    short minutes = -1;
     String sessionId;
-    boolean hasBeenPreprocessed;
 
     //for before preprocessing
     public DataPoint(short heartRate, int stepCount, byte label, short minutes) {
@@ -16,7 +17,6 @@ public class DataPoint {
         this.stepCount = stepCount;
         this.label = label;
         this.minutes = minutes;
-        hasBeenPreprocessed = false;
     }
 
     //for after preprocessing
@@ -24,16 +24,16 @@ public class DataPoint {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
         this.sessionId = sessionId;
-        hasBeenPreprocessed = true;
     }
 
     @NonNull
     @Override
     public String toString(){
-        if (hasBeenPreprocessed) //the string contains minutes if it has not been processed
-            return String.format("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
-        else //the string contains a session_id if it has not been processed
+        if (minutes == -1){
             return String.format("%s,%d,%d,%d\n", sessionId, heartRate, stepCount, label);
-
+        }
+        else {
+            return String.format  ("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
+        }
     }
 }
