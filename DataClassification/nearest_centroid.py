@@ -6,9 +6,11 @@ from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from sklearn.neighbors import NearestCentroid
 from scipy.stats import zscore
+import sys
 
 import pyperclip
 
+np.set_printoptions(suppress=True) #make numpy arrays not be printed in scientific notation 
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
@@ -46,6 +48,7 @@ def get_budget_time_series_row_count(data_frame):
             data_frame_with_session_id = data_frame_with_label[(data_frame_with_label[session_id_as_string]==session_id)]
             result += data_frame_with_session_id.loc[:,minute_timestamp_as_string].nunique()
         centroid_sizes.append(result-previous_result)
+        print(result-previous_result) #shows how many minutes of each activity
         previous_result = result
     return result 
 
@@ -126,6 +129,37 @@ def format_final_centroid_to_java(centroids):
     result += "};"
     return result
 
+#for some reason after running the make_budget_time_series_from_data_frame we may end up with some very low y values / very high X values
+#it is usually the final 2 values (i think) - or not any values (but this function does not take this into account)
+#should probably do some debugging on make_budget_time_series_from_data_frame instead - but we do this for now
+def remove_outliers_from_time_series(X,y):
+    i = 0
+    while i < len(X): #X and y have the same length, so it does not matter which one to pick
+        heart_rate = X[i][0]
+        step_count = X[i][1]
+        label = y[i]
+        #value should be removed from both lists - since they should keep the same size
+        #HR nor step rate should never get this high/low and label should never be between 0 and 1 or higher than 3(should be enough to seperate outliers)
+        if heart_rate > 10000 or heart_rate < 0.0001 or step_count > 10000 or (step_count < 0.0001 and step_count != 0) or (label < 1 and label != 0) or label > 3:
+            X = np.delete(X,i,axis=0)
+            y = np.delete(y,i,axis=0)
+        else:
+            i += 1
+            
+def convertScikitCentroidsToOurCentroids(centroids):
+    if len(centroids) == 5: #hacky solution, but there is a chance that there is an extra centroid which is very high value (as the first centroid)
+        centroids = centroids[1:]
+    final_centroids = []
+    for i in range(len(centroids)):
+        centroid = []
+        centroid.append(centroids[i][0]) #adds label
+        centroid.append(centroids[i][1]) #adds centroid size (number of datapoints(minutes) for that centroid) 
+        centroid.append(i)
+        centroid.append(centroid_sizes[i])
+        final_centroids.append(centroid)
+    return final_centroids
+        
+
 if __name__ == '__main__':
     X,y = make_budget_time_series_from_data_frame(data)
     
@@ -137,26 +171,17 @@ if __name__ == '__main__':
     
     scaler = preprocessing.StandardScaler()
     X_standard_scaled = scaler.fit_transform(X)
-    print(y) #if this is removed it may not work
-    y = [value for value in y if not( value < 0.05 and value != 0)] #attempt at removing those very small values that may appear
+    
+    remove_outliers_from_time_series(X,y)
+    y = y.astype(int) #converts labels to ints - this is done after removing the outliers
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
-    centroids = nearest_centroid.centroids_
-    final_centroids = []
-
+    centroids = convertScikitCentroidsToOurCentroids(nearest_centroid.centroids_)
     
-    for i in range(len(centroids)):
-        centroid = []
-        centroid.append(centroids[i][0]) #adds label
-        centroid.append(centroids[i][1]) #adds centroid size (number of datapoints(minutes) for that centroid) 
-        centroid.append(i)
-        centroid.append(centroid_sizes[i])
-        final_centroids.append(centroid)
-        
         
 
-    pyperclip.copy(format_final_centroid_to_java(final_centroids))
+    pyperclip.copy(format_final_centroid_to_java(centroids))
         
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
