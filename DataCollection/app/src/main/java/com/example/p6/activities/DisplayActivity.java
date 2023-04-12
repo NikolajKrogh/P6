@@ -93,6 +93,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private LocalDateTime dateTime;
     private TextView timerText;
     private TextView timesWrittenToFileText;
+    private TextView predictedActivityText;
     private short timesWrittenToFile = 0;
     private Toast myToast;
     private TextView activityText;
@@ -180,6 +181,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         heartRateText = binding.heartRateText;
         stepCountText = binding.stepCountText;
         timerText = binding.timerText;
+        predictedActivityText = binding.predictedActivityText;
         timesWrittenToFileText = binding.timesWrittenToFileText;
     }
 
@@ -236,7 +238,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             if (mode == PREDICT_ACTIVITY){
                 predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
-                Log.i("Predicted activity", predictedActivity.name());
+                predictedActivityText.setText("Predicted " + predictedActivity.name());
             }
 
             switch (predictedActivity){

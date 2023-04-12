@@ -56,6 +56,13 @@
                     android:text="Timer" />
 
                 <TextView
+                    android:id="@+id/predictedActivityText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Predicted activity" />
+
+                <TextView
                     android:id="@+id/timesWrittenToFileText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

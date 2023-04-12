@@ -41,7 +41,6 @@ public class NearestCentroid {
     }
 
     public static Centroid updateModel(Constants.Activity activity, DataPoint dataPoint) {
-        // maybe check if anything is empty
                centroids[activity.ordinal()].heartRate = addToAverage(centroids[activity.ordinal()].heartRate,
                 centroids[activity.ordinal()].size, dataPoint.heartRate);
         centroids[activity.ordinal()].stepCount = addToAverage(centroids[activity.ordinal()].stepCount,

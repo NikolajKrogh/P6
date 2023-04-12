@@ -33,13 +33,9 @@ public class CsvHandler {
     }
 
     public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
-        File path;
         try {
+            File path;
             path = context.getDir(fileName, Context.MODE_APPEND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
             File file = new File(path.getPath(),fileName);
             file.createNewFile(); // if file already exists, this will do nothing
             FileOutputStream writer = new FileOutputStream(file,true);
@@ -51,7 +47,7 @@ public class CsvHandler {
                 writer.write(dataPoint.toString().getBytes());
             }
             writer.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
