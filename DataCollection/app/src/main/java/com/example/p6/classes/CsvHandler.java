@@ -76,25 +76,21 @@ public class CsvHandler {
     }
 
     public static void writeToCentroidHistory(Centroid[] centroids, Context context){
-        String updatedCentroid = "";
+        String content = "";
         String fileName = "centroids_history.csv";
 
         if (fileIsEmpty(fileName, context)){
-            updatedCentroid += Constants.centroidHistoryHeader;
+            content += Constants.centroidHistoryHeader + "\n";
+            content += NearestCentroid.generalModelCentroids;
         }
 
-        updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
-        CsvHandler.writeToFile(fileName, updatedCentroid, context, true);
+        content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",");
+        CsvHandler.writeToFile(fileName, content, context, true);
     }
 
     public static void writeToCentroidFile(Centroid[] centroids, Context context){
         String updatedCentroid = Constants.centroidHeader;
         String fileName = "centroids.csv";
-
-        if (fileIsEmpty(fileName, context)){
-            updatedCentroid += Constants.centroidHistoryHeader;
-        }
-
         updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
         CsvHandler.writeToFile(fileName, updatedCentroid, context, false);
     }

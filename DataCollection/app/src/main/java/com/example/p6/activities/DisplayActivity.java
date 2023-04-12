@@ -72,7 +72,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
     private List<DataPoint> dataPointsToAdd = new ArrayList<>();
-
     private List<DataPoint> aggregatedDataPointsSitting = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
@@ -88,7 +87,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //endregion
 
     //region Other global variables
-    private Constants.Activity activityToTrack = MainActivity.activityToTrack;
+    private final Constants.Activity activityToTrack = MainActivity.activityToTrack;
     private final Constants.Mode mode = MainActivity.trackingMode;
     private SensorManager mSensorManager;
     private LocalDateTime dateTime;
@@ -280,13 +279,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 updateModelForPredictedActivities();
                 break;
             case COLLECT_DATA:
+                showToast("Writing to file ...");
                 CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
                         dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
                 break;
             default:
                 throw new RuntimeException("Mode " + mode + " not recognized");
         }
-        showToast("Writing to file ...");
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
@@ -299,6 +298,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
+            showToast("Updated model");
             CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
             CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, getApplicationContext());
         }
