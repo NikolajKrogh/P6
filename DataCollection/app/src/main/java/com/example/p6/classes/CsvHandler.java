@@ -32,40 +32,6 @@ public class CsvHandler {
         }
     }
 
-    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
-        File path;
-        try {
-            path = context.getDir(fileName, Context.MODE_APPEND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            File file = new File(path.getPath(),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,true);
-            if (file.length() == 0){
-                String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
-                writer.write(dataPointHeaderBeforePreprocessing.getBytes());
-            }
-            for (DataPoint dataPoint : dataPoints) {
-                writer.write(dataPoint.toString().getBytes());
-            }
-            writer.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //implement such that we create the centroid file if it does not exists based on the above centroids
-    private double[] convertStringArrayToDoubleArray(String[] stringArray) {
-        int arrayLength = stringArray.length;
-        double[] result = new double[arrayLength];
-        for (int i = 0; i <= arrayLength; i++) {
-            result[i] = Double.parseDouble(stringArray[i]);
-        }
-        return result;
-    }
-
     public static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
         StringBuilder result = new StringBuilder();
         for (Centroid centroid : centroids) {
@@ -73,6 +39,13 @@ public class CsvHandler {
             result.append(delimiter);
         }
         return result.toString();
+    }
+
+    public static void writeToCentroidFile(Centroid[] centroids, Context context){
+        String content = Constants.centroidHeader;
+        String fileName = "centroids.csv";
+        content += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
+        CsvHandler.writeToFile(fileName, content, context, false);
     }
 
     public static void writeToCentroidHistory(Centroid[] centroids, Context context){
@@ -88,11 +61,32 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writeToCentroidFile(Centroid[] centroids, Context context){
-        String updatedCentroid = Constants.centroidHeader;
-        String fileName = "centroids.csv";
-        updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
-        CsvHandler.writeToFile(fileName, updatedCentroid, context, false);
+    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
+        String content = "";
+
+        if (fileIsEmpty(fileName, context)){
+           content += "minutes,heart_rate,step_count,label\n";
+        }
+
+        for (DataPoint dataPoint : dataPoints) {
+            content += dataPoint.toString() + "\n";
+        }
+
+        CsvHandler.writeToFile(fileName, content, context, true);
+    }
+
+    public static void writePredictedActivityToFile(String fileName, List<String> predictedActivities, Context context) {
+        String content = "";
+
+        if (fileIsEmpty(fileName, context)){
+            content += "minutes,heart_rate,step_count,label\n";
+        }
+
+        for (String activity : predictedActivities) {
+            content += activity + "\n";
+        }
+
+        CsvHandler.writeToFile(fileName, content, context, true);
     }
 
     private static boolean fileIsEmpty(String fileName, Context context){

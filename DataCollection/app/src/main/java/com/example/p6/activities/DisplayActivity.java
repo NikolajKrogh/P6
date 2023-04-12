@@ -76,6 +76,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+    private List<String> predictedActivities = new ArrayList<>();
 
 
     //endregion
@@ -236,7 +237,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             if (mode == PREDICT_ACTIVITY){
                 predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
-                Log.i("Predicted activity", predictedActivity.name());
+                predictedActivities.add(predictedActivity.name().toLowerCase());
             }
 
             switch (predictedActivity){
