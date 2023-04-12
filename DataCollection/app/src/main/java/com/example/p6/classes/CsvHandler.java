@@ -84,7 +84,7 @@ public class CsvHandler {
             content += convertArrayOfCentroidsToString(NearestCentroid.generalModelCentroids, ",") +"\n";
         }
 
-        content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",");
+        content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
