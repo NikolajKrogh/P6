@@ -3,7 +3,7 @@ package com.example.p6.classes;
 public class Constants {
     public final static int NUMBER_OF_LABELS = 4;
     public static String centroidHeader = "heart_rate,step_count,label,centroid_size\n";
-    public static String centroidHistoryHeader =
+    public static String centroidHistoryHeader = "date," +
             "heart_rate_sitting,step_count_sitting,label_sitting,centroid_size_sitting," +
             "heart_rate_walking,step_count_walking,label_walking,centroid_size_walking," +
             "heart_rate_running,step_count_running,label_running,centroid_size_running," +

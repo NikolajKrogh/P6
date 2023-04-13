@@ -48,15 +48,16 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, false);
     }
 
-    public static void writeToCentroidHistory(Centroid[] centroids, Context context){
+    public static void writeToCentroidHistory(Centroid[] centroids, String dateTime, Context context){
         String content = "";
         String fileName = "centroids_history.csv";
 
         if (fileIsEmpty(fileName, context)){
             content += Constants.centroidHistoryHeader;
+            content += dateTime + ",";
             content += convertArrayOfCentroidsToString(NearestCentroid.generalModelCentroids, ",") +"\n";
         }
-
+        content += dateTime + ",";
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
         CsvHandler.writeToFile(fileName, content, context, true);
     }
@@ -75,13 +76,44 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writePredictedActivityToFile(String fileName, List<String> predictedActivities, double accuracy, Context context) {
-        String content = "Accuracy: " + accuracy + "\n";
+    public static void writePredictedActivityToFile(String fileName, List<Constants.Activity> predictedActivities, double accuracy, Context context) {
+        String content = "accuracy: " + accuracy + "\n\n";
+
+        short numberOfPredictionsSitting = 0;
+        short numberOfPredictionsWalking = 0;
+        short numberOfPredictionsRunning = 0;
+        short numberOfPredictionsCycling = 0;
 
         short i = 0;
-        content += "\nPredictions per minute:\n";
-        for (String activity : predictedActivities) {
-            content += i + ": " + activity + "\n";
+        for (Constants.Activity activity : predictedActivities) {
+            switch (activity){
+                case SITTING:
+                    numberOfPredictionsSitting++;
+                    break;
+                case WALKING:
+                    numberOfPredictionsWalking++;
+                    break;
+                case RUNNING:
+                    numberOfPredictionsRunning++;
+                    break;
+                case CYCLING:
+                    numberOfPredictionsCycling++;
+                    break;
+                default:
+                    throw new RuntimeException("Activity " + activity + " not recognized");
+            }
+            i++;
+        }
+
+        content += "sitting predictions: " + numberOfPredictionsSitting + "\n";
+        content += "walking predictions: " + numberOfPredictionsWalking + "\n";
+        content += "running predictions: " + numberOfPredictionsRunning + "\n";
+        content += "cycling predictions: " + numberOfPredictionsCycling + "\n";
+
+        i = 0;
+        content += "\npredictions:\n";
+        for (Constants.Activity activity : predictedActivities) {
+            content += i + ": " + activity.name().toLowerCase() + "\n";
             i++;
         }
 

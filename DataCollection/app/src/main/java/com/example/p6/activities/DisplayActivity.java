@@ -76,7 +76,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
-    private List<String> predictedActivities = new ArrayList<>();
+    private List<Constants.Activity> predictedActivities = new ArrayList<>();
 
 
     //endregion
@@ -245,7 +245,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             if (mode == UPDATE_WITH_LABELS){
                 Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
                 predictedActivityText.setText("Predicted " + predictedActivity.name());
-                predictedActivities.add(predictedActivity.name().toLowerCase());
+                predictedActivities.add(predictedActivity);
             }
 
             switch (activity){
@@ -287,7 +287,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             case UPDATE_WITH_LABELS:
                 updateModelForPredictedActivities();
                 CsvHandler.writePredictedActivityToFile("predicted_" + activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".csv", predictedActivities, getPredictionAccuracy(), getApplicationContext());
+                        dateTimeFormatter.format(dateTime) + ".txt", predictedActivities, getPredictionAccuracy(), getApplicationContext());
                 break;
             case COLLECT_DATA:
                 showToast("Writing to file ...");
@@ -304,13 +304,16 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private double getPredictionAccuracy(){
         short numberOfPredictions = (short) predictedActivities.size();
+        if (numberOfPredictions == 0){
+            return 1;   // Technically, accuracy is 100% if their are no predictions
+        }
         short numberOfCorrectPredictions = 0;
-        for (String activity : predictedActivities) {
-            if (activity == activityToTrack.name().toLowerCase()){
+        for (Constants.Activity activity : predictedActivities) {
+            if (activity == activityToTrack){
                 numberOfCorrectPredictions++;
             }
         }
-        double accuracy = numberOfCorrectPredictions / numberOfPredictions;
+        double accuracy = (double) numberOfCorrectPredictions / (double) numberOfPredictions;
         return accuracy;
     }
 
@@ -323,7 +326,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if (modelWasUpdated){
             showToast("Updated model");
             CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
-            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
         }
     }
 
