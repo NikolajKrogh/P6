@@ -2,6 +2,7 @@ package com.example.p6.classes;
 
 public class Constants {
     public final static int NUMBER_OF_LABELS = 4;
+    public static String accuracyHeader = "accuracy,correct,total,sitting,walking,running,cycling\n";
     public static String centroidHeader = "heart_rate,step_count,label,centroid_size\n";
     public static String centroidHistoryHeader = "date," +
             "heart_rate_sitting,step_count_sitting,label_sitting,centroid_size_sitting," +

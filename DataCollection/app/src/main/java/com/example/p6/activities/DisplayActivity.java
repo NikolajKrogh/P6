@@ -10,7 +10,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -286,13 +285,15 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 break;
             case UPDATE_WITH_LABELS:
                 updateModelForPredictedActivities();
-                CsvHandler.writePredictedActivityToFile("predicted_" + activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".txt", predictedActivities, getPredictionAccuracy(), getApplicationContext());
+                writeToAccuracyFiles();
                 break;
             case COLLECT_DATA:
                 showToast("Writing to file ...");
-                CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
+                CsvHandler.writeDataPointsToFile(
+                        activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".csv",
+                        dataPointsToAdd,
+                        getApplicationContext());
                 break;
             default:
                 throw new RuntimeException("Mode " + mode + " not recognized");
@@ -302,19 +303,70 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         finish();
     }
 
-    private double getPredictionAccuracy(){
-        short numberOfPredictions = (short) predictedActivities.size();
+    private void writeToAccuracyFiles(){
+        CsvHandler.writePredictedActivityToFile(
+                "predicted_" + activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".txt",
+                predictedActivities, getAccuracyDataForActivity(),
+                getApplicationContext());
+
+        String fileName = "predict_history_" + activityToTrack.name().toLowerCase() + ".csv";
+        CsvHandler.writeToAccuracyHistory(
+                fileName,
+                getAccuracyDataForActivity(),
+                CsvHandler.getAccuracyDataFromFile(fileName, getApplicationContext()),
+                getApplicationContext());
+    }
+
+    private double[] getAccuracyDataForActivity(){
+        double numberOfPredictions = predictedActivities.size();
+        double numberOfCorrectPredictions = 0;
+
         if (numberOfPredictions == 0){
-            return 1;   // Technically, accuracy is 100% if their are no predictions
+            return new double[]{1, 0, 0};   // Technically, accuracy is 100% if their are no predictions
         }
-        short numberOfCorrectPredictions = 0;
+
         for (Constants.Activity activity : predictedActivities) {
             if (activity == activityToTrack){
                 numberOfCorrectPredictions++;
             }
         }
-        double accuracy = (double) numberOfCorrectPredictions / (double) numberOfPredictions;
-        return accuracy;
+
+        short[] numberOfPredictionsForEachActivity = getNumberOfPredictionsForEachActivity();
+
+        double accuracy = numberOfCorrectPredictions / numberOfPredictions;
+        return new double[]{
+                accuracy,
+                numberOfCorrectPredictions,
+                numberOfPredictions,
+                numberOfPredictionsForEachActivity[Constants.Activity.SITTING.ordinal()],
+                numberOfPredictionsForEachActivity[Constants.Activity.WALKING.ordinal()],
+                numberOfPredictionsForEachActivity[Constants.Activity.RUNNING.ordinal()],
+                numberOfPredictionsForEachActivity[Constants.Activity.CYCLING.ordinal()]
+        };
+    }
+
+    private short[] getNumberOfPredictionsForEachActivity() {
+        short[] numberOfPredictionsForEachActivity = {0, 0, 0, 0};
+        for (Constants.Activity activity : predictedActivities) {
+            switch (activity) {
+                case SITTING:
+                    numberOfPredictionsForEachActivity[Constants.Activity.SITTING.ordinal()]++;
+                    break;
+                case WALKING:
+                    numberOfPredictionsForEachActivity[Constants.Activity.WALKING.ordinal()]++;
+                    break;
+                case RUNNING:
+                    numberOfPredictionsForEachActivity[Constants.Activity.RUNNING.ordinal()]++;
+                    break;
+                case CYCLING:
+                    numberOfPredictionsForEachActivity[Constants.Activity.CYCLING.ordinal()]++;
+                    break;
+                default:
+                    throw new RuntimeException("Activity " + activity + " not recognized");
+            }
+        }
+        return numberOfPredictionsForEachActivity;
     }
 
     private void updateModelForPredictedActivities(){

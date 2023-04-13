@@ -7,12 +7,24 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
 public class CsvHandler {
+    private enum AccuracyData {
+        ACCURACY,
+        CORRECT_PREDICTIONS,
+        TOTAL_PREDICTIONS,
+        SITTING_PREDICTIONS,
+        WALKING_PREDICTIONS,
+        RUNNING_PREDICTIONS,
+        CYCLING_PREDICTIONS
+    }
+
+
     //region Centroid constants
     //endregion
     public static void writeToFile(String fileName, String content, Context context, boolean appendMode){
@@ -70,47 +82,21 @@ public class CsvHandler {
         }
 
         for (DataPoint dataPoint : dataPoints) {
-            content += dataPoint.toString() + "\n";
+            content += dataPoint.toString();
         }
 
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writePredictedActivityToFile(String fileName, List<Constants.Activity> predictedActivities, double accuracy, Context context) {
-        String content = "accuracy: " + accuracy + "\n\n";
+    public static void writePredictedActivityToFile(String fileName, List<Constants.Activity> predictedActivities, double[] accuracyDataForActivity, Context context) {
+        String content = "accuracy: " + accuracyDataForActivity[AccuracyData.ACCURACY.ordinal()] + "\n\n";
 
-        short numberOfPredictionsSitting = 0;
-        short numberOfPredictionsWalking = 0;
-        short numberOfPredictionsRunning = 0;
-        short numberOfPredictionsCycling = 0;
+        content += "sitting predictions: " + accuracyDataForActivity[AccuracyData.SITTING_PREDICTIONS.ordinal()] + "\n";
+        content += "walking predictions: " + accuracyDataForActivity[AccuracyData.WALKING_PREDICTIONS.ordinal()] + "\n";
+        content += "running predictions: " + accuracyDataForActivity[AccuracyData.RUNNING_PREDICTIONS.ordinal()] + "\n";
+        content += "cycling predictions: " + accuracyDataForActivity[AccuracyData.CYCLING_PREDICTIONS.ordinal()] + "\n";
 
         short i = 0;
-        for (Constants.Activity activity : predictedActivities) {
-            switch (activity){
-                case SITTING:
-                    numberOfPredictionsSitting++;
-                    break;
-                case WALKING:
-                    numberOfPredictionsWalking++;
-                    break;
-                case RUNNING:
-                    numberOfPredictionsRunning++;
-                    break;
-                case CYCLING:
-                    numberOfPredictionsCycling++;
-                    break;
-                default:
-                    throw new RuntimeException("Activity " + activity + " not recognized");
-            }
-            i++;
-        }
-
-        content += "sitting predictions: " + numberOfPredictionsSitting + "\n";
-        content += "walking predictions: " + numberOfPredictionsWalking + "\n";
-        content += "running predictions: " + numberOfPredictionsRunning + "\n";
-        content += "cycling predictions: " + numberOfPredictionsCycling + "\n";
-
-        i = 0;
         content += "\npredictions:\n";
         for (Constants.Activity activity : predictedActivities) {
             content += i + ": " + activity.name().toLowerCase() + "\n";
@@ -120,7 +106,57 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    private static boolean fileIsEmpty(String fileName, Context context){
+    public static void writeToAccuracyHistory(String fileName, double[] accuracyDataForActivity, double[] accuracyDataFromHistory, Context context){
+        String content = Constants.accuracyHeader;
+
+        accuracyDataFromHistory[AccuracyData.CORRECT_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.CORRECT_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.TOTAL_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.TOTAL_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.ACCURACY.ordinal()]
+                = accuracyDataFromHistory[AccuracyData.CORRECT_PREDICTIONS.ordinal()]
+                / accuracyDataFromHistory[AccuracyData.TOTAL_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.SITTING_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.SITTING_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.WALKING_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.WALKING_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.RUNNING_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.RUNNING_PREDICTIONS.ordinal()];
+        accuracyDataFromHistory[AccuracyData.CYCLING_PREDICTIONS.ordinal()]
+                += accuracyDataForActivity[AccuracyData.CYCLING_PREDICTIONS.ordinal()];
+
+        for (AccuracyData accuracyData :AccuracyData.values()){
+            content += String.format("%.4f,",accuracyDataFromHistory[accuracyData.ordinal()]);
+        }
+
+        CsvHandler.writeToFile(fileName, content, context, false);
+    }
+
+    public static double[] getAccuracyDataFromFile(String fileName, Context context){
+        double accuracyDataForActivity[] = {0, 0, 0, 0, 0, 0, 0};
+        try {
+            File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
+            if (file.length() == 0){
+                return accuracyDataForActivity;
+            }
+            FileReader filereader = new FileReader(file);
+            CSVReader csvReader = new CSVReader(filereader);
+            csvReader.readNext(); //skip header
+            // we are going to read data line by line
+
+            String[] nextEntry = csvReader.readNext();
+
+            for (AccuracyData accuracyData :AccuracyData.values()){
+                accuracyDataForActivity[accuracyData.ordinal()] = Double.parseDouble(nextEntry[accuracyData.ordinal()]);
+            }
+
+        } catch (IOException | CsvValidationException e) {
+            throw new RuntimeException(e);
+        }
+        return accuracyDataForActivity;
+    }
+
+    private static boolean fileIsEmpty(String fileName, Context context) {
         File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
         if (file.length() == 0){
             return true;
