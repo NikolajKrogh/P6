@@ -10,7 +10,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -34,7 +33,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
@@ -127,8 +125,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
         activityText.setText("Tracking " + activityToTrack);
-
-        Random rand = new Random();
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
