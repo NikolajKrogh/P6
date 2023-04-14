@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.NearestCentroid;
@@ -304,69 +305,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void writeToAccuracyFiles(){
+        AccuracyData accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
         CsvHandler.writePredictedActivityToFile(
-                "predicted_" + activityToTrack.name().toLowerCase() + "_" +
+                "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
                         dateTimeFormatter.format(dateTime) + ".txt",
-                predictedActivities, getAccuracyDataForActivity(),
+                accuracyDataForActivity,
+                predictedActivities,
                 getApplicationContext());
 
-        String fileName = "predict_history_" + activityToTrack.name().toLowerCase() + ".csv";
-        CsvHandler.writeToAccuracyHistory(
+        String fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
+        CsvHandler.writeToTotalAccuracyForActivity(
                 fileName,
-                getAccuracyDataForActivity(),
+                accuracyDataForActivity,
                 CsvHandler.getAccuracyDataFromFile(fileName, getApplicationContext()),
                 getApplicationContext());
-    }
-
-    private double[] getAccuracyDataForActivity(){
-        double numberOfPredictions = predictedActivities.size();
-        double numberOfCorrectPredictions = 0;
-
-        if (numberOfPredictions == 0){
-            return new double[]{1, 0, 0};   // Technically, accuracy is 100% if their are no predictions
-        }
-
-        for (Constants.Activity activity : predictedActivities) {
-            if (activity == activityToTrack){
-                numberOfCorrectPredictions++;
-            }
-        }
-
-        short[] numberOfPredictionsForEachActivity = getNumberOfPredictionsForEachActivity();
-
-        double accuracy = numberOfCorrectPredictions / numberOfPredictions;
-        return new double[]{
-                accuracy,
-                numberOfCorrectPredictions,
-                numberOfPredictions,
-                numberOfPredictionsForEachActivity[Constants.Activity.SITTING.ordinal()],
-                numberOfPredictionsForEachActivity[Constants.Activity.WALKING.ordinal()],
-                numberOfPredictionsForEachActivity[Constants.Activity.RUNNING.ordinal()],
-                numberOfPredictionsForEachActivity[Constants.Activity.CYCLING.ordinal()]
-        };
-    }
-
-    private short[] getNumberOfPredictionsForEachActivity() {
-        short[] numberOfPredictionsForEachActivity = {0, 0, 0, 0};
-        for (Constants.Activity activity : predictedActivities) {
-            switch (activity) {
-                case SITTING:
-                    numberOfPredictionsForEachActivity[Constants.Activity.SITTING.ordinal()]++;
-                    break;
-                case WALKING:
-                    numberOfPredictionsForEachActivity[Constants.Activity.WALKING.ordinal()]++;
-                    break;
-                case RUNNING:
-                    numberOfPredictionsForEachActivity[Constants.Activity.RUNNING.ordinal()]++;
-                    break;
-                case CYCLING:
-                    numberOfPredictionsForEachActivity[Constants.Activity.CYCLING.ordinal()]++;
-                    break;
-                default:
-                    throw new RuntimeException("Activity " + activity + " not recognized");
-            }
-        }
-        return numberOfPredictionsForEachActivity;
     }
 
     private void updateModelForPredictedActivities(){
@@ -399,8 +351,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void updateCentroidForActivity(List<DataPoint> aggregatedDataPointsForActivity, Constants.Activity activity){
         for (DataPoint dataPoint : aggregatedDataPointsForActivity) {
-            modelWasUpdated = true;
             NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
+            modelWasUpdated = true;
         }
     }
 

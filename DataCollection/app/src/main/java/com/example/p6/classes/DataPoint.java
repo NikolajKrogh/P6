@@ -4,12 +4,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 public class DataPoint {
-    short heartRate;
-    int stepCount;
-    byte label;
-    short minutes = -1;
-    String sessionId;
+    public short heartRate;
+    public int stepCount;
+    public byte label;
+    public short minutes = -1;
+    public String sessionId;
 
     //for before preprocessing
     public DataPoint(short heartRate, int stepCount, byte label, short minutes) {
@@ -30,10 +32,10 @@ public class DataPoint {
     @Override
     public String toString(){
         if (minutes == -1){
-            return String.format("%s,%d,%d,%d\n", sessionId, heartRate, stepCount, label);
+            return String.format(Locale.US, "%s,%d,%d,%d\n", sessionId, heartRate, stepCount, label);
         }
         else {
-            return String.format  ("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
+            return String.format(Locale.US, "%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
         }
     }
 }
