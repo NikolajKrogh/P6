@@ -290,11 +290,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 break;
             case COLLECT_DATA:
                 showToast("Writing to file ...");
-                CsvHandler.writeDataPointsToFile(
-                        activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".csv",
-                        dataPointsToAdd,
-                        getApplicationContext());
+                String fileName = activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".csv";
+                CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, getApplicationContext());
                 break;
             default:
                 throw new RuntimeException("Mode " + mode + " not recognized");
@@ -304,16 +302,18 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         finish();
     }
 
-    private void writeToAccuracyFiles(){
+    private void writeToAccuracyFiles() throws CsvValidationException, IOException {
         AccuracyData accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
+
+        String fileName = "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
+                dateTimeFormatter.format(dateTime) + ".txt";
         CsvHandler.writePredictedActivityToFile(
-                "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".txt",
+                fileName,
                 accuracyDataForActivity,
                 predictedActivities,
                 getApplicationContext());
 
-        String fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
+        fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
         CsvHandler.writeToTotalAccuracyForActivity(
                 fileName,
                 accuracyDataForActivity,

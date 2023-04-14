@@ -17,28 +17,20 @@ public class AccuracyData {
     public short runningPredictions;
     public short cyclingPredictions;
 
-    public AccuracyData(
-            double accuracy,
-            short correctPredictions,
-            short totalPredictions,
-            short sittingPredictions,
-            short walkingPredictions,
-            short runningPredictions,
-            short cyclingPredictions
-            ){
-        this.accuracy = accuracy;
-        this.correctPredictions = correctPredictions;
-        this.totalPredictions = totalPredictions;
-        this.sittingPredictions = sittingPredictions;
-        this.walkingPredictions = walkingPredictions;
-        this.runningPredictions = runningPredictions;
-        this.cyclingPredictions = cyclingPredictions;
+    public AccuracyData() {
+        this.accuracy = 1;
+        this.correctPredictions = 0;
+        this.totalPredictions = 0;
+        this.sittingPredictions = 0;
+        this.walkingPredictions = 0;
+        this.runningPredictions = 0;
+        this.cyclingPredictions = 0;
     }
 
     public AccuracyData(List<Constants.Activity> predictedActivities, Constants.Activity activityToTrack){
         this.totalPredictions = (short) predictedActivities.size();
 
-        if (this.totalPredictions == 0){
+        if (this.totalPredictions == 0) {
             this.accuracy = 1;
             this.correctPredictions = 0;
             this.sittingPredictions = 0;
@@ -49,7 +41,7 @@ public class AccuracyData {
         }
 
         for (Constants.Activity activity : predictedActivities) {
-            if (activity == activityToTrack){
+            if (activity == activityToTrack) {
                 this.correctPredictions++;
             }
         }
@@ -79,7 +71,7 @@ public class AccuracyData {
 
     @NonNull
     @Override
-    public String toString(){
+    public String toString() {
             return String.format(
                     Locale.US,
                     "%.4f,%d,%d,%d,%d,%d,%d",

@@ -65,7 +65,7 @@ public class CsvHandler {
         StringBuilder content = new StringBuilder();
 
         if (fileIsEmpty(fileName, context)){
-           content.append("minutes,heart_rate,step_count,label\n");
+           content.append(Constants.dataPointHeader);
         }
 
         for (DataPoint dataPoint : dataPoints) {
@@ -84,20 +84,24 @@ public class CsvHandler {
         content.append("running predictions: ").append(accuracyDataForActivity.runningPredictions).append("\n");
         content.append("cycling predictions: ").append(accuracyDataForActivity.cyclingPredictions).append("\n");
 
-        short i = 0;
         content.append("\npredictions:\n");
-        for (Constants.Activity activity : predictedActivities) {
-            content.append(i).append(": ").append(activity.name().toLowerCase()).append("\n");
-            i++;
+        for (short i = 0; i < predictedActivities.size(); i++) {
+            content.append(i);
+            content.append(": ");
+            content.append(predictedActivities.get(i).name().toLowerCase());
+            content.append("\n");
         }
 
         CsvHandler.writeToFile(fileName, content.toString(), context, true);
     }
 
-    public static void writeToTotalAccuracyForActivity(String fileName, AccuracyData accuracyDataForActivity, AccuracyData accuracyDataFromFile, Context context){
+    public static void writeToTotalAccuracyForActivity(String fileName, AccuracyData
+            accuracyDataForActivity, AccuracyData accuracyDataFromFile, Context context){
+
         accuracyDataFromFile.correctPredictions += accuracyDataForActivity.correctPredictions;
         accuracyDataFromFile.totalPredictions += accuracyDataForActivity.totalPredictions;
-        accuracyDataFromFile.accuracy = (double) accuracyDataFromFile.correctPredictions / (double) accuracyDataFromFile.totalPredictions;
+        accuracyDataFromFile.accuracy = (double) accuracyDataFromFile.correctPredictions
+                / (double) accuracyDataFromFile.totalPredictions;
         accuracyDataFromFile.sittingPredictions += accuracyDataForActivity.sittingPredictions;
         accuracyDataFromFile.walkingPredictions += accuracyDataForActivity.walkingPredictions;
         accuracyDataFromFile.runningPredictions += accuracyDataForActivity.runningPredictions;
@@ -107,10 +111,10 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, false);
     }
 
-    public static AccuracyData getAccuracyDataFromFile(String fileName, Context context){
-        AccuracyData accuracyDataForActivity = new AccuracyData(
-                1, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0);
+    public static AccuracyData getAccuracyDataFromFile(String fileName, Context context)
+            throws IOException, CsvValidationException {
 
+        AccuracyData accuracyDataForActivity = new AccuracyData();
         try {
             File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
             if (file.length() == 0){
@@ -128,9 +132,12 @@ public class CsvHandler {
             accuracyDataForActivity.walkingPredictions = Short.parseShort((accuracyDataFromFile[4]));
             accuracyDataForActivity.runningPredictions = Short.parseShort((accuracyDataFromFile[5]));
             accuracyDataForActivity.cyclingPredictions = Short.parseShort((accuracyDataFromFile[6]));
-
-        } catch (IOException | CsvValidationException e) {
-            throw new RuntimeException(e);
+        }
+        catch (IOException e) {
+            throw new IOException();
+        }
+        catch (CsvValidationException e) {
+            throw new CsvValidationException();
         }
         return accuracyDataForActivity;
     }
