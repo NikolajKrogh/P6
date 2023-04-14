@@ -97,7 +97,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private short timesWrittenToFile = 0;
     private Toast myToast;
     private TextView activityText;
-    private String sessionId;
     private boolean modelWasUpdated = false;
 
     //endregion
@@ -130,7 +129,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         activityText.setText("Tracking " + activityToTrack);
 
         Random rand = new Random();
-        sessionId = String.valueOf(rand.nextInt(Integer.MAX_VALUE));
 
         myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
     }
@@ -232,7 +230,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingList(){
-        PreProcessing.makeBudgetTimeSeries(dataPointsToAdd, sessionId);
+        PreProcessing.makeBudgetTimeSeries(dataPointsToAdd);
         for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
             Constants.Activity predictedActivity = activityToTrack;
 
