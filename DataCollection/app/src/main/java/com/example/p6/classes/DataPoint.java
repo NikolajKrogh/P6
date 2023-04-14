@@ -28,7 +28,7 @@ public class DataPoint {
     @Override
     public String toString(){
         if (minutes == -1) { //if the datapoint has been processed
-            return String.format("%d,%d,%d\n", heartRate, stepCount);
+            return String.format("%d,%d\n", heartRate, stepCount);
         }
         else {
             return String.format  ("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
