@@ -9,7 +9,6 @@ public class DataPoint {
     int stepCount;
     byte label;
     short minutes = -1;
-    String sessionId;
 
     //for before preprocessing
     public DataPoint(short heartRate, int stepCount, byte label, short minutes) {
@@ -20,17 +19,16 @@ public class DataPoint {
     }
 
     //for after preprocessing
-    public DataPoint(short heartRate, int stepCount, String sessionId) {
+    public DataPoint(short heartRate, int stepCount) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
-        this.sessionId = sessionId;
     }
 
     @NonNull
     @Override
     public String toString(){
-        if (minutes == -1){
-            return String.format("%s,%d,%d,%d\n", sessionId, heartRate, stepCount, label);
+        if (minutes == -1) { //if the datapoint has been processed
+            return String.format("%d,%d\n", heartRate, stepCount);
         }
         else {
             return String.format  ("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
