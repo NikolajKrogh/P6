@@ -12,12 +12,12 @@ public class PreProcessing {
     static short numberOfDataPointsInMinute = 0;
     static int stepCountAtStartOfMinute = NOT_SET;
     static short prevStepCount;
-    public static List<DataPoint> makeBudgetTimeSeries(List<DataPoint> dataPointsToAdd, String sessionId) {
+    public static List<DataPoint> makeBudgetTimeSeries(List<DataPoint> dataPointsToAdd) {
         for (DataPoint dataPoint : dataPointsToAdd) {
             minute = dataPoint.minutes;
 
             if (minute != prevMinute && numberOfDataPointsInMinute > 0) {
-                addTimeSeriesToList(sessionId);
+                addTimeSeriesToList();
                 resetValues();
             }
 
@@ -34,10 +34,10 @@ public class PreProcessing {
         return aggregatedDataPoints;
     }
 
-    private static void addTimeSeriesToList(String sessionId) {
+    private static void addTimeSeriesToList() {
         short avgHeartRate = (short) (accumulatedHeartRate / numberOfDataPointsInMinute);
         short stepCountDiff = (short) (prevStepCount - stepCountAtStartOfMinute);
-        aggregatedDataPoints.add(new DataPoint(avgHeartRate, stepCountDiff, sessionId));
+        aggregatedDataPoints.add(new DataPoint(avgHeartRate, stepCountDiff));
     }
 
     private static void resetValues() {
