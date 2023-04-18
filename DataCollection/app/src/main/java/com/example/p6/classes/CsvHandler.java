@@ -143,8 +143,13 @@ public class CsvHandler {
     }
 
     private static boolean fileIsEmpty(String fileName, Context context) {
-        File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
+        File file = new File(context.getDir(fileName, Context.MODE_PRIVATE).getPath(),fileName);
         return file.length() == 0;
+    }
+
+    public static void deleteFile(String fileName, Context context){
+        File file = new File(context.getDir(fileName, Context.MODE_PRIVATE).getPath(),fileName);
+        file.delete();
     }
 
     public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {

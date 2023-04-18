@@ -13,7 +13,11 @@ import android.widget.Toast;
 
 import com.example.p6.R;
 import com.example.p6.classes.Constants;
+import com.example.p6.classes.CsvHandler;
 import com.example.p6.databinding.ActivityMainBinding;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.IOException;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
@@ -104,8 +108,11 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     // onLongClick() for resetModelButton
     @Override
     public boolean onLongClick(View v) {
-        myToast.setText("Model has been reset (but not really)");
+        CsvHandler.deleteFile("centroids.csv", getApplicationContext());
+        CsvHandler.deleteFile("centroids_history.csv", getApplicationContext());
+
+        myToast.setText("Model has been reset");
         myToast.show();
-        return true;
+        return true;    // true means that the long click is "consumed"
     }
 }
