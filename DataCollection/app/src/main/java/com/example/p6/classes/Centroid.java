@@ -2,6 +2,8 @@ package com.example.p6.classes;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 public class Centroid {
     double heartRate;
     double stepCount;
@@ -23,6 +25,10 @@ public class Centroid {
     @NonNull
     @Override
     public String toString(){
-        return String.format("%f,%f,%d,%d", heartRate, stepCount, label, size);
+        return String.format(Locale.US, "%f,%f,%d,%d", heartRate, stepCount, label, size);
+    }
+
+    public String toUIString(){
+        return String.format(Locale.US, "%.2f, %.2f", heartRate, stepCount);
     }
 }
