@@ -10,10 +10,11 @@ public class NearestCentroid {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
 
-    public static Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, (byte) 0, 180),
-                                               new Centroid(103.66115908541717, 108.26506024096386, (byte) 1, 215),
-                                               new Centroid(168.35690810370753, 163.85714285714286, (byte) 2, 96),
-                                               new Centroid(117.41208256764986, 0.19672131147540983, (byte) 3, 79)
+    private static double tempAxisLength = 20;
+    public static Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, tempAxisLength, tempAxisLength, (byte) 0, 180),
+                                               new Centroid(103.66115908541717, 108.26506024096386, tempAxisLength, tempAxisLength, (byte) 1, 215),
+                                               new Centroid(168.35690810370753, 163.85714285714286, tempAxisLength, tempAxisLength, (byte) 2, 96),
+                                               new Centroid(117.41208256764986, 0.19672131147540983, tempAxisLength, tempAxisLength, (byte) 3, 79)
                                               };
 
     // Calculates the distance from vectorToAddToCentroid to every centroid

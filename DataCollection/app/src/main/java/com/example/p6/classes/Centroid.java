@@ -7,19 +7,31 @@ import java.util.Locale;
 public class Centroid {
     double heartRate;
     double stepCount;
+    double semiMinorAxis;
+    double semiMajorAxis;
     byte label;
     int size;
 
     //for before preprocessing
-    public Centroid(double heartRate, double stepCount, byte label, int size) {
+    public Centroid(double heartRate, double stepCount, double semiMajorAxis, double semiMinorAxis,
+                    byte label, int size) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
+        this.semiMajorAxis = semiMajorAxis;
+        this.semiMinorAxis = semiMinorAxis;
         this.label = label;
         this.size = size;
     }
 
-    public Centroid(String heartRate, String stepCount, String label, String size) {
-        this(Double.parseDouble(heartRate),Double.parseDouble(stepCount),Byte.parseByte(label), Integer.parseInt(size));
+    public Centroid(String heartRate, String stepCount, String label, String size,
+                    String semiMajorAxis, String semiMinorAxis) {
+        this(
+                Double.parseDouble(heartRate),
+                Double.parseDouble(stepCount),
+                Double.parseDouble(semiMajorAxis),
+                Double.parseDouble(semiMinorAxis),
+                Byte.parseByte(label),
+                Integer.parseInt(size));
     }
 
     @NonNull

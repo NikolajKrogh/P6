@@ -167,7 +167,7 @@ public class CsvHandler {
             int i = 0;
             String[] nextEntry;
             while ((nextEntry = csvReader.readNext()) != null) {
-                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3]);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],nextEntry[4],nextEntry[5]);
                 i++;
             }
         }
