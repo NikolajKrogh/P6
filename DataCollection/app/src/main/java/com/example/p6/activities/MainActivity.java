@@ -49,6 +49,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         if (!BackButtonPressed && currentScreen != MAIN){   // If we came from the home menu of the watch
             startCurrentlyRunningActivity();
         }
+        currentScreen = MAIN;
         BackButtonPressed = false;
     }
 
