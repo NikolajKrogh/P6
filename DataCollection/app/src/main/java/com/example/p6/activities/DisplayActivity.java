@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.CsvHandler;
 import com.example.p6.classes.NearestCentroid;
@@ -74,6 +75,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
     private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+    private List<Constants.Activity> predictedActivities = new ArrayList<>();
 
 
     //endregion
@@ -228,14 +230,20 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void addDataPointsToCorrespondingList(){
         PreProcessing.makeBudgetTimeSeries(dataPointsToAdd);
         for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
-            Constants.Activity predictedActivity = activityToTrack;
+            Constants.Activity activity = activityToTrack;
 
             if (mode == PREDICT_ACTIVITY){
-                predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
-                predictedActivityText.setText("Predicted " + predictedActivity.name());
+                activity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                predictedActivityText.setText("Predicted " + activity.name());
             }
 
-            switch (predictedActivity){
+            if (mode == UPDATE_WITH_LABELS){
+                Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                predictedActivityText.setText("Predicted " + predictedActivity.name());
+                predictedActivities.add(predictedActivity);
+            }
+
+            switch (activity){
                 case SITTING:
                     aggregatedDataPointsSitting.add(dataPoint);
                     break;
@@ -249,7 +257,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     aggregatedDataPointsCycling.add(dataPoint);
                     break;
                 default:
-                    throw new RuntimeException("Activity " + predictedActivity + " not recognized");
+                    throw new RuntimeException("Activity " + activity + " not recognized");
             }
         }
 
@@ -273,11 +281,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 break;
             case UPDATE_WITH_LABELS:
                 updateModelForPredictedActivities();
+                writeToAccuracyFiles();
                 break;
             case COLLECT_DATA:
                 showToast("Writing to file ...");
-                CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
+                String fileName = activityToTrack.name().toLowerCase() + "_" +
+                        dateTimeFormatter.format(dateTime) + ".csv";
+                CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, getApplicationContext());
                 break;
             default:
                 throw new RuntimeException("Mode " + mode + " not recognized");
@@ -285,6 +295,25 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
+    }
+
+    private void writeToAccuracyFiles() throws CsvValidationException, IOException {
+        AccuracyData accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
+
+        String fileName = "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
+                dateTimeFormatter.format(dateTime) + ".txt";
+        CsvHandler.writePredictedActivityToFile(
+                fileName,
+                accuracyDataForActivity,
+                predictedActivities,
+                getApplicationContext());
+
+        fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
+        CsvHandler.writeToTotalAccuracyForActivity(
+                fileName,
+                accuracyDataForActivity,
+                CsvHandler.getAccuracyDataFromFile(fileName, getApplicationContext()),
+                getApplicationContext());
     }
 
     private void updateModelForPredictedActivities(){
@@ -296,7 +325,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         if (modelWasUpdated){
             showToast("Updated model");
             CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
-            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
         }
     }
 
@@ -317,8 +346,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void updateCentroidForActivity(List<DataPoint> aggregatedDataPointsForActivity, Constants.Activity activity){
         for (DataPoint dataPoint : aggregatedDataPointsForActivity) {
-            modelWasUpdated = true;
             NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
+            modelWasUpdated = true;
         }
     }
 

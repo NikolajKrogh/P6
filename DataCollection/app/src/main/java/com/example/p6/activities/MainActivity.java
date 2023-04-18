@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     @Override
     public void onRestart(){
         super.onRestart();
-        if (!BackButtonPressed){   // If we came from the home menu of the watch
+        if (!BackButtonPressed && currentScreen != MAIN){   // If we came from the home menu of the watch
             startCurrentlyRunningActivity();
         }
         BackButtonPressed = false;

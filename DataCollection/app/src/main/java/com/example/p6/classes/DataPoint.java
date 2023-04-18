@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 public class DataPoint {
     short heartRate;
     int stepCount;
@@ -31,7 +33,7 @@ public class DataPoint {
             return String.format("%d,%d\n", heartRate, stepCount);
         }
         else {
-            return String.format  ("%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
+            return String.format(Locale.US, "%d,%d,%d,%d\n", minutes, heartRate, stepCount, label);
         }
     }
 }

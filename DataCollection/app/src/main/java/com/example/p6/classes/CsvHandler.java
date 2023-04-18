@@ -1,7 +1,6 @@
 package com.example.p6.classes;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -20,7 +19,7 @@ public class CsvHandler {
         if (appendMode)
             mode = Context.MODE_APPEND;
         else
-            mode = context.MODE_PRIVATE;
+            mode = Context.MODE_PRIVATE;
         try {
             File file = new File(context.getDir(fileName, mode),fileName);
             file.createNewFile(); // if file already exists, this will do nothing
@@ -32,36 +31,6 @@ public class CsvHandler {
         }
     }
 
-    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
-        try {
-            File path;
-            path = context.getDir(fileName, Context.MODE_APPEND);
-            File file = new File(path.getPath(),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,true);
-            if (file.length() == 0){
-                String dataPointHeaderBeforePreprocessing = "minutes,heart_rate,step_count,label\n";
-                writer.write(dataPointHeaderBeforePreprocessing.getBytes());
-            }
-            for (DataPoint dataPoint : dataPoints) {
-                writer.write(dataPoint.toString().getBytes());
-            }
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //implement such that we create the centroid file if it does not exists based on the above centroids
-    private double[] convertStringArrayToDoubleArray(String[] stringArray) {
-        int arrayLength = stringArray.length;
-        double[] result = new double[arrayLength];
-        for (int i = 0; i <= arrayLength; i++) {
-            result[i] = Double.parseDouble(stringArray[i]);
-        }
-        return result;
-    }
-
     public static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
         StringBuilder result = new StringBuilder();
         for (Centroid centroid : centroids) {
@@ -71,32 +40,111 @@ public class CsvHandler {
         return result.toString();
     }
 
-    public static void writeToCentroidHistory(Centroid[] centroids, Context context){
+    public static void writeToCentroidFile(Centroid[] centroids, Context context){
+        String content = Constants.centroidHeader;
+        String fileName = "centroids.csv";
+        content += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
+        CsvHandler.writeToFile(fileName, content, context, false);
+    }
+
+    public static void writeToCentroidHistory(Centroid[] centroids, String dateTime, Context context){
         String content = "";
         String fileName = "centroids_history.csv";
 
         if (fileIsEmpty(fileName, context)){
             content += Constants.centroidHistoryHeader;
+            content += dateTime + ",";
             content += convertArrayOfCentroidsToString(NearestCentroid.generalModelCentroids, ",") +"\n";
         }
-
+        content += dateTime + ",";
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writeToCentroidFile(Centroid[] centroids, Context context){
-        String updatedCentroid = Constants.centroidHeader;
-        String fileName = "centroids.csv";
-        updatedCentroid += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
-        CsvHandler.writeToFile(fileName, updatedCentroid, context, false);
+    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
+        StringBuilder content = new StringBuilder();
+
+        if (fileIsEmpty(fileName, context)){
+           content.append(Constants.dataPointHeader);
+        }
+
+        for (DataPoint dataPoint : dataPoints) {
+            content.append(dataPoint.toString());
+        }
+
+        CsvHandler.writeToFile(fileName, content.toString(), context, true);
     }
 
-    private static boolean fileIsEmpty(String fileName, Context context){
-        File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
-        if (file.length() == 0){
-            return true;
+    public static void writePredictedActivityToFile(String fileName, AccuracyData accuracyDataForActivity, List<Constants.Activity> predictedActivities, Context context) {
+
+        StringBuilder content = new StringBuilder("accuracy: " + accuracyDataForActivity.accuracy + "\n\n");
+
+        content.append("sitting predictions: ").append(accuracyDataForActivity.sittingPredictions).append("\n");
+        content.append("walking predictions: ").append(accuracyDataForActivity.walkingPredictions).append("\n");
+        content.append("running predictions: ").append(accuracyDataForActivity.runningPredictions).append("\n");
+        content.append("cycling predictions: ").append(accuracyDataForActivity.cyclingPredictions).append("\n");
+
+        content.append("\npredictions:\n");
+        for (short i = 0; i < predictedActivities.size(); i++) {
+            content.append(i);
+            content.append(": ");
+            content.append(predictedActivities.get(i).name().toLowerCase());
+            content.append("\n");
         }
-        return false;
+
+        CsvHandler.writeToFile(fileName, content.toString(), context, true);
+    }
+
+    public static void writeToTotalAccuracyForActivity(String fileName, AccuracyData
+            accuracyDataForActivity, AccuracyData accuracyDataFromFile, Context context){
+
+        accuracyDataFromFile.correctPredictions += accuracyDataForActivity.correctPredictions;
+        accuracyDataFromFile.totalPredictions += accuracyDataForActivity.totalPredictions;
+        accuracyDataFromFile.accuracy = (double) accuracyDataFromFile.correctPredictions
+                / (double) accuracyDataFromFile.totalPredictions;
+        accuracyDataFromFile.sittingPredictions += accuracyDataForActivity.sittingPredictions;
+        accuracyDataFromFile.walkingPredictions += accuracyDataForActivity.walkingPredictions;
+        accuracyDataFromFile.runningPredictions += accuracyDataForActivity.runningPredictions;
+        accuracyDataFromFile.cyclingPredictions += accuracyDataForActivity.cyclingPredictions;
+
+        String content = Constants.accuracyHeader + accuracyDataFromFile;
+        CsvHandler.writeToFile(fileName, content, context, false);
+    }
+
+    public static AccuracyData getAccuracyDataFromFile(String fileName, Context context)
+            throws IOException, CsvValidationException {
+
+        AccuracyData accuracyDataForActivity = new AccuracyData();
+        try {
+            File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
+            if (file.length() == 0){
+                return accuracyDataForActivity;
+            }
+            FileReader filereader = new FileReader(file);
+            CSVReader csvReader = new CSVReader(filereader);
+            csvReader.readNext(); //skip header
+            String[] accuracyDataFromFile = csvReader.readNext();
+
+            accuracyDataForActivity.accuracy = Double.parseDouble(accuracyDataFromFile[0]);
+            accuracyDataForActivity.correctPredictions = Short.parseShort((accuracyDataFromFile[1]));
+            accuracyDataForActivity.totalPredictions = Short.parseShort((accuracyDataFromFile[2]));
+            accuracyDataForActivity.sittingPredictions = Short.parseShort((accuracyDataFromFile[3]));
+            accuracyDataForActivity.walkingPredictions = Short.parseShort((accuracyDataFromFile[4]));
+            accuracyDataForActivity.runningPredictions = Short.parseShort((accuracyDataFromFile[5]));
+            accuracyDataForActivity.cyclingPredictions = Short.parseShort((accuracyDataFromFile[6]));
+        }
+        catch (IOException e) {
+            throw new IOException();
+        }
+        catch (CsvValidationException e) {
+            throw new CsvValidationException();
+        }
+        return accuracyDataForActivity;
+    }
+
+    private static boolean fileIsEmpty(String fileName, Context context) {
+        File file = new File(context.getDir(fileName, Context.MODE_APPEND).getPath(),fileName);
+        return file.length() == 0;
     }
 
     public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
