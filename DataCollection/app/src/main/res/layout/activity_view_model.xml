@@ -29,28 +29,28 @@
                 android:text="Original model:" />
 
             <TextView
-                android:id="@+id/sittingCentroidText"
+                android:id="@+id/originalSittingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Sitting centroid" />
 
             <TextView
-                android:id="@+id/walkingCentroidText"
+                android:id="@+id/originalWalkingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Walking centroid" />
 
             <TextView
-                android:id="@+id/runningCentroidText"
+                android:id="@+id/originalRunningCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Running centroid" />
 
             <TextView
-                android:id="@+id/cyclingCentroidText"
+                android:id="@+id/originalCyclingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -68,28 +68,28 @@
                 android:text="Personalized model:" />
 
             <TextView
-                android:id="@+id/sittingCentroidText3"
+                android:id="@+id/currentSittingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Sitting centroid" />
 
             <TextView
-                android:id="@+id/walkingCentroidText2"
+                android:id="@+id/currentWalkingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Walking centroid" />
 
             <TextView
-                android:id="@+id/runningCentroidText2"
+                android:id="@+id/currentRunningCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="Running centroid" />
 
             <TextView
-                android:id="@+id/cyclingCentroidText2"
+                android:id="@+id/currentCyclingCentroidText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
