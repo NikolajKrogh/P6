@@ -110,9 +110,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     public boolean onLongClick(View v) {
         CsvHandler.deleteFile("centroids.csv", getApplicationContext());
         CsvHandler.deleteFile("centroids_history.csv", getApplicationContext());
+        CsvHandler.deleteFile("accuracy_total_for_sitting.csv", getApplicationContext());
+        CsvHandler.deleteFile("accuracy_total_for_walking.csv", getApplicationContext());
+        CsvHandler.deleteFile("accuracy_total_for_running.csv", getApplicationContext());
+        CsvHandler.deleteFile("accuracy_total_for_cycling.csv", getApplicationContext());
 
         myToast.setText("Model has been reset");
         myToast.show();
+
         return true;    // true means that the long click is "consumed"
     }
 }
