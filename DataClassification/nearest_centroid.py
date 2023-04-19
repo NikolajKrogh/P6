@@ -3,12 +3,8 @@ import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn import preprocessing
 from sklearn.neighbors import NearestCentroid
-from scipy.stats import zscore
 import sys
-import math
-from matplotlib import pyplot as plt
 
 import pyperclip
 
