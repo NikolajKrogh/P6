@@ -15,7 +15,7 @@ np.set_printoptions(threshold=sys.maxsize) #make numpy arrays be fully printed i
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
 NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
-TIMESERIES_LENGTH = 3
+TIMESERIES_LENGTH = 1
 #endregion
 
 #region column names
@@ -38,7 +38,6 @@ def make_aggregated_time_series(data):
     for label in range(NUMBER_OF_LABELS):
         centroid_size = 0
         data_frame_with_label = get_data_frame_with_label(data,label)
-        print(f"label {label}:")
         if data_frame_with_label.empty:
             continue
         unique_session_ids = get_unique_session_ids(data_frame_with_label)
@@ -98,13 +97,15 @@ def convertScikitCentroidsToOurCentroids(centroids):
         
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
-    X,y = make_aggregated_time_series(data)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
-    nearest_centroid = NearestCentroid() 
-    nearest_centroid.fit(X_train, np.ravel(y_train))
-    centroids = convertScikitCentroidsToOurCentroids(nearest_centroid.centroids_)
+    for i in range(1,6):
+        TIMESERIES_LENGTH = i
+        X,y = make_aggregated_time_series(data)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
+        nearest_centroid = NearestCentroid() 
+        nearest_centroid.fit(X_train, np.ravel(y_train))
+        centroids = convertScikitCentroidsToOurCentroids(nearest_centroid.centroids_)
 
-    pyperclip.copy(format_final_centroid_to_java(centroids))
-   
-    print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
+        pyperclip.copy(format_final_centroid_to_java(centroids))
+
+        print(f"accuracy for timeseries length at size {TIMESERIES_LENGTH}:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
     
