@@ -32,7 +32,7 @@ centroid_sizes = []
 def get_unique_session_ids(data_frame):
     return data_frame.loc[:,session_id_as_string].unique()
 
-def make_time_windows(data):
+def make_aggregated_time_series(data):
     X = []
     y = []
     for label in range(NUMBER_OF_LABELS):
@@ -98,7 +98,7 @@ def convertScikitCentroidsToOurCentroids(centroids):
         
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
-    X,y = make_time_windows(data)
+    X,y = make_aggregated_time_series(data)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
