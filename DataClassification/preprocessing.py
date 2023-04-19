@@ -48,7 +48,7 @@ def add_session_id(file):
     return file
 
 def save_csv(file,filepath):
-    file = file[[timestamp,minute_timestamp,heartrate,step_count,session_id,label]]
+    file = file[[minute_timestamp,heartrate,step_count,session_id,label]]
     file.dropna(inplace = True)
     file.to_csv(filepath,index=False)
 
