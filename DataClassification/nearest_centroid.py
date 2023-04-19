@@ -28,8 +28,11 @@ label_as_string = "label"
 #endregion
 
 centroid_sizes = []
-##implement z-score again
-def make_aggregated_time_windows(data):
+
+def get_unique_session_ids(data_frame):
+    return data_frame.loc[:,session_id_as_string].unique()
+
+def make_time_windows(data):
     X = []
     y = []
     for label in range(NUMBER_OF_LABELS):
@@ -53,21 +56,15 @@ def make_aggregated_time_windows(data):
                 i+=TIMESERIES_LENGTH
         centroid_sizes.append(centroid_size)
     return np.asarray(X),np.asarray(y)
-                
-                
+                          
 def add_aggregated_time_window(X,y,data_frame,startMinute,label):
     data_frame_with_minutes = data_frame.loc[(data_frame[minute_timestamp_as_string] >= startMinute) & 
                                              (data_frame[minute_timestamp_as_string] < startMinute+TIMESERIES_LENGTH )]
-    if not data_frame_with_minutes[data_frame_with_minutes.isnull().any(axis=1)].empty:
-        print(data_frame_with_minutes.isna())
     heart_rate_mean = data_frame_with_minutes.loc[:, heartrate_as_string].mean()
     initial_step_count = data_frame_with_minutes[step_count_as_string].min()
     step_count_difference = data_frame_with_minutes[step_count_as_string].max() - initial_step_count
     X.append([heart_rate_mean,step_count_difference])
     y.append([label])
-    
-def get_unique_session_ids(data_frame):
-    return data_frame.loc[:,session_id_as_string].unique()
 
 def get_data_frame_with_label(data_frame,label):
     return data_frame[(data_frame[label_as_string]==label)]
@@ -101,7 +98,7 @@ def convertScikitCentroidsToOurCentroids(centroids):
         
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
-    X,y = make_aggregated_time_windows(data)
+    X,y = make_time_windows(data)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
