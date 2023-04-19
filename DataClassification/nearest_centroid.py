@@ -58,11 +58,11 @@ def make_aggregated_time_series(data):
     return np.asarray(X),np.asarray(y)
                           
 def add_aggregated_time_window(X,y,data_frame,startMinute,label):
-    data_frame_with_minutes = data_frame.loc[(data_frame[minute_timestamp_as_string] >= startMinute) & 
+    data_frame_at_minutes = data_frame.loc[(data_frame[minute_timestamp_as_string] >= startMinute) & 
                                              (data_frame[minute_timestamp_as_string] < startMinute+TIMESERIES_LENGTH )]
-    heart_rate_mean = data_frame_with_minutes.loc[:, heartrate_as_string].mean()
-    initial_step_count = data_frame_with_minutes[step_count_as_string].min()
-    step_count_difference = data_frame_with_minutes[step_count_as_string].max() - initial_step_count
+    heart_rate_mean = data_frame_at_minutes.loc[:, heartrate_as_string].mean()
+    initial_step_count = data_frame_at_minutes[step_count_as_string].min()
+    step_count_difference = data_frame_at_minutes[step_count_as_string].max() - initial_step_count
     X.append([heart_rate_mean,step_count_difference])
     y.append([label])
 
