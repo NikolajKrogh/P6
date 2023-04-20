@@ -5,15 +5,15 @@ import java.util.List;
 
 public class PreProcessing {
     private static final byte NOT_SET = -1;
-    public static List<DataPoint> aggregatedDataPoints = new ArrayList<>();
+    public static List<DataPointAggregated> aggregatedDataPoints = new ArrayList<>();
     static short minute = 0;
     static short prevMinute = NOT_SET;
     static short accumulatedHeartRate = 0;
     static short numberOfDataPointsInMinute = 0;
     static int stepCountAtStartOfMinute = NOT_SET;
     static short prevStepCount;
-    public static List<DataPoint> makeBudgetTimeSeries(List<DataPoint> dataPointsToAdd) {
-        for (DataPoint dataPoint : dataPointsToAdd) {
+    public static List<DataPointAggregated> makeBudgetTimeSeries(List<DataPointRaw> dataPointsToAdd) {
+        for (DataPointRaw dataPoint : dataPointsToAdd) {
             minute = dataPoint.minutes;
 
             if (minute != prevMinute && numberOfDataPointsInMinute > 0) {
@@ -35,9 +35,9 @@ public class PreProcessing {
     }
 
     private static void addTimeSeriesToList() {
-        short avgHeartRate = (short) (accumulatedHeartRate / numberOfDataPointsInMinute);
-        short stepCountDiff = (short) (prevStepCount - stepCountAtStartOfMinute);
-        aggregatedDataPoints.add(new DataPoint(avgHeartRate, stepCountDiff));
+        double avgHeartRate = (double) accumulatedHeartRate / numberOfDataPointsInMinute;
+        double stepCountDiff = (double) prevStepCount - stepCountAtStartOfMinute;
+        aggregatedDataPoints.add(new DataPointAggregated(avgHeartRate, stepCountDiff));
     }
 
     private static void resetValues() {

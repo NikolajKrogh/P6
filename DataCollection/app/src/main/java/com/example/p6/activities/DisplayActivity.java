@@ -21,8 +21,9 @@ import com.example.p6.R;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.CsvHandler;
+import com.example.p6.classes.DataPointAggregated;
+import com.example.p6.classes.DataPointRaw;
 import com.example.p6.classes.NearestCentroid;
-import com.example.p6.classes.DataPoint;
 import com.example.p6.classes.PreProcessing;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
@@ -70,11 +71,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private List<DataPoint> dataPointsToAdd = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsSitting = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+    private List<DataPointRaw> dataPointsToAdd = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsSitting = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsWalking = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsRunning = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsCycling = new ArrayList<>();
     private List<Constants.Activity> predictedActivities = new ArrayList<>();
 
 
@@ -229,7 +230,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void addDataPointsToCorrespondingList(){
         PreProcessing.makeBudgetTimeSeries(dataPointsToAdd);
-        for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
+        for (DataPointAggregated dataPoint : PreProcessing.aggregatedDataPoints) {
             Constants.Activity activity = activityToTrack;
 
             if (mode == PREDICT_ACTIVITY){
@@ -319,7 +320,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void updateModelForPredictedActivities(){
         addDataPointsToCorrespondingList();
         for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            List<DataPoint> listForActivity = getListForActivity(Constants.Activity.values()[i]);
+            List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
@@ -329,7 +330,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
-    private List<DataPoint> getListForActivity(Constants.Activity activity){
+    private List<DataPointAggregated> getListForActivity(Constants.Activity activity){
         switch (activity){
             case SITTING:
                 return aggregatedDataPointsSitting;
@@ -344,8 +345,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
-    private void updateCentroidForActivity(List<DataPoint> aggregatedDataPointsForActivity, Constants.Activity activity){
-        for (DataPoint dataPoint : aggregatedDataPointsForActivity) {
+    private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity){
+        for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
             NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
             modelWasUpdated = true;
         }
@@ -383,7 +384,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
-        DataPoint dataPointToAdd = new DataPoint(heartRate, step_count, label, minutes);
+        DataPointRaw dataPointToAdd = new DataPointRaw(heartRate, step_count, label, minutes);
         dataPointsToAdd.add(dataPointToAdd);
     }
 

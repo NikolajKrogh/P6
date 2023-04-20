@@ -6,7 +6,7 @@ public class EllipseHandler {
 
     // Heavily inspired by:
     // https://www.geeksforgeeks.org/check-if-a-point-is-inside-outside-or-on-the-ellipse/
-    public boolean checkIfPointWithinEllipse(DataPoint point, Centroid centroid){
+    public boolean checkIfPointWithinEllipse(DataPointAggregated point, Centroid centroid){
         double p = (Math.pow((point.heartRate - centroid.heartRate), 2)
                 / Math.pow(getBufferValue(centroid.semiMajorAxis), 2))
                 + (Math.pow((point.stepCount - centroid.stepCount), 2)

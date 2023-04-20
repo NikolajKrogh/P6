@@ -61,14 +61,15 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
+    public static void writeDataPointsToFile(String fileName, List<DataPointRaw> dataPoints,
+                                             Context context) {
         StringBuilder content = new StringBuilder();
 
         if (fileIsEmpty(fileName, context)){
            content.append(Constants.dataPointHeader);
         }
 
-        for (DataPoint dataPoint : dataPoints) {
+        for (DataPointRaw dataPoint : dataPoints) {
             content.append(dataPoint.toString());
         }
 
