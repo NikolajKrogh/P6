@@ -10,7 +10,7 @@ import java.util.List;
 public class NearestCentroid {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
-    private static final DataPointAggregated tempDataPoint = new DataPointAggregated(100, 10);
+    private static final DataPointBasic tempDataPoint = new DataPointBasic(100, 10);
     private static final CentroidEdgeCases tempEdgeCases = new CentroidEdgeCases(tempDataPoint, tempDataPoint, tempDataPoint, tempDataPoint);
     public static Centroid[] generalModelCentroids = {new Centroid(75.02328727800564, 0.0, tempEdgeCases, (byte) 0, 180),
                                                new Centroid(103.66115908541717, 108.26506024096386, tempEdgeCases, (byte) 1, 215),

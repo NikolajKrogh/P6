@@ -76,10 +76,7 @@ public class CsvHandler {
         CsvHandler.writeToFile(fileName, content.toString(), context, true);
     }
 
-    public static void writePredictedActivityToFile(String fileName,
-                                                    AccuracyData accuracyDataForActivity,
-                                                    List<Constants.Activity> predictedActivities,
-                                                    Context context) {
+    public static void writePredictedActivityToFile(String fileName, AccuracyData accuracyDataForActivity, List<Constants.Activity> predictedActivities, Context context) {
 
         StringBuilder content = new StringBuilder("accuracy: " + accuracyDataForActivity.accuracy + "\n\n");
 
@@ -156,8 +153,7 @@ public class CsvHandler {
         file.delete();
     }
 
-    public static Centroid[] getCentroidsFromFile(Context context)
-            throws IOException, CsvValidationException {
+    public static Centroid[] getCentroidsFromFile(Context context) throws IOException, CsvValidationException {
         Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
         String fileName = "centroids.csv";
         try {
@@ -172,9 +168,7 @@ public class CsvHandler {
             int i = 0;
             String[] nextEntry;
             while ((nextEntry = csvReader.readNext()) != null) {
-                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],
-                        nextEntry[4],nextEntry[5],nextEntry[6],nextEntry[7],nextEntry[8],
-                        nextEntry[9],nextEntry[10],nextEntry[11],nextEntry[12],nextEntry[13]);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],nextEntry[4],nextEntry[5],nextEntry[6],nextEntry[7],nextEntry[8],nextEntry[9],nextEntry[10],nextEntry[11],nextEntry[12],nextEntry[13]);
                 i++;
             }
         }
