@@ -41,7 +41,7 @@ public class NearestCentroid {
     }
 
     private static List<Constants.Activity> getActivitiesWhichOverlapDataPoint(DataPointAggregated dataPoint, Centroid[] model){
-        List<Constants.Activity> activitiesWhichOverlapDataPoint = new ArrayList<Constants.Activity>();
+        List<Constants.Activity> activitiesWhichOverlapDataPoint = new ArrayList<>();
         for (Constants.Activity activity : Constants.Activity.values()
              ) {
             if (EllipseHandler.checkIfPointWithinEllipse(dataPoint, model[activity.ordinal()])){

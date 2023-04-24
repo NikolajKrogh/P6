@@ -38,12 +38,5 @@ public class Constants {
         COLLECT_DATA,
     }
 
-    public enum Direction {
-        NORTH,
-        EAST,
-        SOUTH,
-        WEST
-    }
-
     //endregion
 }

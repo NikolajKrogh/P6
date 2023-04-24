@@ -19,7 +19,7 @@ public class PreProcessing {
             new DataPointBasic(0, 0)
             );
 
-    public static List<DataPointAggregated> makeBudgetTimeSeries(List<DataPointRaw> dataPointsToAdd) {
+    public static void makeBudgetTimeSeries(List<DataPointRaw> dataPointsToAdd) {
         for (DataPointRaw dataPoint : dataPointsToAdd) {
             minute = dataPoint.minutes;
 
@@ -39,8 +39,6 @@ public class PreProcessing {
             prevStepCount = (short) dataPoint.stepCount;
             numberOfDataPointsInMinute++;
         }
-
-        return aggregatedDataPoints;
     }
 
     private static void addTimeSeriesToList() {

@@ -1,16 +1,6 @@
 package com.example.p6.classes;
 
-import static com.example.p6.classes.Constants.*;
-import static com.example.p6.classes.Constants.Direction.*;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 
 public class Centroid {
