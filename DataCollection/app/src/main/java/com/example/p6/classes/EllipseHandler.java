@@ -1,5 +1,7 @@
 package com.example.p6.classes;
 
+import android.util.Log;
+
 public class EllipseHandler {
 
     private static final byte BUFFER_PERCENTAGE = 10;
@@ -21,23 +23,18 @@ public class EllipseHandler {
     }
 
     public static double getSemiMajorAxis(Centroid centroid) {
-        double distanceToEasternMostPoint = getDistanceToCentroid(centroid.edgeCases.easternMostPoint, centroid);
-        double distanceToWesternMostPoint = getDistanceToCentroid(centroid.edgeCases.westernMostPoint, centroid);
+        double distanceToEasternMostPoint = getDifferenceBetweenTwoNumbers(centroid.edgeCases.easternMostPoint.stepCount, centroid.stepCount);
+        double distanceToWesternMostPoint = getDifferenceBetweenTwoNumbers(centroid.edgeCases.westernMostPoint.stepCount, centroid.stepCount);
         return Math.max(distanceToEasternMostPoint, distanceToWesternMostPoint);
     }
 
     public static double getSemiMinorAxis(Centroid centroid) {
-        double distanceToNorthernMostPoint = getDistanceToCentroid(centroid.edgeCases.northernMostPoint, centroid);
-        double distanceToSouthernMostPoint = getDistanceToCentroid(centroid.edgeCases.southernMostPoint, centroid);
+        double distanceToNorthernMostPoint = getDifferenceBetweenTwoNumbers(centroid.edgeCases.northernMostPoint.heartRate, centroid.heartRate);
+        double distanceToSouthernMostPoint = getDifferenceBetweenTwoNumbers(centroid.edgeCases.southernMostPoint.heartRate, centroid.heartRate);
         return Math.max(distanceToNorthernMostPoint, distanceToSouthernMostPoint);
     }
 
-    private static double getDistanceToCentroid(DataPointBasic dataPoint, Centroid centroid) {
-        double x1 = centroid.heartRate;
-        double y1 = centroid.stepCount;
-        double x2 = dataPoint.heartRate;
-        double y2 = dataPoint.stepCount;
-
-        return Math.sqrt(Math.pow((y2 - y1), 2) + Math.pow((x2 - x1), 2));
+    private static double getDifferenceBetweenTwoNumbers(double x, double y) {
+        return Math.abs(x - y);
     }
 }
