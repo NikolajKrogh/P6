@@ -10,25 +10,21 @@ public class Centroid {
     int size;
     double semiMajorAxis;
     double semiMinorAxis;
-    CentroidEdgeCases edgeCases;
 
     //for before preprocessing
-    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
-                    byte label, int size) {
+    public Centroid(double heartRate, double stepCount, byte label, int size) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
-        this.edgeCases = edgeCases;
         this.semiMajorAxis = EllipseHandler.getSemiMajorAxis(this);
         this.semiMinorAxis = EllipseHandler.getSemiMinorAxis(this);
         this.label = label;
         this.size = size;
     }
 
-    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
-                    double semiMajorAxis, double semiMinorAxis, byte label, int size) {
+    public Centroid(double heartRate, double stepCount, double semiMajorAxis, double semiMinorAxis,
+                    byte label, int size) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
-        this.edgeCases = edgeCases;
         this.semiMajorAxis = semiMajorAxis;
         this.semiMinorAxis = semiMinorAxis;
         this.label = label;
@@ -36,33 +32,11 @@ public class Centroid {
     }
 
     public Centroid(String heartRate, String stepCount,
-                    String northerMostPointX, String northernMostPointY,
-                    String easternMostPointX, String easternMostPointY,
-                    String southernMostPointX,String southernMostPointY,
-                    String westernMostPointX, String westernMostPointY,
                     String semiMajorAxis, String semiMinorAxis,
                     String label, String size) {
         this(
                 Double.parseDouble(heartRate),
                 Double.parseDouble(stepCount),
-                new CentroidEdgeCases(
-                        new DataPointBasic(
-                                Double.parseDouble(northerMostPointX),
-                                Double.parseDouble(northernMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(easternMostPointX),
-                                Double.parseDouble(easternMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(southernMostPointX),
-                                Double.parseDouble(southernMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(westernMostPointX),
-                                Double.parseDouble(westernMostPointY)
-                        )
-                ),
                 Double.parseDouble(semiMajorAxis),
                 Double.parseDouble(semiMinorAxis),
                 Byte.parseByte(label),
@@ -72,17 +46,9 @@ public class Centroid {
     @NonNull
     @Override
     public String toString(){
-        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%d",
+        return String.format(Locale.US, "%f,%f,%f,%f,%d,%d",
                 heartRate,
                 stepCount,
-                edgeCases.northernMostPoint.heartRate,
-                edgeCases.northernMostPoint.stepCount,
-                edgeCases.easternMostPoint.heartRate,
-                edgeCases.easternMostPoint.stepCount,
-                edgeCases.southernMostPoint.heartRate,
-                edgeCases.southernMostPoint.stepCount,
-                edgeCases.westernMostPoint.heartRate,
-                edgeCases.westernMostPoint.stepCount,
                 semiMajorAxis,
                 semiMinorAxis,
                 label,

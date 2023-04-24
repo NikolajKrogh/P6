@@ -21,22 +21,22 @@ public class EllipseHandler {
     }
 
     public static double getSemiMajorAxis(Centroid centroid) {
-        double distanceToEasternMostPoint = getDistanceToCentroid(centroid.edgeCases.easternMostPoint, centroid);
-        double distanceToWesternMostPoint = getDistanceToCentroid(centroid.edgeCases.westernMostPoint, centroid);
+        double distanceToEasternMostPoint = getDistanceBetweenPoints(centroid.edgeCases.easternMostPoint, centroid);
+        double distanceToWesternMostPoint = getDistanceBetweenPoints(centroid.edgeCases.westernMostPoint, centroid);
         return Math.max(distanceToEasternMostPoint, distanceToWesternMostPoint);
     }
 
     public static double getSemiMinorAxis(Centroid centroid) {
-        double distanceToNorthernMostPoint = getDistanceToCentroid(centroid.edgeCases.northernMostPoint, centroid);
-        double distanceToSouthernMostPoint = getDistanceToCentroid(centroid.edgeCases.southernMostPoint, centroid);
+        double distanceToNorthernMostPoint = getDistanceBetweenPoints(centroid.edgeCases.northernMostPoint, centroid);
+        double distanceToSouthernMostPoint = getDistanceBetweenPoints(centroid.edgeCases.southernMostPoint, centroid);
         return Math.max(distanceToNorthernMostPoint, distanceToSouthernMostPoint);
     }
 
-    private static double getDistanceToCentroid(DataPointBasic dataPoint, Centroid centroid) {
-        double x1 = centroid.heartRate;
-        double y1 = centroid.stepCount;
-        double x2 = dataPoint.heartRate;
-        double y2 = dataPoint.stepCount;
+    public static double getDistanceBetweenPoints(DataPointAggregated firstPoint, Centroid secondPoint) {
+        double x1 = firstPoint.heartRate;
+        double y1 = firstPoint.stepCount;
+        double x2 = secondPoint.heartRate;
+        double y2 = secondPoint.stepCount;
 
         return Math.sqrt(Math.pow((y2 - y1), 2) + Math.pow((x2 - x1), 2));
     }
