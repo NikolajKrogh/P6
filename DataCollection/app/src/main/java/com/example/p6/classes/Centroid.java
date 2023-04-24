@@ -1,61 +1,48 @@
 package com.example.p6.classes;
 
-import androidx.annotation.NonNull;
+import static com.example.p6.classes.Constants.*;
+import static com.example.p6.classes.Constants.Direction.*;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 
 public class Centroid {
     double heartRate;
     double stepCount;
-    CentroidEdgeCases edgeCases;
     byte label;
     int size;
-    double semiMajorAxis = -1;
-    double semiMinorAxis = -1;
+    double semiMajorAxis;
+    double semiMinorAxis;
+    CentroidEdgeCases edgeCases;
 
     //for before preprocessing
-    public Centroid(double heartRate, double stepCount,
-                    CentroidEdgeCases edgeCases, byte label, int size) {
+    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
+                    byte label, int size) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
         this.edgeCases = edgeCases;
+        this.semiMajorAxis = EllipseHandler.getSemiMajorAxis(this);
+        this.semiMinorAxis = EllipseHandler.getSemiMinorAxis(this);
         this.label = label;
         this.size = size;
-        this.semiMajorAxis = getSemiMajorAxis();
-        this.semiMinorAxis = getSemiMinorAxis();
     }
 
-    public Centroid(double heartRate, double stepCount,
-                    CentroidEdgeCases edgeCases, byte label, int size,
-                    double semiMajorAxis, double semiMinorAxis) {
+    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
+                    double semiMajorAxis, double semiMinorAxis, byte label, int size) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
         this.edgeCases = edgeCases;
-        this.label = label;
-        this.size = size;
         this.semiMajorAxis = semiMajorAxis;
         this.semiMinorAxis = semiMinorAxis;
-    }
-
-    private double getSemiMajorAxis() {
-        double distanceToEasternMostPoint = getDistanceToCentroid(this.edgeCases.easternMostPoint);
-        double distanceToWesternMostPoint = getDistanceToCentroid(this.edgeCases.westernMostPoint);
-        return Math.max(distanceToEasternMostPoint, distanceToWesternMostPoint);
-    }
-
-    private double getSemiMinorAxis() {
-        double distanceToNorthernMostPoint = getDistanceToCentroid(this.edgeCases.northernMostPoint);
-        double distanceToSouthernMostPoint = getDistanceToCentroid(this.edgeCases.southernMostPoint);
-        return Math.max(distanceToNorthernMostPoint, distanceToSouthernMostPoint);
-    }
-
-    private double getDistanceToCentroid(DataPointAggregated dataPoint) {
-        double x1 = heartRate;
-        double y1 = stepCount;
-        double x2 = dataPoint.heartRate;
-        double y2 = dataPoint.stepCount;
-
-        return Math.sqrt(Math.pow((y2 - y1), 2) + Math.pow((x2 - x1), 2));
+        this.label = label;
+        this.size = size;
     }
 
     public Centroid(String heartRate, String stepCount,
@@ -63,25 +50,58 @@ public class Centroid {
                     String easternMostPointX, String easternMostPointY,
                     String southernMostPointX,String southernMostPointY,
                     String westernMostPointX, String westernMostPointY,
-                    String label, String size,
-                    String semiMajorAxis, String semiMinorAxis) {
+                    String semiMajorAxis, String semiMinorAxis,
+                    String label, String size) {
         this(
                 Double.parseDouble(heartRate),
                 Double.parseDouble(stepCount),
-                new CentroidEdgeCases()
-                Byte.parseByte(label),
-                Integer.parseInt(size),
+                new CentroidEdgeCases(
+                        new DataPointBasic(
+                                Double.parseDouble(northerMostPointX),
+                                Double.parseDouble(northernMostPointY)
+                        ),
+                        new DataPointBasic(
+                                Double.parseDouble(easternMostPointX),
+                                Double.parseDouble(easternMostPointY)
+                        ),
+                        new DataPointBasic(
+                                Double.parseDouble(southernMostPointX),
+                                Double.parseDouble(southernMostPointY)
+                        ),
+                        new DataPointBasic(
+                                Double.parseDouble(westernMostPointX),
+                                Double.parseDouble(westernMostPointY)
+                        )
+                ),
                 Double.parseDouble(semiMajorAxis),
-                Double.parseDouble(semiMinorAxis));
+                Double.parseDouble(semiMinorAxis),
+                Byte.parseByte(label),
+                Integer.parseInt(size));
     }
 
     @NonNull
     @Override
     public String toString(){
-        return String.format(Locale.US, "%f,%f,%d,%d", heartRate, stepCount, label, size);
+        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%d",
+                heartRate,
+                stepCount,
+                edgeCases.northernMostPoint.heartRate,
+                edgeCases.northernMostPoint.stepCount,
+                edgeCases.easternMostPoint.heartRate,
+                edgeCases.easternMostPoint.stepCount,
+                edgeCases.southernMostPoint.heartRate,
+                edgeCases.southernMostPoint.stepCount,
+                edgeCases.westernMostPoint.heartRate,
+                edgeCases.westernMostPoint.stepCount,
+                semiMajorAxis,
+                semiMinorAxis,
+                label,
+                size
+        );
     }
 
     public String toUIString(){
-        return String.format(Locale.US, "%.2f, %.2f", heartRate, stepCount);
+        return String.format(Locale.US, "%.2f, %.2f, %.2f, %.2f",
+                heartRate, stepCount, semiMajorAxis, semiMinorAxis);
     }
 }

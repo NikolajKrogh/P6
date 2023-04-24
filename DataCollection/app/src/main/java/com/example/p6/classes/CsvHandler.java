@@ -40,7 +40,7 @@ public class CsvHandler {
         return result.toString();
     }
 
-    public static void writeToCentroidFile(Centroid[] centroids, Context context){
+    public static void writeCentroidsToFile(Centroid[] centroids, Context context){
         String content = Constants.centroidHeader;
         String fileName = "centroids.csv";
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
@@ -159,7 +159,7 @@ public class CsvHandler {
         try {
             File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
             if (file.length() == 0){
-                writeToCentroidFile(NearestCentroid.generalModelCentroids, context);
+                writeCentroidsToFile(NearestCentroid.generalModelCentroids, context);
             }
             FileReader filereader = new FileReader(file);
             CSVReader csvReader = new CSVReader(filereader);
@@ -168,7 +168,7 @@ public class CsvHandler {
             int i = 0;
             String[] nextEntry;
             while ((nextEntry = csvReader.readNext()) != null) {
-                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],nextEntry[4],nextEntry[5]);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],nextEntry[4],nextEntry[5],nextEntry[6],nextEntry[7],nextEntry[8],nextEntry[9],nextEntry[10],nextEntry[11],nextEntry[12],nextEntry[13]);
                 i++;
             }
         }

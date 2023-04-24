@@ -8,7 +8,7 @@ public class DataPointRaw{
     short heartRate;
     int stepCount;
     byte label;
-    short minutes = -1;
+    short minutes;
 
     public DataPointRaw(short heartRate, int stepCount, byte label, short minutes) {
         this.heartRate = heartRate;

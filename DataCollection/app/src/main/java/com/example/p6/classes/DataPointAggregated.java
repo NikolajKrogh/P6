@@ -8,10 +8,12 @@ public class DataPointAggregated {
 
     double heartRate;
     double stepCount;
+    CentroidEdgeCases edgeCases;
 
-    public DataPointAggregated(double heartRate, double stepCount) {
+    public DataPointAggregated(double heartRate, double stepCount, CentroidEdgeCases edgeCases) {
         this.heartRate = heartRate;
         this.stepCount = stepCount;
+        this.edgeCases = edgeCases;
     }
 
     @NonNull
