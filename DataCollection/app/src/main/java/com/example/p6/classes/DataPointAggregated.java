@@ -1,11 +1,5 @@
 package com.example.p6.classes;
 
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 public class DataPointAggregated {
     public double heartRate;
     public double minHeartRate;

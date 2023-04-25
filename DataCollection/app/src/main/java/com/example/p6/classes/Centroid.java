@@ -1,32 +1,29 @@
 package com.example.p6.classes;
 
+import static com.example.p6.classes.Constants.Activity.*;
+
 import androidx.annotation.NonNull;
 
-import com.example.p6.handlers.EllipseHandler;
+import com.example.p6.classes.Constants.Activity;
 
 import java.util.Locale;
 
 public class Centroid {
     public double heartRate;
-    public double minHeartRate;
-    public double maxHeartRate;
     public double stepCount;
-    public double minStepCount;
-    public double maxStepCount;
+    public Ellipse ellipse;
     byte label;
     public int size;
+
     // Constructor where ellipse axes are calculated based on edge cases
     public Centroid(double heartRate, double minHeartRate, double maxHeartRate,
                     double stepCount, double minStepCount, double maxStepCount,
                     byte label, int size) {
         this.heartRate = heartRate;
-        this.minHeartRate = minHeartRate;
-        this.maxHeartRate = maxHeartRate;
         this.stepCount = stepCount;
-        this.minStepCount = minStepCount;
-        this.maxStepCount = maxStepCount;
         this.label = label;
         this.size = size;
+        setEllipse(minHeartRate, maxHeartRate, minStepCount, maxStepCount);
     }
 
     // Constructor used when reading centroids from file
@@ -34,31 +31,54 @@ public class Centroid {
                     String stepCount, String minStepCount, String maxStepCount,
                     String label, String size) {
         this.heartRate = Double.parseDouble(heartRate);
-        this.minHeartRate = Double.parseDouble(minHeartRate);
-        this.maxHeartRate = Double.parseDouble(maxHeartRate);
         this.stepCount = Double.parseDouble(stepCount);
-        this.minStepCount = Double.parseDouble(minStepCount);
-        this.maxStepCount = Double.parseDouble(maxStepCount);
         this.label = Byte.parseByte(label);
         this.size = Integer.parseInt(size);
+        setEllipse(Double.parseDouble(minHeartRate),
+                Double.parseDouble(maxHeartRate),
+                Double.parseDouble(minStepCount),
+                Double.parseDouble(maxStepCount));
+    }
+
+    private void setEllipse(double minHeartRate, double maxHeartRate, double minStepCount, double maxStepCount){
+        Activity activity = Activity.values()[this.label];
+
+        double ellipseHeartRate;
+        double ellipseStepCount;
+
+        if (activity == SITTING || activity == CYCLING){
+            ellipseHeartRate = this.heartRate;
+            ellipseStepCount = this.stepCount;
+        }
+        else {
+            ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
+            ellipseStepCount = (minStepCount + maxStepCount) / 2;
+        }
+
+        this.ellipse = new Ellipse(ellipseHeartRate, minHeartRate, maxHeartRate,
+                ellipseStepCount, minStepCount, maxStepCount);
     }
 
     @NonNull
     @Override
     public String toString(){
-        return String.format(Locale.US, "%f,%f,%f,%f,%d",
+        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%d,%d",
                 heartRate,
+                ellipse.minHeartRate,
+                ellipse.heartRate,
                 stepCount,
-                EllipseHandler.getSemiMajorAxis(this),
-                EllipseHandler.getSemiMinorAxis(this),
+                ellipse.minStepCount,
+                ellipse.maxHeartRate,
+                label,
                 size
         );
     }
 
-    public String toUIString(){
-        return String.format(Locale.US, "%.2f, %.2f, %.2f, %.2f",
-                heartRate, stepCount,
-                EllipseHandler.getSemiMajorAxis(this),
-                EllipseHandler.getSemiMinorAxis(this));
+    public String formatUIString(){
+        return String.format(Locale.US, Constants.Activity.values()[label].name() + ":\n" +
+                "%.2f, %.2f\n%.2f, %.2f\n%.2f, %.2f\n",
+                heartRate, stepCount, ellipse.heartRate, ellipse.stepCount,
+                ellipse.getSemiMajorAxis(),
+                ellipse.getSemiMinorAxis());
     }
 }

@@ -13,8 +13,7 @@ public class NearestCentroidHandler {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
     public static Centroid[] generalModelCentroids = {
-            new Centroid(76.96141393842203,54.495219885277244,105.07047619047619,
-                    0.0,0.0,18.0,(byte) 0,180),
+            new Centroid(76.96141393842203,54.495219885277244,105.07047619047619,0.0,0.0,18.0,(byte) 0,180),
             new Centroid(102.65760703838312,71.9047619047619,123.06796116504854,108.5632911392405,0.0,262.0,(byte) 1,215),
             new Centroid(165.58992489087657,140.3695652173913,175.43103448275863,165.1970802919708,133.0,174.0,(byte) 2,178),
             new Centroid(122.26366054900114,65.28023032629558,169.44343891402715,0.3458646616541353,0.0,34.0,(byte) 3,171)};
@@ -61,7 +60,7 @@ public class NearestCentroidHandler {
                 break;
             }
 
-            if (EllipseHandler.checkIfDataPointWithinEllipse(dataPoint, model[activity.ordinal()])){
+            if (model[activity.ordinal()].ellipse.contains(dataPoint)){
                 activitiesWhichContainDataPoint.add(activity);
             }
         }
@@ -94,21 +93,21 @@ public class NearestCentroidHandler {
         currentCentroid.heartRate
                 = addToAverage(currentCentroid.heartRate, size, dataPoint.heartRate);
 
-        currentCentroid.minHeartRate
-                = addToAverage(currentCentroid.minHeartRate, size, dataPoint.minHeartRate);
+        currentCentroid.ellipse.minHeartRate
+                = addToAverage(currentCentroid.ellipse.minHeartRate, size, dataPoint.minHeartRate);
 
-        currentCentroid.maxHeartRate
-                = addToAverage(currentCentroid.maxHeartRate, size, dataPoint.maxHeartRate);
+        currentCentroid.ellipse.maxHeartRate
+                = addToAverage(currentCentroid.ellipse.maxHeartRate, size, dataPoint.maxHeartRate);
 
         // Update step-count
         currentCentroid.stepCount
                 = addToAverage(currentCentroid.stepCount, size, dataPoint.stepCount);
 
-        currentCentroid.minStepCount
-                = addToAverage(currentCentroid.minStepCount, size, dataPoint.minStepCount);
+        currentCentroid.ellipse.minStepCount
+                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.minStepCount);
 
-        currentCentroid.maxStepCount
-                = addToAverage(currentCentroid.maxStepCount, size, dataPoint.maxStepCount);
+        currentCentroid.ellipse.maxStepCount
+                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.maxStepCount);
 
         // Update size
         currentCentroid.size++;

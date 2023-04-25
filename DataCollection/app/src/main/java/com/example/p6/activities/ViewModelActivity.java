@@ -70,15 +70,15 @@ public class ViewModelActivity extends Activity {
         Centroid[] generalModelCentroids = NearestCentroidHandler.generalModelCentroids;
         Centroid[] currentModelCentroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
 
-        originalSittingCentroidText.setText(generalModelCentroids[Constants.Activity.SITTING.ordinal()].toUIString());
-        originalWalkingCentroidText.setText(generalModelCentroids[Constants.Activity.WALKING.ordinal()].toUIString());
-        originalRunningCentroidText.setText(generalModelCentroids[Constants.Activity.RUNNING.ordinal()].toUIString());
-        originalCyclingCentroidText.setText(generalModelCentroids[Constants.Activity.CYCLING.ordinal()].toUIString());
+        originalSittingCentroidText.setText(generalModelCentroids[Constants.Activity.SITTING.ordinal()].formatUIString());
+        originalWalkingCentroidText.setText(generalModelCentroids[Constants.Activity.WALKING.ordinal()].formatUIString());
+        originalRunningCentroidText.setText(generalModelCentroids[Constants.Activity.RUNNING.ordinal()].formatUIString());
+        originalCyclingCentroidText.setText(generalModelCentroids[Constants.Activity.CYCLING.ordinal()].formatUIString());
 
-        currentSittingCentroidText.setText(currentModelCentroids[Constants.Activity.SITTING.ordinal()].toUIString());
-        currentWalkingCentroidText.setText(currentModelCentroids[Constants.Activity.WALKING.ordinal()].toUIString());
-        currentRunningCentroidText.setText(currentModelCentroids[Constants.Activity.RUNNING.ordinal()].toUIString());
-        currentCyclingCentroidText.setText(currentModelCentroids[Constants.Activity.CYCLING.ordinal()].toUIString());
+        currentSittingCentroidText.setText(currentModelCentroids[Constants.Activity.SITTING.ordinal()].formatUIString());
+        currentWalkingCentroidText.setText(currentModelCentroids[Constants.Activity.WALKING.ordinal()].formatUIString());
+        currentRunningCentroidText.setText(currentModelCentroids[Constants.Activity.RUNNING.ordinal()].formatUIString());
+        currentCyclingCentroidText.setText(currentModelCentroids[Constants.Activity.CYCLING.ordinal()].formatUIString());
     }
 
 }
