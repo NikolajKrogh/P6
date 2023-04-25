@@ -43,15 +43,13 @@ public class Centroid {
     private void setEllipse(double minHeartRate, double maxHeartRate, double minStepCount, double maxStepCount){
         Activity activity = Activity.values()[this.label];
 
-        double ellipseHeartRate;
+        double ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
         double ellipseStepCount;
 
         if (activity == SITTING || activity == CYCLING){
-            ellipseHeartRate = this.heartRate;
             ellipseStepCount = this.stepCount;
         }
         else {
-            ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
             ellipseStepCount = (minStepCount + maxStepCount) / 2;
         }
 
@@ -65,10 +63,10 @@ public class Centroid {
         return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%d,%d",
                 heartRate,
                 ellipse.minHeartRate,
-                ellipse.heartRate,
+                ellipse.maxHeartRate,
                 stepCount,
                 ellipse.minStepCount,
-                ellipse.maxHeartRate,
+                ellipse.maxStepCount,
                 label,
                 size
         );
