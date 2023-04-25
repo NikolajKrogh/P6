@@ -15,7 +15,7 @@ np.set_printoptions(threshold=sys.maxsize) #make numpy arrays be fully printed i
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
 NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
-TIMESERIES_LENGTH = 3
+TIMESERIES_LENGTH = 1
 #endregion
 
 #region column names
@@ -31,15 +31,15 @@ centroid_sizes = []
 
 
 class Centroid:
-    def __init__(self,stepCount,heartRate,label,size):
-        self.stepCount = stepCount
-        self.heartRate = heartRate
+    def __init__(self,heart_rate,step_count,label,size):
+        self.heart_rate = heart_rate
+        self.step_count = step_count
         self.label = label
         self.size = size
-        self.maxStepCount = 0
-        self.maxHeartRate = 0
-        self.minStepCount = 0
-        self.minHeartRate = 0
+        self.max_step_count = 0
+        self.max_heart_rate = 0
+        self.min_step_count = 0
+        self.min_heart_rate = 0
     
     
 def get_unique_session_ids(data_frame):
@@ -79,32 +79,7 @@ def add_aggregated_time_window(X,y,data_frame,startMinute,label):
     y.append([label])
 
 def get_data_frame_with_label(data_frame,label):
-    return data_frame[(data_frame[label_as_string]==label)]
-
-def format_final_centroid_to_java(centroids):
-    result = "{"
-    for centroid in centroids:
-        result += "new Centroid("
-        result += str(centroid.heartRate)
-        result += ","
-        result += str(centroid.minHeartRate)
-        result += ","
-        result += str(centroid.maxHeartRate)
-        result += ","
-        result += str(centroid.stepCount)
-        result += ","
-        result += str(centroid.minStepCount)
-        result += ","
-        result += str(centroid.maxStepCount)
-        result += ","
-        result += "(byte) "
-        result += str(centroid.label)
-        result += ","
-        result += str(centroid.size)
-        result += "),"    
-    result = result.rstrip(", ") #removes trailing comma
-    result += "};"
-    return result     
+    return data_frame[(data_frame[label_as_string]==label)]     
        
 def convertScikitCentroidsToOurCentroids(centroids):
     all_centroids = []
@@ -116,14 +91,37 @@ def convertScikitCentroidsToOurCentroids(centroids):
 def addEllipsesDataToCentroids(centroids, X, y):
     offset = 0
     for i in range(NUMBER_OF_LABELS):
-
         labels = y[np.where(y==i)]
-        dataPoints = X[offset:offset + len(labels)]
+        data_points = X[offset:offset + len(labels)]
         offset += len(labels)
-        centroids[i].maxHeartRate, centroids[i].maxStepCount = dataPoints.max(axis=0)
-        centroids[i].minHeartRate, centroids[i].minStepCount = dataPoints.min(axis=0)
-    
-        
+        centroids[i].max_heart_rate, centroids[i].max_step_count = data_points.max(axis=0)
+        centroids[i].min_heart_rate, centroids[i].min_step_count = data_points.min(axis=0)
+
+def format_final_centroid_to_java(centroids):
+    result = "{"
+    for centroid in centroids:
+        result += "new Centroid("
+        result += str(centroid.heart_rate)
+        result += ","
+        result += str(centroid.min_heart_rate)
+        result += ","
+        result += str(centroid.max_heart_rate)
+        result += ","
+        result += str(centroid.step_count)
+        result += ","
+        result += str(centroid.min_step_count)
+        result += ","
+        result += str(centroid.max_step_count)
+        result += ","
+        result += "(byte) "
+        result += str(centroid.label)
+        result += ","
+        result += str(centroid.size)
+        result += "),"    
+    result = result.rstrip(", ") #removes trailing comma
+    result += "};"
+    return result    
+
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
     X,y = make_aggregated_time_series(data)
