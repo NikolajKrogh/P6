@@ -29,6 +29,19 @@ label_as_string = "label"
 
 centroid_sizes = []
 
+
+class Centroid:
+    def __init__(self,stepCount,heartRate,label,size):
+        self.stepCount = stepCount
+        self.heartRate = heartRate
+        self.label = label
+        self.size = size
+        self.maxStepCount = 0
+        self.maxHeartRate = 0
+        self.minStepCount = 0
+        self.minHeartRate = 0
+    
+    
 def get_unique_session_ids(data_frame):
     return data_frame.loc[:,session_id_as_string].unique()
 
@@ -38,7 +51,6 @@ def make_aggregated_time_series(data):
     for label in range(NUMBER_OF_LABELS):
         centroid_size = 0
         data_frame_with_label = get_data_frame_with_label(data,label)
-        print(f"label {label}:")
         if data_frame_with_label.empty:
             continue
         unique_session_ids = get_unique_session_ids(data_frame_with_label)
@@ -73,28 +85,44 @@ def format_final_centroid_to_java(centroids):
     result = "{"
     for centroid in centroids:
         result += "new Centroid("
-        for i in range(len(centroid)):
-            if i == 2:
-                result += "(byte) "
-            result += str(centroid[i])
-            result += ", "
-        result = result.rstrip(", ")#removes trailing comma
-        result += "),"
-     
+        result += str(centroid.heartRate)
+        result += ","
+        result += str(centroid.minHeartRate)
+        result += ","
+        result += str(centroid.maxHeartRate)
+        result += ","
+        result += str(centroid.stepCount)
+        result += ","
+        result += str(centroid.minStepCount)
+        result += ","
+        result += str(centroid.maxStepCount)
+        result += ","
+        result += "(byte) "
+        result += str(centroid.label)
+        result += ","
+        result += str(centroid.size)
+        result += "),"    
     result = result.rstrip(", ") #removes trailing comma
     result += "};"
     return result     
        
 def convertScikitCentroidsToOurCentroids(centroids):
-    final_centroids = []
+    all_centroids = []
     for i in range(len(centroids)):
-        centroid = []
-        centroid.append(centroids[i][0]) #adds label
-        centroid.append(centroids[i][1]) #adds centroid size (number of datapoints(minutes) for that centroid) 
-        centroid.append(i)
-        centroid.append(centroid_sizes[i])
-        final_centroids.append(centroid)
-    return final_centroids
+        centroid = Centroid(centroids[i][0],centroids[i][1],i,centroid_sizes[i])
+        all_centroids.append(centroid)
+    return all_centroids
+
+def addEllipsesDataToCentroids(centroids, X, y):
+    offset = 0
+    for i in range(NUMBER_OF_LABELS):
+
+        labels = y[np.where(y==i)]
+        dataPoints = X[offset:offset + len(labels)]
+        offset += len(labels)
+        centroids[i].maxHeartRate, centroids[i].maxStepCount = dataPoints.max(axis=0)
+        centroids[i].minHeartRate, centroids[i].minStepCount = dataPoints.min(axis=0)
+    
         
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
@@ -103,7 +131,9 @@ if __name__ == '__main__':
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
     centroids = convertScikitCentroidsToOurCentroids(nearest_centroid.centroids_)
+    addEllipsesDataToCentroids(centroids,X,y)
 
+    
     pyperclip.copy(format_final_centroid_to_java(centroids))
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
