@@ -15,7 +15,7 @@ np.set_printoptions(threshold=sys.maxsize) #make numpy arrays be fully printed i
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
 NUMBER_OF_LABELS = 4
 NUMBER_OF_INPUT_PARAMETERS = 2 #number of columns (heartrate,stepcounter)
-TIMESERIES_LENGTH = 1
+TIME_WINDOW_LENGTH = 1
 #endregion
 
 #region column names
@@ -58,20 +58,20 @@ def make_aggregated_time_series(data):
             dataframe_with_session_id = data_frame_with_label.loc[data_frame_with_label[session_id_as_string] == session_id]
             minutes = dataframe_with_session_id.loc[:,minute_timestamp_as_string].nunique()
             centroid_size += minutes
-            excessMinutes = minutes % TIMESERIES_LENGTH
+            excessMinutes = minutes % TIME_WINDOW_LENGTH
             #remove excess minutes if they are not divisible by the timeseries length
             dataframe_with_session_id = dataframe_with_session_id.loc[dataframe_with_session_id[minute_timestamp_as_string]<minutes-excessMinutes]
             minutes = dataframe_with_session_id.loc[:,minute_timestamp_as_string].nunique() #update minutes value
             i = 0
             while i < minutes:
                 add_aggregated_time_window(X,y,dataframe_with_session_id,i,label)
-                i+=TIMESERIES_LENGTH
+                i+=TIME_WINDOW_LENGTH
         centroid_sizes.append(centroid_size)
     return np.asarray(X),np.asarray(y)
                           
 def add_aggregated_time_window(X,y,data_frame,startMinute,label):
     data_frame_at_minutes = data_frame.loc[(data_frame[minute_timestamp_as_string] >= startMinute) & 
-                                             (data_frame[minute_timestamp_as_string] < startMinute+TIMESERIES_LENGTH )]
+                                             (data_frame[minute_timestamp_as_string] < startMinute+TIME_WINDOW_LENGTH )]
     heart_rate_mean = data_frame_at_minutes.loc[:, heartrate_as_string].mean()
     initial_step_count = data_frame_at_minutes[step_count_as_string].min()
     step_count_difference = data_frame_at_minutes[step_count_as_string].max() - initial_step_count
@@ -81,14 +81,14 @@ def add_aggregated_time_window(X,y,data_frame,startMinute,label):
 def get_data_frame_with_label(data_frame,label):
     return data_frame[(data_frame[label_as_string]==label)]     
        
-def convertScikitCentroidsToOurCentroids(centroids):
+def convert_scikit_centroids_to_our_centroids(centroids):
     all_centroids = []
     for i in range(len(centroids)):
         centroid = Centroid(centroids[i][0],centroids[i][1],i,centroid_sizes[i])
         all_centroids.append(centroid)
     return all_centroids
 
-def addEllipsesDataToCentroids(centroids, X, y):
+def add_ellipse_data_to_centroids(centroids, X, y):
     offset = 0
     for i in range(NUMBER_OF_LABELS):
         labels = y[np.where(y==i)]
@@ -101,22 +101,15 @@ def format_final_centroid_to_java(centroids):
     result = "{"
     for centroid in centroids:
         result += "new Centroid("
-        result += str(centroid.heart_rate)
-        result += ","
-        result += str(centroid.min_heart_rate)
-        result += ","
-        result += str(centroid.max_heart_rate)
-        result += ","
-        result += str(centroid.step_count)
-        result += ","
-        result += str(centroid.min_step_count)
-        result += ","
-        result += str(centroid.max_step_count)
-        result += ","
+        result += f"{centroid.heart_rate},"
+        result += f"{centroid.min_heart_rate},"
+        result += f"{centroid.max_heart_rate},"
+        result += f"{centroid.step_count},"
+        result += f"{centroid.min_step_count},"
+        result += f"{centroid.max_step_count},"
         result += "(byte) "
-        result += str(centroid.label)
-        result += ","
-        result += str(centroid.size)
+        result += f"{centroid.label},"
+        result += f"{centroid.size}"
         result += "),"    
     result = result.rstrip(", ") #removes trailing comma
     result += "};"
@@ -128,10 +121,9 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
-    centroids = convertScikitCentroidsToOurCentroids(nearest_centroid.centroids_)
-    addEllipsesDataToCentroids(centroids,X,y)
+    centroids = convert_scikit_centroids_to_our_centroids(nearest_centroid.centroids_)
+    add_ellipse_data_to_centroids(centroids,X,y)
 
-    
     pyperclip.copy(format_final_centroid_to_java(centroids))
    
     print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
