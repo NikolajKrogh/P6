@@ -13,11 +13,8 @@ import android.widget.Toast;
 
 import com.example.p6.R;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.CsvHandler;
+import com.example.p6.handlers.CsvHandler;
 import com.example.p6.databinding.ActivityMainBinding;
-import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.IOException;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 

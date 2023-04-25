@@ -20,11 +20,11 @@ import android.widget.Toast;
 import com.example.p6.R;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.CsvHandler;
+import com.example.p6.handlers.CsvHandler;
 import com.example.p6.classes.DataPointAggregated;
 import com.example.p6.classes.DataPointRaw;
-import com.example.p6.classes.NearestCentroid;
-import com.example.p6.classes.PreProcessing;
+import com.example.p6.handlers.NearestCentroidHandler;
+import com.example.p6.handlers.PreProcessingHandler;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -112,7 +112,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Locale.setDefault(Locale.US);   // Makes String.Format language-insensitive
 
         try {
-            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
+            NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
         } catch (IOException | CsvValidationException e) {
             throw new RuntimeException(e);
         }
@@ -229,17 +229,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingList(){
-        PreProcessing.makeBudgetTimeSeries(dataPointsToAdd);
-        for (DataPointAggregated dataPoint : PreProcessing.aggregatedDataPoints) {
+        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd);
+        for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
             Constants.Activity activity = activityToTrack;
 
             if (mode == PREDICT_ACTIVITY){
-                activity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
                 predictedActivityText.setText("Predicted " + activity.name());
             }
 
             if (mode == UPDATE_WITH_LABELS){
-                Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
                 predictedActivityText.setText("Predicted " + predictedActivity.name());
                 predictedActivities.add(predictedActivity);
             }
@@ -262,7 +262,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }
 
-        PreProcessing.aggregatedDataPoints.clear();
+        PreProcessingHandler.aggregatedDataPoints.clear();
     }
 
     @Override
@@ -325,8 +325,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
         if (modelWasUpdated){
             showToast("Updated model");
-            CsvHandler.writeCentroidsToFile(NearestCentroid.centroids, getApplicationContext());
-            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
+            CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroidHandler.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
         }
     }
 
@@ -347,7 +347,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity){
         for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
-            NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
+            NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(activity, dataPoint);
             modelWasUpdated = true;
         }
     }

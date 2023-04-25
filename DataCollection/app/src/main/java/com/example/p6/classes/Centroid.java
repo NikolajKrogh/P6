@@ -1,97 +1,64 @@
 package com.example.p6.classes;
 
 import androidx.annotation.NonNull;
+
+import com.example.p6.handlers.EllipseHandler;
+
 import java.util.Locale;
 
 public class Centroid {
-    double heartRate;
-    double stepCount;
+    public double heartRate;
+    public double minHeartRate;
+    public double maxHeartRate;
+    public double stepCount;
+    public double minStepCount;
+    public double maxStepCount;
     byte label;
-    int size;
-    double semiMajorAxis;
-    double semiMinorAxis;
-    CentroidEdgeCases edgeCases;
-
-    //for before preprocessing
-    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
+    public int size;
+    // Constructor where ellipse axes are calculated based on edge cases
+    public Centroid(double heartRate, double minHeartRate, double maxHeartRate,
+                    double stepCount, double minStepCount, double maxStepCount,
                     byte label, int size) {
         this.heartRate = heartRate;
+        this.minHeartRate = minHeartRate;
+        this.maxHeartRate = maxHeartRate;
         this.stepCount = stepCount;
-        this.edgeCases = edgeCases;
-        this.semiMajorAxis = EllipseHandler.getSemiMajorAxis(this);
-        this.semiMinorAxis = EllipseHandler.getSemiMinorAxis(this);
+        this.minStepCount = minStepCount;
+        this.maxStepCount = maxStepCount;
         this.label = label;
         this.size = size;
     }
 
-    public Centroid(double heartRate, double stepCount, CentroidEdgeCases edgeCases,
-                    double semiMajorAxis, double semiMinorAxis, byte label, int size) {
-        this.heartRate = heartRate;
-        this.stepCount = stepCount;
-        this.edgeCases = edgeCases;
-        this.semiMajorAxis = semiMajorAxis;
-        this.semiMinorAxis = semiMinorAxis;
-        this.label = label;
-        this.size = size;
-    }
-
-    public Centroid(String heartRate, String stepCount,
-                    String northerMostPointX, String northernMostPointY,
-                    String easternMostPointX, String easternMostPointY,
-                    String southernMostPointX,String southernMostPointY,
-                    String westernMostPointX, String westernMostPointY,
-                    String semiMajorAxis, String semiMinorAxis,
+    // Constructor used when reading centroids from file
+    public Centroid(String heartRate, String minHeartRate, String maxHeartRate,
+                    String stepCount, String minStepCount, String maxStepCount,
                     String label, String size) {
-        this(
-                Double.parseDouble(heartRate),
-                Double.parseDouble(stepCount),
-                new CentroidEdgeCases(
-                        new DataPointBasic(
-                                Double.parseDouble(northerMostPointX),
-                                Double.parseDouble(northernMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(easternMostPointX),
-                                Double.parseDouble(easternMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(southernMostPointX),
-                                Double.parseDouble(southernMostPointY)
-                        ),
-                        new DataPointBasic(
-                                Double.parseDouble(westernMostPointX),
-                                Double.parseDouble(westernMostPointY)
-                        )
-                ),
-                Double.parseDouble(semiMajorAxis),
-                Double.parseDouble(semiMinorAxis),
-                Byte.parseByte(label),
-                Integer.parseInt(size));
+        this.heartRate = Double.parseDouble(heartRate);
+        this.minHeartRate = Double.parseDouble(minHeartRate);
+        this.maxHeartRate = Double.parseDouble(maxHeartRate);
+        this.stepCount = Double.parseDouble(stepCount);
+        this.minStepCount = Double.parseDouble(minStepCount);
+        this.maxStepCount = Double.parseDouble(maxStepCount);
+        this.label = Byte.parseByte(label);
+        this.size = Integer.parseInt(size);
     }
 
     @NonNull
     @Override
     public String toString(){
-        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%d",
+        return String.format(Locale.US, "%f,%f,%f,%f,%d",
                 heartRate,
                 stepCount,
-                edgeCases.northernMostPoint.heartRate,
-                edgeCases.northernMostPoint.stepCount,
-                edgeCases.easternMostPoint.heartRate,
-                edgeCases.easternMostPoint.stepCount,
-                edgeCases.southernMostPoint.heartRate,
-                edgeCases.southernMostPoint.stepCount,
-                edgeCases.westernMostPoint.heartRate,
-                edgeCases.westernMostPoint.stepCount,
-                semiMajorAxis,
-                semiMinorAxis,
-                label,
+                EllipseHandler.getSemiMajorAxis(this),
+                EllipseHandler.getSemiMinorAxis(this),
                 size
         );
     }
 
     public String toUIString(){
         return String.format(Locale.US, "%.2f, %.2f, %.2f, %.2f",
-                heartRate, stepCount, semiMajorAxis, semiMinorAxis);
+                heartRate, stepCount,
+                EllipseHandler.getSemiMajorAxis(this),
+                EllipseHandler.getSemiMinorAxis(this));
     }
 }

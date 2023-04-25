@@ -5,10 +5,10 @@ import androidx.annotation.NonNull;
 import java.util.Locale;
 
 public class DataPointRaw{
-    short heartRate;
-    int stepCount;
+    public short heartRate;
+    public int stepCount;
     byte label;
-    short minutes;
+    public short minutes;
 
     public DataPointRaw(short heartRate, int stepCount, byte label, short minutes) {
         this.heartRate = heartRate;

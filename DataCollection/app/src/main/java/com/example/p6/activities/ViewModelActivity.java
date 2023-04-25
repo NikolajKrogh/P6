@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.CsvHandler;
+import com.example.p6.handlers.CsvHandler;
 import com.example.p6.databinding.ActivityViewModelBinding;
-import com.example.p6.classes.NearestCentroid;
+import com.example.p6.handlers.NearestCentroidHandler;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class ViewModelActivity extends Activity {
     }
 
     private void getAndSetCentroidValues() throws CsvValidationException, IOException {
-        Centroid[] generalModelCentroids = NearestCentroid.generalModelCentroids;
+        Centroid[] generalModelCentroids = NearestCentroidHandler.generalModelCentroids;
         Centroid[] currentModelCentroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
 
         originalSittingCentroidText.setText(generalModelCentroids[Constants.Activity.SITTING.ordinal()].toUIString());

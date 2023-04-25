@@ -2,13 +2,26 @@ package com.example.p6.classes;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class DataPointAggregated extends DataPointBasic {
-    CentroidEdgeCases edgeCases;
+public class DataPointAggregated {
+    public double heartRate;
+    public double minHeartRate;
+    public double maxHeartRate;
+    public double stepCount;
+    public double minStepCount;
+    public double maxStepCount;
+    public double[] distanceToCentroids = {0, 0, 0 ,0};
 
-    public DataPointAggregated(double heartRate, double stepCount, CentroidEdgeCases edgeCases) {
-        super(heartRate, stepCount);
-        this.edgeCases = edgeCases;
+    public DataPointAggregated(double heartRate, double minHeartRate, double maxHeartRate,
+                               double stepCount, double minStepCount, double maxStepCount) {
+        this.heartRate = heartRate;
+        this.minHeartRate = minHeartRate;
+        this.maxHeartRate = maxHeartRate;
+        this.stepCount = stepCount;
+        this.minStepCount = minStepCount;
+        this.maxStepCount = maxStepCount;
     }
 }
