@@ -2,10 +2,11 @@ package com.example.p6.tests;
 
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.DataPointAggregated;
-import com.example.p6.handlers.CsvHandler;
 import com.example.p6.handlers.NearestCentroidHandler;
 
-public class TestingConstants {
+public class TestingVariables {
+
+    public static final double DELTA = 0.01;
 
     public static Centroid[] centroids = NearestCentroidHandler.generalModelCentroids;
     public static DataPointAggregated[] sittingDataPoints = {

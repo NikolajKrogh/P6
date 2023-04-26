@@ -39,6 +39,37 @@ public class NearestCentroidHandler {
         return getActivityWithSmallestDistanceToDataPoint(dataPoint, activitiesWhichContainDataPoint);
     }
 
+
+    public static Centroid updateModel(Constants.Activity activity, DataPointAggregated dataPoint) {
+        int size =  centroids[activity.ordinal()].size;
+        Centroid currentCentroid = centroids[activity.ordinal()];
+
+        // Update heart rate
+        currentCentroid.heartRate
+                = addToAverage(currentCentroid.heartRate, size, dataPoint.heartRate);
+
+        currentCentroid.ellipse.minHeartRate
+                = addToAverage(currentCentroid.ellipse.minHeartRate, size, dataPoint.minHeartRate);
+
+        currentCentroid.ellipse.maxHeartRate
+                = addToAverage(currentCentroid.ellipse.maxHeartRate, size, dataPoint.maxHeartRate);
+
+        // Update step-count
+        currentCentroid.stepCount
+                = addToAverage(currentCentroid.stepCount, size, dataPoint.stepCount);
+
+        currentCentroid.ellipse.minStepCount
+                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.minStepCount);
+
+        currentCentroid.ellipse.maxStepCount
+                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.maxStepCount);
+
+        // Update size
+        currentCentroid.size++;
+
+        return centroids[activity.ordinal()];
+    }
+
     private static double getDistanceToCentroid(DataPointAggregated dataPoint, Centroid centroid) {
         double x1 = dataPoint.heartRate;
         double y1 = dataPoint.stepCount;
@@ -71,36 +102,6 @@ public class NearestCentroidHandler {
             }
         }
         return activityClosestToDataPoint;
-    }
-
-    public static Centroid updateModel(Constants.Activity activity, DataPointAggregated dataPoint) {
-        int size =  centroids[activity.ordinal()].size;
-        Centroid currentCentroid = centroids[activity.ordinal()];
-
-        // Update heart rate
-        currentCentroid.heartRate
-                = addToAverage(currentCentroid.heartRate, size, dataPoint.heartRate);
-
-        currentCentroid.ellipse.minHeartRate
-                = addToAverage(currentCentroid.ellipse.minHeartRate, size, dataPoint.minHeartRate);
-
-        currentCentroid.ellipse.maxHeartRate
-                = addToAverage(currentCentroid.ellipse.maxHeartRate, size, dataPoint.maxHeartRate);
-
-        // Update step-count
-        currentCentroid.stepCount
-                = addToAverage(currentCentroid.stepCount, size, dataPoint.stepCount);
-
-        currentCentroid.ellipse.minStepCount
-                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.minStepCount);
-
-        currentCentroid.ellipse.maxStepCount
-                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.maxStepCount);
-
-        // Update size
-        currentCentroid.size++;
-
-        return centroids[activity.ordinal()];
     }
 
     private static double addToAverage(double average, double size, double value) {
