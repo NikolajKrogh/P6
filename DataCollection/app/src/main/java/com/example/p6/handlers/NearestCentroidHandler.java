@@ -59,10 +59,10 @@ public class NearestCentroidHandler {
                 = addToAverage(currentCentroid.stepCount, size, dataPoint.stepCount);
 
         currentCentroid.ellipse.minStepCount
-                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.minStepCount);
+                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.stepCount);
 
         currentCentroid.ellipse.maxStepCount
-                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.maxStepCount);
+                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.stepCount);
 
         // Update size
         currentCentroid.size++;

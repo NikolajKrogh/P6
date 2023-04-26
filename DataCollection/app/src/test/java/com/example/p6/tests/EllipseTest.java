@@ -55,7 +55,7 @@ public class EllipseTest {
     }
 
     //region Input for semi-major axis and semi-minor axis tests
-    private static double[] expectedResultsForSemiMajorAxes = {45, 60, 0};
+    private static double[] expectedResultsForSemiMajorAxes = {45, 170, 0};
     private static double[] expectedResultsForSittingAndCyclingSemiMinorAxes = {10, 0, 100};
     private static double[] expectedResultsForWalkingAndRunningSemiMinorAxes = {5, 0, 25};
     private static double[][] expectedSemiMinorAxesForCentroids = {
@@ -68,7 +68,7 @@ public class EllipseTest {
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             Centroid[] customCentroids = {
                 new Centroid(60, 30, 120, 0, 0, 0, (byte)i, 0),
-                new Centroid(60, 0, 120, 0, 0, 0, (byte)i, 0),
+                new Centroid(60, 60, 400, 0, 0, 0, (byte)i, 0),
                 new Centroid(60, 60, 60, 0, 0, 0, (byte)i, 0)};
 
             for (int j = 0; j < customCentroids.length; j++) {

@@ -2,6 +2,8 @@ package com.example.p6.handlers;
 
 import static com.example.p6.classes.Constants.NOT_SET;
 
+import android.util.Log;
+
 import com.example.p6.classes.DataPointAggregated;
 import com.example.p6.classes.DataPointRaw;
 
@@ -27,14 +29,14 @@ public class PreProcessingHandler {
             minute = dataPoint.minutes;
 
             if (minute != prevMinute && numberOfDataPointsInMinute > 0) {
-                addTimeSeriesToList();
+                addAggregatedDataPointsToList();
                 resetValues();
             }
 
             if(isFirstIteration){
                 setValuesOnFirstIteration(dataPoint);
             }
-            updateEdgeCases(dataPoint);
+            updateHeartRateEdgeCases(dataPoint);
 
             accumulatedHeartRate += dataPoint.heartRate;
             prevMinute = minute;
@@ -43,12 +45,12 @@ public class PreProcessingHandler {
         }
     }
 
-    private static void addTimeSeriesToList() {
+    private static void addAggregatedDataPointsToList() {
         double avgHeartRate = (double) accumulatedHeartRate / numberOfDataPointsInMinute;
         double stepCountDiff = (double) prevStepCount - stepCountAtStartOfMinute;
+
         aggregatedDataPoints.add(new DataPointAggregated(
-                avgHeartRate, minHeartRate, maxHeartRate,
-                stepCountDiff, minStepCount, maxStepCount
+                avgHeartRate, minHeartRate, maxHeartRate, stepCountDiff
         ));
     }
 
@@ -58,6 +60,7 @@ public class PreProcessingHandler {
         maxHeartRate = dataPoint.heartRate;
         minStepCount = dataPoint.stepCount;
         maxStepCount = dataPoint.stepCount;
+        isFirstIteration = false;
     }
 
     private static void resetValues() {
@@ -66,21 +69,13 @@ public class PreProcessingHandler {
         isFirstIteration = true;
     }
 
-    private static void updateEdgeCases(DataPointRaw dataPoint){
+    private static void updateHeartRateEdgeCases(DataPointRaw dataPoint){
         if (dataPoint.heartRate < minHeartRate){
             minHeartRate = dataPoint.heartRate;
         }
 
         if (dataPoint.heartRate > maxHeartRate){
             maxHeartRate = dataPoint.heartRate;
-        }
-
-        if (dataPoint.stepCount < minStepCount){
-            minStepCount = dataPoint.stepCount;
-        }
-
-        if (dataPoint.stepCount > maxStepCount){
-            maxStepCount = dataPoint.stepCount;
         }
     }
 }
