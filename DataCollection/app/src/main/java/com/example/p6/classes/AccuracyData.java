@@ -1,8 +1,5 @@
 package com.example.p6.classes;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.util.List;

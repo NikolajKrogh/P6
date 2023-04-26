@@ -20,10 +20,11 @@ import android.widget.Toast;
 import com.example.p6.R;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.CsvHandler;
-import com.example.p6.classes.NearestCentroid;
-import com.example.p6.classes.DataPoint;
-import com.example.p6.classes.PreProcessing;
+import com.example.p6.handlers.CsvHandler;
+import com.example.p6.classes.DataPointAggregated;
+import com.example.p6.classes.DataPointRaw;
+import com.example.p6.handlers.NearestCentroidHandler;
+import com.example.p6.handlers.PreProcessingHandler;
 import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -70,11 +71,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
-    private List<DataPoint> dataPointsToAdd = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsSitting = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsWalking = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsRunning = new ArrayList<>();
-    private List<DataPoint> aggregatedDataPointsCycling = new ArrayList<>();
+    private List<DataPointRaw> dataPointsToAdd = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsSitting = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsWalking = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsRunning = new ArrayList<>();
+    private List<DataPointAggregated> aggregatedDataPointsCycling = new ArrayList<>();
     private List<Constants.Activity> predictedActivities = new ArrayList<>();
 
 
@@ -111,7 +112,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         Locale.setDefault(Locale.US);   // Makes String.Format language-insensitive
 
         try {
-            NearestCentroid.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
+            NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
         } catch (IOException | CsvValidationException e) {
             throw new RuntimeException(e);
         }
@@ -228,17 +229,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingList(){
-        PreProcessing.makeBudgetTimeSeries(dataPointsToAdd);
-        for (DataPoint dataPoint : PreProcessing.aggregatedDataPoints) {
+        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd);
+        for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
             Constants.Activity activity = activityToTrack;
 
             if (mode == PREDICT_ACTIVITY){
-                activity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
                 predictedActivityText.setText("Predicted " + activity.name());
             }
 
             if (mode == UPDATE_WITH_LABELS){
-                Constants.Activity predictedActivity = NearestCentroid.predict(dataPoint, NearestCentroid.centroids);
+                Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
                 predictedActivityText.setText("Predicted " + predictedActivity.name());
                 predictedActivities.add(predictedActivity);
             }
@@ -261,7 +262,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             }
         }
 
-        PreProcessing.aggregatedDataPoints.clear();
+        PreProcessingHandler.aggregatedDataPoints.clear();
     }
 
     @Override
@@ -319,17 +320,17 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void updateModelForPredictedActivities(){
         addDataPointsToCorrespondingList();
         for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            List<DataPoint> listForActivity = getListForActivity(Constants.Activity.values()[i]);
+            List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
             showToast("Updated model");
-            CsvHandler.writeToCentroidFile(NearestCentroid.centroids, getApplicationContext());
-            CsvHandler.writeToCentroidHistory(NearestCentroid.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
+            CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, getApplicationContext());
+            CsvHandler.writeToCentroidHistory(NearestCentroidHandler.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
         }
     }
 
-    private List<DataPoint> getListForActivity(Constants.Activity activity){
+    private List<DataPointAggregated> getListForActivity(Constants.Activity activity){
         switch (activity){
             case SITTING:
                 return aggregatedDataPointsSitting;
@@ -344,9 +345,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
-    private void updateCentroidForActivity(List<DataPoint> aggregatedDataPointsForActivity, Constants.Activity activity){
-        for (DataPoint dataPoint : aggregatedDataPointsForActivity) {
-            NearestCentroid.centroids[activity.ordinal()] = NearestCentroid.updateModel(activity, dataPoint);
+    private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity){
+        for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
+            NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(activity, dataPoint);
             modelWasUpdated = true;
         }
     }
@@ -383,7 +384,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void addDataPointToArray(short minutes, short heartRate, int step_count) {
         byte label = (byte)activityToTrack.ordinal();
-        DataPoint dataPointToAdd = new DataPoint(heartRate, step_count, label, minutes);
+        DataPointRaw dataPointToAdd = new DataPointRaw(heartRate, step_count, label, minutes);
         dataPointsToAdd.add(dataPointToAdd);
     }
 

@@ -1,7 +1,11 @@
-package com.example.p6.classes;
+package com.example.p6.handlers;
 
 import android.content.Context;
 
+import com.example.p6.classes.AccuracyData;
+import com.example.p6.classes.Centroid;
+import com.example.p6.classes.Constants;
+import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -40,7 +44,7 @@ public class CsvHandler {
         return result.toString();
     }
 
-    public static void writeToCentroidFile(Centroid[] centroids, Context context){
+    public static void writeCentroidsToFile(Centroid[] centroids, Context context){
         String content = Constants.centroidHeader;
         String fileName = "centroids.csv";
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
@@ -54,21 +58,22 @@ public class CsvHandler {
         if (fileIsEmpty(fileName, context)){
             content += Constants.centroidHistoryHeader;
             content += dateTime + ",";
-            content += convertArrayOfCentroidsToString(NearestCentroid.generalModelCentroids, ",") +"\n";
+            content += convertArrayOfCentroidsToString(NearestCentroidHandler.generalModelCentroids, ",") +"\n";
         }
         content += dateTime + ",";
         content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
         CsvHandler.writeToFile(fileName, content, context, true);
     }
 
-    public static void writeDataPointsToFile(String fileName, List<DataPoint> dataPoints, Context context) {
+    public static void writeDataPointsToFile(String fileName, List<DataPointRaw> dataPoints,
+                                             Context context) {
         StringBuilder content = new StringBuilder();
 
         if (fileIsEmpty(fileName, context)){
            content.append(Constants.dataPointHeader);
         }
 
-        for (DataPoint dataPoint : dataPoints) {
+        for (DataPointRaw dataPoint : dataPoints) {
             content.append(dataPoint.toString());
         }
 
@@ -158,7 +163,7 @@ public class CsvHandler {
         try {
             File file = new File(context.getDir(fileName,Context.MODE_PRIVATE),fileName);
             if (file.length() == 0){
-                writeToCentroidFile(NearestCentroid.generalModelCentroids, context);
+                writeCentroidsToFile(NearestCentroidHandler.generalModelCentroids, context);
             }
             FileReader filereader = new FileReader(file);
             CSVReader csvReader = new CSVReader(filereader);
@@ -167,7 +172,8 @@ public class CsvHandler {
             int i = 0;
             String[] nextEntry;
             while ((nextEntry = csvReader.readNext()) != null) {
-                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3]);
+                centroids[i] = new Centroid(nextEntry[0],nextEntry[1],nextEntry[2],nextEntry[3],
+                        nextEntry[4],nextEntry[5],nextEntry[6],nextEntry[7]);
                 i++;
             }
         }

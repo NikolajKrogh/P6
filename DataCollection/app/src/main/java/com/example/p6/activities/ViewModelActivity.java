@@ -5,14 +5,15 @@ import static com.example.p6.classes.Constants.Screen.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.CsvHandler;
+import com.example.p6.handlers.CsvHandler;
 import com.example.p6.databinding.ActivityViewModelBinding;
-import com.example.p6.classes.NearestCentroid;
+import com.example.p6.handlers.NearestCentroidHandler;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.IOException;
@@ -67,18 +68,18 @@ public class ViewModelActivity extends Activity {
     }
 
     private void getAndSetCentroidValues() throws CsvValidationException, IOException {
-        Centroid[] generalModelCentroids = NearestCentroid.generalModelCentroids;
+        Centroid[] generalModelCentroids = NearestCentroidHandler.generalModelCentroids;
         Centroid[] currentModelCentroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
 
-        originalSittingCentroidText.setText(generalModelCentroids[Constants.Activity.SITTING.ordinal()].toUIString());
-        originalWalkingCentroidText.setText(generalModelCentroids[Constants.Activity.WALKING.ordinal()].toUIString());
-        originalRunningCentroidText.setText(generalModelCentroids[Constants.Activity.RUNNING.ordinal()].toUIString());
-        originalCyclingCentroidText.setText(generalModelCentroids[Constants.Activity.CYCLING.ordinal()].toUIString());
+        originalSittingCentroidText.setText(generalModelCentroids[Constants.Activity.SITTING.ordinal()].formatUIString());
+        originalWalkingCentroidText.setText(generalModelCentroids[Constants.Activity.WALKING.ordinal()].formatUIString());
+        originalRunningCentroidText.setText(generalModelCentroids[Constants.Activity.RUNNING.ordinal()].formatUIString());
+        originalCyclingCentroidText.setText(generalModelCentroids[Constants.Activity.CYCLING.ordinal()].formatUIString());
 
-        currentSittingCentroidText.setText(currentModelCentroids[Constants.Activity.SITTING.ordinal()].toUIString());
-        currentWalkingCentroidText.setText(currentModelCentroids[Constants.Activity.WALKING.ordinal()].toUIString());
-        currentRunningCentroidText.setText(currentModelCentroids[Constants.Activity.RUNNING.ordinal()].toUIString());
-        currentCyclingCentroidText.setText(currentModelCentroids[Constants.Activity.CYCLING.ordinal()].toUIString());
+        currentSittingCentroidText.setText(currentModelCentroids[Constants.Activity.SITTING.ordinal()].formatUIString());
+        currentWalkingCentroidText.setText(currentModelCentroids[Constants.Activity.WALKING.ordinal()].formatUIString());
+        currentRunningCentroidText.setText(currentModelCentroids[Constants.Activity.RUNNING.ordinal()].formatUIString());
+        currentCyclingCentroidText.setText(currentModelCentroids[Constants.Activity.CYCLING.ordinal()].formatUIString());
     }
 
 }
