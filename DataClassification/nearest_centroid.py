@@ -88,15 +88,18 @@ def convert_scikit_centroids_to_our_centroids(centroids):
         all_centroids.append(centroid)
     return all_centroids
 
+#Here the min and max value is added from the aggregated datapoints (X and y)
 def add_min_max_step_count_data_to_centroids(centroids, X, y):
     offset = 0
     for i in range(NUMBER_OF_LABELS):
         labels = y[np.where(y==i)]
         data_points = X[offset:offset + len(labels)]
         offset += len(labels)
+        #axis=1 means we compare all values in a column
         centroids[i].max_step_count = data_points.max(axis=1)[1]
         centroids[i].min_step_count = data_points.min(axis=1)[1]
         
+#Here the min and max value is added from the raw datapoints (data)
 def add_min_max_heart_rate_data_to_centroids(centroids,data):
     for label in range(NUMBER_OF_LABELS):
         heart_rate_data_frame_with_label = get_data_frame_with_label(data,label)[heartrate_as_string]
