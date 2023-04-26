@@ -27,9 +27,9 @@ public class TestingConstants {
             new DataPointAggregated(170, 0, 0, 160, 0, 0)};
 
     public static DataPointAggregated[] cyclingDataPoints = {
-            new DataPointAggregated(80, 0, 0, 0, 0, 0),
+            new DataPointAggregated(110, 0, 0, 0, 0, 0),
             new DataPointAggregated(160, 0, 0, 0, 0, 0),
-            new DataPointAggregated(80, 0, 0, 10, 0, 0),
+            new DataPointAggregated(110, 0, 0, 10, 0, 0),
             new DataPointAggregated(160, 0, 0, 10, 0, 0)};
 
     public static DataPointAggregated[] unlabeledDataPoints = {

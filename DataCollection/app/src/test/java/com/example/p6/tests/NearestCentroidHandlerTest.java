@@ -20,4 +20,34 @@ public class NearestCentroidHandlerTest {
             assertEquals(Constants.Activity.SITTING, predictedActivity);
         }
     }
+
+    @Test
+    public void walkingDataPointsArePredictedAsWalking() {
+        for (int i = 0; i < TestingConstants.walkingDataPoints.length; i++){
+            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
+                    TestingConstants.walkingDataPoints[i],
+                    TestingConstants.centroids);
+            assertEquals(Constants.Activity.WALKING, predictedActivity);
+        }
+    }
+
+    @Test
+    public void runningDataPointsArePredictedAsRunning() {
+        for (int i = 0; i < TestingConstants.runningDataPoints.length; i++){
+            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
+                    TestingConstants.runningDataPoints[i],
+                    TestingConstants.centroids);
+            assertEquals(Constants.Activity.RUNNING, predictedActivity);
+        }
+    }
+
+    @Test
+    public void cyclingDataPointsArePredictedAsCycling() {
+        for (int i = 0; i < TestingConstants.cyclingDataPoints.length; i++){
+            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
+                    TestingConstants.cyclingDataPoints[i],
+                    TestingConstants.centroids);
+            assertEquals(Constants.Activity.CYCLING, predictedActivity);
+        }
+    }
 }
