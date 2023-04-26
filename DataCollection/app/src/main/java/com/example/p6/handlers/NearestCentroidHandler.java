@@ -1,7 +1,5 @@
 package com.example.p6.handlers;
 
-import static com.example.p6.classes.Constants.Activity.*;
-
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.DataPointAggregated;

@@ -2,7 +2,6 @@ package com.example.p6.tests;
 
 import static org.junit.Assert.*;
 
-import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
 import com.example.p6.handlers.NearestCentroidHandler;
 

@@ -1,7 +1,6 @@
 package com.example.p6.handlers;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Centroid;
@@ -15,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 public class CsvHandler {
     //region Centroid constants

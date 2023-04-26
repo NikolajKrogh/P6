@@ -1,5 +1,7 @@
 package com.example.p6.classes;
 
+import androidx.annotation.NonNull;
+
 import java.util.Locale;
 
 public class DataPointAggregated {
@@ -23,7 +25,7 @@ public class DataPointAggregated {
             return false;
         }
 
-        if (Double.compare(this.heartRate, ((DataPointAggregated) other).heartRate) == 0 &&
+        return Double.compare(this.heartRate, ((DataPointAggregated) other).heartRate) == 0 &&
                 Double.compare(this.minHeartRate, ((DataPointAggregated) other).minHeartRate) == 0 &&
                 Double.compare(this.maxHeartRate, ((DataPointAggregated) other).maxHeartRate) == 0 &&
                 Double.compare(this.stepCount, ((DataPointAggregated) other).stepCount) == 0 &&
@@ -34,13 +36,10 @@ public class DataPointAggregated {
                 Double.compare(this.distanceToCentroids[Constants.Activity.RUNNING.ordinal()],
                         ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.RUNNING.ordinal()]) == 0 &&
                 Double.compare(this.distanceToCentroids[Constants.Activity.CYCLING.ordinal()],
-                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.CYCLING.ordinal()]) == 0){
-            return true;
-        }
-
-        return false;
+                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.CYCLING.ordinal()]) == 0;
     }
 
+    @NonNull
     @Override
     public String toString(){
         return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f",
