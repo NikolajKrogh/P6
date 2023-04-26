@@ -88,15 +88,24 @@ def convert_scikit_centroids_to_our_centroids(centroids):
         all_centroids.append(centroid)
     return all_centroids
 
-def add_ellipse_data_to_centroids(centroids, X, y):
+#Here the min and max value is added from the aggregated datapoints (X and y)
+def add_min_max_step_count_data_to_centroids(centroids, X, y):
     offset = 0
     for i in range(NUMBER_OF_LABELS):
         labels = y[np.where(y==i)]
         data_points = X[offset:offset + len(labels)]
         offset += len(labels)
-        centroids[i].max_heart_rate, centroids[i].max_step_count = data_points.max(axis=0)
-        centroids[i].min_heart_rate, centroids[i].min_step_count = data_points.min(axis=0)
-
+        #axis=1 means we compare all values in a column
+        centroids[i].max_step_count = data_points.max(axis=1)[1]
+        centroids[i].min_step_count = data_points.min(axis=1)[1]
+        
+#Here the min and max value is added from the raw datapoints (data)
+def add_min_max_heart_rate_data_to_centroids(centroids,data):
+    for label in range(NUMBER_OF_LABELS):
+        heart_rate_data_frame_with_label = get_data_frame_with_label(data,label)[heartrate_as_string]
+        centroids[label].max_heart_rate = heart_rate_data_frame_with_label.max()
+        centroids[label].min_heart_rate = heart_rate_data_frame_with_label.min()
+        
 def format_final_centroid_to_java(centroids):
     result = "{"
     for centroid in centroids:
@@ -122,7 +131,8 @@ if __name__ == '__main__':
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
     centroids = convert_scikit_centroids_to_our_centroids(nearest_centroid.centroids_)
-    add_ellipse_data_to_centroids(centroids,X,y)
+    add_min_max_step_count_data_to_centroids(centroids,X,y)
+    add_min_max_heart_rate_data_to_centroids(centroids, data)
 
     pyperclip.copy(format_final_centroid_to_java(centroids))
    
