@@ -21,13 +21,9 @@ public class NearestCentroidHandler {
     // Calculates the distance from vectorToAddToCentroid to every centroid
     // Returns the label of the centroid that is closest to vectorToAddToCentroid
     public static Constants.Activity predict(DataPointAggregated dataPoint, Centroid[] model) {
-        for (Constants.Activity activity : Constants.Activity.values()) {
-            if (activity == UNLABELED){
-                break;
-            }
-
-            dataPoint.distanceToCentroids[activity.ordinal()]
-                    = getDistanceToCentroid(dataPoint, model[activity.ordinal()]);
+        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
+            dataPoint.distanceToCentroids[i]
+                    = getDistanceToCentroid(dataPoint, model[i]);
         }
 
         List<Constants.Activity> activitiesWhichContainDataPoint  = getActivitiesWhichContainDataPoint(dataPoint, model);
@@ -55,13 +51,9 @@ public class NearestCentroidHandler {
     private static List<Constants.Activity> getActivitiesWhichContainDataPoint(
             DataPointAggregated dataPoint, Centroid[] model){
         List<Constants.Activity> activitiesWhichContainDataPoint = new ArrayList<>();
-        for (Constants.Activity activity : Constants.Activity.values()) {
-            if (activity == UNLABELED){
-                break;
-            }
-
-            if (model[activity.ordinal()].ellipse.contains(dataPoint)){
-                activitiesWhichContainDataPoint.add(activity);
+        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
+            if (model[i].ellipse.contains(dataPoint)){
+                activitiesWhichContainDataPoint.add(Constants.Activity.values()[i]);
             }
         }
         return activitiesWhichContainDataPoint;
@@ -72,16 +64,12 @@ public class NearestCentroidHandler {
             DataPointAggregated dataPoint, List<Constants.Activity> activitiesWhichContainDataPoint) {
         Constants.Activity activityClosestToDataPoint = activitiesWhichContainDataPoint.get(0);
 
-        for (Constants.Activity activity : activitiesWhichContainDataPoint) {
-            if (activity == UNLABELED) {
-                break;
-            }
-            if (dataPoint.distanceToCentroids[activity.ordinal()]
+        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
+            if (dataPoint.distanceToCentroids[i]
                     < dataPoint.distanceToCentroids[activityClosestToDataPoint.ordinal()]) {
-                activityClosestToDataPoint = activity;
+                activityClosestToDataPoint = Constants.Activity.values()[i];
             }
         }
-
         return activityClosestToDataPoint;
     }
 

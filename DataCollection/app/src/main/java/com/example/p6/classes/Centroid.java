@@ -44,13 +44,10 @@ public class Centroid {
         Activity activity = Activity.values()[this.label];
 
         double ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
-        double ellipseStepCount;
+        double ellipseStepCount = (minStepCount + maxStepCount) / 2;
 
         if (activity == SITTING || activity == CYCLING){
             ellipseStepCount = this.stepCount;
-        }
-        else {
-            ellipseStepCount = (minStepCount + maxStepCount) / 2;
         }
 
         this.ellipse = new Ellipse(ellipseHeartRate, minHeartRate, maxHeartRate,
