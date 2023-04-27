@@ -9,6 +9,8 @@ import com.example.p6.handlers.NearestCentroidHandler;
 
 import org.junit.Test;
 
+import java.util.List;
+
 public class NearestCentroidHandlerTest {
 
     @Test
