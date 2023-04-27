@@ -54,17 +54,10 @@ public class EllipseTest {
         }
     }
 
-    //region Input for semi-major axis and semi-minor axis tests
-    private static double[] expectedResultsForSemiMajorAxes = {45, 170, 0};
-    private static double[] expectedResultsForSittingAndCyclingSemiMinorAxes = {10, 0, 100};
-    private static double[] expectedResultsForWalkingAndRunningSemiMinorAxes = {5, 0, 25};
-    private static double[][] expectedSemiMinorAxesForCentroids = {
-            expectedResultsForSittingAndCyclingSemiMinorAxes, expectedResultsForWalkingAndRunningSemiMinorAxes,
-            expectedResultsForWalkingAndRunningSemiMinorAxes, expectedResultsForSittingAndCyclingSemiMinorAxes};
-    //endregion
-
     @Test
     public void semiMajorAxesAreCalculatedCorrectly() {
+        double[] expectedResultsForSemiMajorAxes = {45, 170, 0};
+
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             Centroid[] customCentroids = {
                 new Centroid(60, 30, 120, 0, 0, 0, (byte)i, 0),
@@ -82,6 +75,12 @@ public class EllipseTest {
 
     @Test
     public void semiMinorAxesAreCalculatedCorrectly() {
+        double[] expectedResultsForSittingAndCyclingSemiMinorAxes = {10, 0, 100};
+        double[] expectedResultsForWalkingAndRunningSemiMinorAxes = {5, 0, 25};
+        double[][] expectedSemiMinorAxesForCentroids = {
+                expectedResultsForSittingAndCyclingSemiMinorAxes, expectedResultsForWalkingAndRunningSemiMinorAxes,
+                expectedResultsForWalkingAndRunningSemiMinorAxes, expectedResultsForSittingAndCyclingSemiMinorAxes};
+
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             Centroid[] customCentroids = {
                     new Centroid(60, 0, 0, 0, 0, 10, (byte)i, 0),
