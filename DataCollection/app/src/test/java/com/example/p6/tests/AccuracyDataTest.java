@@ -12,7 +12,7 @@ public class AccuracyDataTest {
 
 
     @Test
-    public void sittingIsCalculatedCorrectly() {
+    public void sittingAccuracyIsCalculatedCorrectly() {
         List<Constants.Activity> predictedActivities = new ArrayList<>();
         predictedActivities.add(Constants.Activity.SITTING);
         predictedActivities.add(Constants.Activity.SITTING);
