@@ -38,4 +38,24 @@ public class TestingVariables {
             new DataPointAggregated(300, 0, 0, 0),
             new DataPointAggregated(0, 0, 0, 300),
             new DataPointAggregated(300, 0, 0, 300)};
+
+    public static DataPointAggregated[] betweenWalkingAndCyclingDataPoints = {
+            new DataPointAggregated(100, 0, 0, 2),
+            new DataPointAggregated(105, 0, 0, 10),
+            new DataPointAggregated(90, 0, 0, 29)};
+
+    public static DataPointAggregated[] betweenSittingAndCyclingDataPoints = {
+            new DataPointAggregated(80, 0, 0, 0),
+            new DataPointAggregated(70, 0, 0, 10),
+            new DataPointAggregated(90, 0, 0, 5)};
+
+    // Special case
+    public static DataPointAggregated[] betweenSittingAndCyclingDataPointsSpecial = {
+            new DataPointAggregated(100, 0, 0, 0),
+            new DataPointAggregated(101, 0, 0, 0),
+            new DataPointAggregated(102, 0, 0, 0)};
+
+    public static DataPointAggregated[] betweenSittingAndCyclingAndWalkingDataPoints = {
+            new DataPointAggregated(97, 0, 0, 10),
+            new DataPointAggregated(95, 0, 0, 12)};
 }
