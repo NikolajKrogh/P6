@@ -21,10 +21,7 @@ public class AccuracyDataTest {
         predictedActivities.add(Constants.Activity.CYCLING);
         predictedActivities.add(Constants.Activity.CYCLING);
 
-
-        Constants.Activity sittingToTrack = Constants.Activity.SITTING;
-
-        AccuracyData accuracyDataSitting = new AccuracyData(predictedActivities, sittingToTrack);
+        AccuracyData accuracyDataSitting = new AccuracyData(predictedActivities, Constants.Activity.SITTING);
 
         assertEquals(0.5, accuracyDataSitting.accuracy, TestingVariables.DELTA);
         assertEquals(3, accuracyDataSitting.correctPredictions, TestingVariables.DELTA);
