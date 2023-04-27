@@ -104,7 +104,7 @@ public class NearestCentroidHandlerTest {
     }
 
     @Test
-    public void updateCentroidWithNewDataPoint_noError() {
+    public void updateCentroidWithNewDataPoint() {
         int length = NearestCentroidHandler.centroids.length;
         DataPointAggregated input = new DataPointAggregated(1, 1, 1, 1);
         NearestCentroidHandler.centroids[0] = new Centroid(10,10, 10,10,10,10,(byte) 0,1);
