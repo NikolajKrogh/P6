@@ -93,12 +93,13 @@ public class NearestCentroidHandler {
             DataPointAggregated dataPoint, List<Constants.Activity> activitiesWhichContainDataPoint) {
         Constants.Activity activityClosestToDataPoint = activitiesWhichContainDataPoint.get(0);
 
-        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            if (dataPoint.distanceToCentroids[i]
+        for (Constants.Activity activity : activitiesWhichContainDataPoint) {
+            if (dataPoint.distanceToCentroids[activity.ordinal()]
                     < dataPoint.distanceToCentroids[activityClosestToDataPoint.ordinal()]) {
-                activityClosestToDataPoint = Constants.Activity.values()[i];
+                activityClosestToDataPoint = Constants.Activity.values()[activity.ordinal()];
             }
         }
+
         return activityClosestToDataPoint;
     }
 
