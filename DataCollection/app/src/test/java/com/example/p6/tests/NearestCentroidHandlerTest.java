@@ -116,7 +116,7 @@ public class NearestCentroidHandlerTest {
 
         for(int i = 0; i < length; i++){
             Centroid actual = NearestCentroidHandler.updateModel(Constants.Activity.SITTING, input);
-            assertEquals(expected[i], actual.heartRate, TestingVariables.DELTA);
+            assertEquals(expected[i], actual.heartRate, Constants.DELTA);
         }
     }
 }
