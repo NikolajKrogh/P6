@@ -8,8 +8,8 @@ import sys
 
 import pyperclip
 
-np.set_printoptions(suppress=True) #make numpy arrays not be printed in scientific notation
-np.set_printoptions(threshold=sys.maxsize) #make numpy arrays be fully printed instead of with "..."
+np.set_printoptions(suppress=True) #makes numpy arrays not be printed in scientific notation
+np.set_printoptions(threshold=sys.maxsize) #makes numpy arrays be fully printed instead of with "..."
  
 #region constants
 NANOSEC_TO_MINUTE_FACTOR = 60000000000
@@ -59,6 +59,9 @@ def make_aggregated_time_series(data):
             minutes = dataframe_with_session_id.loc[:,minute_timestamp_as_string].nunique()
             centroid_size += minutes
             excessMinutes = minutes % TIME_WINDOW_LENGTH
+            #if the total minutes is divisible by the window length, we still want to remove the last minute since that is not a full minute
+            if excessMinutes == 0:
+                dataframe_with_session_id = dataframe_with_session_id.loc[dataframe_with_session_id[minute_timestamp_as_string]<minutes-1]
             #remove excess minutes if they are not divisible by the timeseries length
             dataframe_with_session_id = dataframe_with_session_id.loc[dataframe_with_session_id[minute_timestamp_as_string]<minutes-excessMinutes]
             minutes = dataframe_with_session_id.loc[:,minute_timestamp_as_string].nunique() #update minutes value
