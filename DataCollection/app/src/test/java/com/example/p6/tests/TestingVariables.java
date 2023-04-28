@@ -6,8 +6,6 @@ import com.example.p6.handlers.NearestCentroidHandler;
 
 public class TestingVariables {
 
-    public static final double DELTA = 0.01;
-
     public static Centroid[] centroids = NearestCentroidHandler.generalModelCentroids;
     public static DataPointAggregated[] sittingDataPoints = {
             new DataPointAggregated(60, 0, 0, 0),

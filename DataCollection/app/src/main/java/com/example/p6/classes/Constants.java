@@ -1,7 +1,8 @@
 package com.example.p6.classes;
 
 public class Constants {
-    public final static int NUMBER_OF_LABELS = 4;
+    public final static byte NUMBER_OF_LABELS = 4;
+    public final static double DELTA = 0.0001;
     public static String accuracyHeader = "accuracy,correct,total,sitting,walking,running,cycling\n";
     public static String dataPointHeader = "minutes,heart_rate,step_count,label\n";
     public static String centroidHeader =
