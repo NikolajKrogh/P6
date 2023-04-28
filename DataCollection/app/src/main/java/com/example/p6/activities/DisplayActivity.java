@@ -229,7 +229,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingList(){
-        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd, (byte) 1);
+        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd, Constants.TIME_WINDOW_SIZE);
         for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
             Constants.Activity activity = activityToTrack;
 
