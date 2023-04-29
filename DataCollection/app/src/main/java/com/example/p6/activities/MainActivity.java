@@ -18,6 +18,8 @@ import com.example.p6.databinding.ActivityMainBinding;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
+    private android.content.Context context;
+
     //region Global variables
     static Constants.Activity activityToTrack = UNLABELED;
     static Constants.Screen currentScreen = MAIN;
@@ -32,12 +34,13 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        context = getApplicationContext();
 
         Button resetButton = findViewById(R.id.resetModelButton);
         resetButton.setOnClickListener(MainActivity.this);
         resetButton.setOnLongClickListener(MainActivity.this);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+        myToast = Toast.makeText(context, null, Toast.LENGTH_SHORT);
     }
 
     @Override
@@ -72,18 +75,15 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         }
     }
 
-    public void onRunModelClick(View view){
+    public void onPredictActivityClick(View view){
+        activityToTrack = UNLABELED;
         trackingMode = PREDICT_ACTIVITY;
         goToScreen(DisplayActivity.class);
     }
 
-    public void onSynchronizeModelClick(View view){
+    public void onUpdateWithLabelsClick(View view){
         trackingMode = UPDATE_WITH_LABELS;
         goToScreen(SelectActivity.class);
-    }
-
-    public void onViewModelClick(View view){
-        goToScreen(ViewModelActivity.class);
     }
 
     public void onCollectDataClick(View view){
@@ -91,9 +91,13 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         goToScreen(SelectActivity.class);
     }
 
-    public void onExitButtonClick(View view){
-        finishAndRemoveTask();
-        System.exit(0);
+    public void onTestAccuracyClick(View view){
+        trackingMode = TEST_ACCURACY;
+        goToScreen(SelectActivity.class);
+    }
+
+    public void onViewModelClick(View view){
+        goToScreen(ViewModelActivity.class);
     }
 
     // onClick() for resetModelButton
@@ -103,15 +107,20 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         myToast.show();
     }
 
+    public void onExitButtonClick(View view){
+        finishAndRemoveTask();
+        System.exit(0);
+    }
+
     // onLongClick() for resetModelButton
     @Override
     public boolean onLongClick(View v) {
-        CsvHandler.deleteFile("centroids.csv", getApplicationContext());
-        CsvHandler.deleteFile("centroids_history.csv", getApplicationContext());
-        CsvHandler.deleteFile("accuracy_total_for_sitting.csv", getApplicationContext());
-        CsvHandler.deleteFile("accuracy_total_for_walking.csv", getApplicationContext());
-        CsvHandler.deleteFile("accuracy_total_for_running.csv", getApplicationContext());
-        CsvHandler.deleteFile("accuracy_total_for_cycling.csv", getApplicationContext());
+        CsvHandler.deleteFile("centroids.csv", context);
+        CsvHandler.deleteFile("centroids_history.csv", context);
+        CsvHandler.deleteFile("accuracy_total_for_sitting.csv", context);
+        CsvHandler.deleteFile("accuracy_total_for_walking.csv", context);
+        CsvHandler.deleteFile("accuracy_total_for_running.csv", context);
+        CsvHandler.deleteFile("accuracy_total_for_cycling.csv", context);
 
         myToast.setText("Model has been reset");
         myToast.show();
