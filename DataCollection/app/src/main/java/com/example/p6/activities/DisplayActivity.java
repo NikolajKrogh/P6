@@ -247,6 +247,8 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
+    // Function taken from:
+    // https://developer.android.com/training/monitoring-device-state/battery-monitoring
     private double getBatteryLevel() {
         // Scale is the maximum battery percentage
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
