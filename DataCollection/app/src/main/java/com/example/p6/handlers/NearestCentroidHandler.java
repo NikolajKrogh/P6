@@ -11,11 +11,11 @@ public class NearestCentroidHandler {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
     public static Centroid[] generalModelCentroids = {
-            new Centroid(76.96141393842203,54.495219885277244,105.07047619047619,0.0,0.0,18.0,(byte) 0,180),
-            new Centroid(102.65760703838312,71.9047619047619,123.06796116504854,108.5632911392405,0.0,262.0,(byte) 1,215),
-            new Centroid(165.58992489087657,140.3695652173913,175.43103448275863,165.1970802919708,133.0,174.0,(byte) 2,178),
-            new Centroid(122.26366054900114,65.28023032629558,169.44343891402715,0.3458646616541353,0.0,34.0,(byte) 3,171)};
-
+            new Centroid(70.89044447734003,49,109,0.0,0.0,70.64912280701755,(byte) 0,243),
+            new Centroid(111.9688301170213,66,162,111.19583333333334,108.41818181818182,119.0,(byte) 1,250),
+            new Centroid(163.32964324429457,106,187,157.8181818181818,158.35087719298247,160.0,(byte) 2,249),
+            new Centroid(129.62290932844044,77,167,0.12546125461254612,0.0,127.94642857142857,(byte) 3,276)
+    };
     public static Constants.Activity predict(DataPointAggregated dataPoint, Centroid[] model) {
         List<Constants.Activity> activitiesWhichContainDataPoint  = getActivitiesWhichContainDataPoint(dataPoint, model);
 
