@@ -248,8 +248,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private double getBatteryLevel() {
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        // Scale is the maximum battery percentage
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
 
         return level * 100 / (double) scale;
     }
