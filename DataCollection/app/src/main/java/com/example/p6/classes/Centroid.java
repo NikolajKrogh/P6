@@ -43,6 +43,10 @@ public class Centroid {
     private void setEllipse(double minHeartRate, double maxHeartRate, double minStepCount, double maxStepCount){
         Activity activity = Activity.values()[this.label];
 
+        if (minStepCount < 10) {
+            minStepCount = 10;
+        }
+
         double ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
         double ellipseStepCount = (minStepCount + maxStepCount) / 2;
 
@@ -63,7 +67,7 @@ public class Centroid {
                 ellipse.maxHeartRate,
                 stepCount,
                 ellipse.minStepCount,
-                ellipse.maxStepCount,
+                ellipse.getMaxStepCount(),
                 label,
                 size
         );

@@ -6,7 +6,7 @@ public class Ellipse {
     public double maxHeartRate;
     public double stepCount;
     public double minStepCount;
-    public double maxStepCount;
+    private double maxStepCount;
 
     public Ellipse(double heartRate, double minHeartRate, double maxHeartRate,
                    double stepCount, double minStepCount, double maxStepCount){
@@ -15,7 +15,20 @@ public class Ellipse {
         this.maxHeartRate = maxHeartRate;
         this.stepCount = stepCount;
         this.minStepCount = minStepCount;
-        this.maxStepCount = maxStepCount;
+        this.setMaxStepCount(maxStepCount);
+    }
+
+    public void setMaxStepCount(double maxStepCount) {
+        if (maxStepCount < 10) {
+            this.maxStepCount = 10;
+        }
+        else {
+            this.maxStepCount = maxStepCount;
+        }
+    }
+
+    public double getMaxStepCount() {
+        return this.maxStepCount;
     }
 
     public double getSemiMajorAxis() {

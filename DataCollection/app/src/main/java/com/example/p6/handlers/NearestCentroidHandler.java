@@ -11,10 +11,10 @@ public class NearestCentroidHandler {
 
     public static Centroid[] centroids = new Centroid[Constants.NUMBER_OF_LABELS];
     public static Centroid[] generalModelCentroids = {
-            new Centroid(70.89044447734003,49,109,0.0,0.0,0.0,(byte) 0,243),
-            new Centroid(111.9688301170213,66,162,111.19583333333334,79.0,139.0,(byte) 1,250),
-            new Centroid(163.32964324429457,106,187,157.8181818181818,124.0,174.0,(byte) 2,249),
-            new Centroid(129.62290932844044,77,167,0.12546125461254612,0.0,34.0,(byte) 3,276)};
+            new Centroid(70.89044447734003,54.3448275862069,85.0,0.0,0.0,0.0,(byte) 0,243),
+            new Centroid(111.96882037612905,69.22413793103448,156.25862068965517,111.19583333333334,79.0,139.0,(byte) 1,250),
+            new Centroid(163.32964324429457,122.70731707317073,178.80357142857142,157.8181818181818,124.0,174.0,(byte) 2,249),
+            new Centroid(129.62290932844044,87.33333333333333,162.82456140350877,0.0,0.0,0.0,(byte) 3,276)};
     public static Constants.Activity predict(DataPointAggregated dataPoint, Centroid[] model) {
         List<Constants.Activity> activitiesWhichContainDataPoint  = getActivitiesWhichContainDataPoint(dataPoint, model);
 
@@ -51,8 +51,8 @@ public class NearestCentroidHandler {
         currentCentroid.ellipse.minStepCount
                 = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.stepCount);
 
-        currentCentroid.ellipse.maxStepCount
-                = addToAverage(currentCentroid.ellipse.maxStepCount, size, dataPoint.stepCount);
+        currentCentroid.ellipse.setMaxStepCount(
+                addToAverage(currentCentroid.ellipse.getMaxStepCount(), size, dataPoint.stepCount));
 
         // Update size
         currentCentroid.size++;
