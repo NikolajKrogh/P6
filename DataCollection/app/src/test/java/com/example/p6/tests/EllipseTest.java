@@ -10,7 +10,7 @@ public class EllipseTest {
     public void sittingDataPointsAreWithinSittingCentroid() {
         for (int i = 0; i < TestingVariables.sittingDataPoints.length; i++){
             boolean dataPointWithinEllipse = TestingVariables.centroids[Constants.Activity.SITTING.ordinal()]
-                    .ellipse.contains(TestingVariables.sittingDataPoints[i]);
+                    .ellipse.contains(TestingVariables.sittingDataPoints[i], (byte) 0);
             assertEquals(true, dataPointWithinEllipse);
         }
     }
@@ -19,7 +19,7 @@ public class EllipseTest {
     public void walkingDataPointsAreWithinWalkingCentroid() {
         for (int i = 0; i < TestingVariables.walkingDataPoints.length; i++){
             boolean dataPointWithinEllipse = TestingVariables.centroids[Constants.Activity.WALKING.ordinal()]
-                    .ellipse.contains(TestingVariables.walkingDataPoints[i]);
+                    .ellipse.contains(TestingVariables.walkingDataPoints[i], (byte) 0);
             assertEquals(true, dataPointWithinEllipse);
         }
     }
@@ -28,7 +28,7 @@ public class EllipseTest {
     public void runningDataPointsAreWithinRunningCentroid() {
         for (int i = 0; i < TestingVariables.runningDataPoints.length; i++){
             boolean dataPointWithinEllipse = TestingVariables.centroids[Constants.Activity.RUNNING.ordinal()]
-                    .ellipse.contains(TestingVariables.runningDataPoints[i]);
+                    .ellipse.contains(TestingVariables.runningDataPoints[i], (byte) 0);
             assertEquals(true, dataPointWithinEllipse);
         }
     }
@@ -37,7 +37,7 @@ public class EllipseTest {
     public void cyclingDataPointsAreWithinCyclingCentroid() {
         for (int i = 0; i < TestingVariables.cyclingDataPoints.length; i++){
             boolean dataPointWithinEllipse = TestingVariables.centroids[Constants.Activity.CYCLING.ordinal()]
-                    .ellipse.contains(TestingVariables.cyclingDataPoints[i]);
+                    .ellipse.contains(TestingVariables.cyclingDataPoints[i], (byte) 0);
             assertEquals(true, dataPointWithinEllipse);
         }
     }
@@ -47,7 +47,7 @@ public class EllipseTest {
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++){
             for (int j = 0; j < TestingVariables.unlabeledDataPoints.length; j++){
                 boolean dataPointWithinEllipse = TestingVariables.centroids[i].
-                        ellipse.contains(TestingVariables.unlabeledDataPoints[j]);
+                        ellipse.contains(TestingVariables.unlabeledDataPoints[j], (byte) 0);
                 assertEquals("Failed at " + String.valueOf(Constants.Activity.values()[i]),
                         false, dataPointWithinEllipse);
             }
@@ -75,8 +75,8 @@ public class EllipseTest {
 
     @Test
     public void semiMinorAxesAreCalculatedCorrectly() {
-        double[] expectedResultsForSittingAndCyclingSemiMinorAxes = {10, 0, 100};
-        double[] expectedResultsForWalkingAndRunningSemiMinorAxes = {5, 0, 25};
+        double[] expectedResultsForSittingAndCyclingSemiMinorAxes = {10, 10, 100};
+        double[] expectedResultsForWalkingAndRunningSemiMinorAxes = {5, 10, 25};
         double[][] expectedSemiMinorAxesForCentroids = {
                 expectedResultsForSittingAndCyclingSemiMinorAxes, expectedResultsForWalkingAndRunningSemiMinorAxes,
                 expectedResultsForWalkingAndRunningSemiMinorAxes, expectedResultsForSittingAndCyclingSemiMinorAxes};

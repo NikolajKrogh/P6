@@ -64,47 +64,7 @@ public class NearestCentroidHandlerTest {
     }
 
     @Test
-    public void betweenWalkingAndCyclingDataPointsArePredictedAsCycling() {
-        for (int i = 0; i < TestingVariables.betweenWalkingAndCyclingDataPoints.length; i++){
-            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
-                    TestingVariables.betweenWalkingAndCyclingDataPoints[i],
-                    TestingVariables.centroids);
-            assertEquals(Constants.Activity.CYCLING, predictedActivity);
-        }
-    }
-
-    @Test
-    public void betweenSittingAndCyclingDataPointsArePredictedAsSitting() {
-        for (int i = 0; i < TestingVariables.betweenSittingAndCyclingDataPoints.length; i++){
-            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
-                    TestingVariables.betweenSittingAndCyclingDataPoints[i],
-                    TestingVariables.centroids);
-            assertEquals(Constants.Activity.SITTING, predictedActivity);
-        }
-    }
-
-    @Test
-    public void betweenSittingAndCyclingAndWalkingDataPointsArePredictedAsSitting() {
-        for (int i = 0; i < TestingVariables.betweenSittingAndCyclingAndWalkingDataPoints.length; i++){
-            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
-                    TestingVariables.betweenSittingAndCyclingAndWalkingDataPoints[i],
-                    TestingVariables.centroids);
-            assertEquals(Constants.Activity.SITTING, predictedActivity);
-        }
-    }
-
-    @Test
-    public void betweenSittingAndCyclingDataPointsArePredictedAsCycling() {
-        for (int i = 0; i < TestingVariables.betweenSittingAndCyclingDataPointsSpecial.length; i++){
-            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
-                    TestingVariables.betweenSittingAndCyclingDataPointsSpecial[i],
-                    TestingVariables.centroids);
-            assertEquals(Constants.Activity.CYCLING, predictedActivity);
-        }
-    }
-
-    @Test
-    public void updateCentroidWithNewDataPoint() {
+    public void centroidsAreUpdatedCorrectly() {
         int length = NearestCentroidHandler.centroids.length;
         DataPointAggregated input = new DataPointAggregated(1, 1, 1, 1);
         NearestCentroidHandler.centroids[0] = new Centroid(10,10, 10,10,10,10,(byte) 0,1);

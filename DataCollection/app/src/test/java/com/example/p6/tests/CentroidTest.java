@@ -13,7 +13,7 @@ public class CentroidTest {
         Centroid centroid = new Centroid(76.96141393842203,54.495219885277244,105.07047619047619,0.0,0.0,18.0,(byte) 0,180);
 
         //Activity, heartRate, stepCount, ellipse.heartRate, ellipse.stepCount, ellipse.getSemiMajorAxis(), ellipse.getSemiMinorAxis())
-        String expectedOutput = "SITTING:\n" + "76.96, 0.00\n79.78, 0.00\n25.29, 18.00\n";
+        String expectedOutput = "SITTING:\n" + "Centroid: 76.96, 0.00\nEllipse-center: 79.78, 0.00\nEllipse-axes: 25.29, 18.00\n";
         assertEquals(expectedOutput, centroid.formatUIString());
     }
     @Test
