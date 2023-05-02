@@ -68,7 +68,7 @@ public class EllipseTest {
                 double expectedSemiMajorAxis = expectedResultsForSemiMajorAxes[j];
                 double actualSemiMajorAxis = customCentroids[j].ellipse.getSemiMajorAxis();
                 assertEquals("Failed at " + Constants.Activity.values()[i],
-                        expectedSemiMajorAxis, actualSemiMajorAxis, TestingVariables.DELTA);
+                        expectedSemiMajorAxis, actualSemiMajorAxis, Constants.DELTA);
             }
         }
     }
@@ -91,7 +91,7 @@ public class EllipseTest {
                 double expectedSemiMinorAxis = expectedSemiMinorAxesForCentroids[i][j];
                 double actualSemiMinorAxis = customCentroids[j].ellipse.getSemiMinorAxis();
                 assertEquals("Failed at " + Constants.Activity.values()[i],
-                        expectedSemiMinorAxis, actualSemiMinorAxis, TestingVariables.DELTA);
+                        expectedSemiMinorAxis, actualSemiMinorAxis, Constants.DELTA);
             }
         }
     }

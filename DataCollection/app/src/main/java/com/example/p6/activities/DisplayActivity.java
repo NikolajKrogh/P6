@@ -229,7 +229,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void addDataPointsToCorrespondingList(){
-        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd);
+        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd, Constants.TIME_WINDOW_SIZE);
         for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
             Constants.Activity activity = activityToTrack;
 
@@ -261,8 +261,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     throw new RuntimeException("Activity " + activity + " not recognized");
             }
         }
-
-        PreProcessingHandler.aggregatedDataPoints.clear();
     }
 
     @Override

@@ -16,27 +16,20 @@ public class NearestCentroidHandler {
             new Centroid(165.58992489087657,140.3695652173913,175.43103448275863,165.1970802919708,133.0,174.0,(byte) 2,178),
             new Centroid(122.26366054900114,65.28023032629558,169.44343891402715,0.3458646616541353,0.0,34.0,(byte) 3,171)};
 
-    // Calculates the distance from vectorToAddToCentroid to every centroid
-    // Returns the label of the centroid that is closest to vectorToAddToCentroid
     public static Constants.Activity predict(DataPointAggregated dataPoint, Centroid[] model) {
-        for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            dataPoint.distanceToCentroids[i]
-                    = getDistanceToCentroid(dataPoint, model[i]);
-        }
-
         List<Constants.Activity> activitiesWhichContainDataPoint  = getActivitiesWhichContainDataPoint(dataPoint, model);
 
-        if(activitiesWhichContainDataPoint.size() == 0) {
+        if(activitiesWhichContainDataPoint.size() == 0)
             return Constants.Activity.UNLABELED;
-        }
 
-        if (activitiesWhichContainDataPoint.size() == 1) {
+        if (activitiesWhichContainDataPoint.size() == 1)
             return activitiesWhichContainDataPoint.get(0);
-        }
+
+        for (Constants.Activity activity : activitiesWhichContainDataPoint)
+            dataPoint.distanceToCentroids[activity.ordinal()] = getDistanceToCentroid(dataPoint, model[activity.ordinal()]);
 
         return getActivityWithSmallestDistanceToDataPoint(dataPoint, activitiesWhichContainDataPoint);
     }
-
 
     public static Centroid updateModel(Constants.Activity activity, DataPointAggregated dataPoint) {
         int size =  centroids[activity.ordinal()].size;
