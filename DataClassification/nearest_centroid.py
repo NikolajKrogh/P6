@@ -152,5 +152,13 @@ if __name__ == '__main__':
 
     pyperclip.copy(format_final_centroid_to_java(centroids))
    
-    #print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
-    
+    print("accuracy:", accuracy_score(nearest_centroid.predict(X_test),np.ravel(y_test)))
+    i=0
+    for x in nearest_centroid.predict(X_test) == np.ravel(y_test):
+        if x == False:
+            print("Example:")
+            print("predicted=",nearest_centroid.predict(X_test)[i])
+            print("actual=",np.ravel(y_test)[i])
+            print("values=",X_test[i])
+        i+=1
+    #print(nearest_centroid.predict(X_test),np.ravel(y_test))
