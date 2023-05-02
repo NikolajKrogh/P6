@@ -45,11 +45,12 @@ public class Ellipse {
 
     // Heavily inspired by:
     // https://www.geeksforgeeks.org/check-if-a-point-is-inside-outside-or-on-the-ellipse/
-    public boolean contains(DataPointAggregated point, byte bufferSize){
+    public boolean contains(DataPointAggregated point, byte bufferPercentage){
+        double bufferDecimal = (double) bufferPercentage / 100;
         double p = (Math.pow((point.heartRate - heartRate), 2)
-                / Math.pow(getSemiMajorAxis() * (1 + (double) bufferSize / 100), 2))
+                / Math.pow(getSemiMajorAxis() * (1 + bufferDecimal), 2))
                 + (Math.pow((point.stepCount - stepCount), 2)
-                / Math.pow(getSemiMinorAxis() * (1 + (double) bufferSize / 100), 2));
+                / Math.pow(getSemiMinorAxis() * (1 + bufferDecimal), 2));
 
         return p <= 1;
     }
