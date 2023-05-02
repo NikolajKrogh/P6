@@ -45,11 +45,11 @@ public class Ellipse {
 
     // Heavily inspired by:
     // https://www.geeksforgeeks.org/check-if-a-point-is-inside-outside-or-on-the-ellipse/
-    public boolean contains(DataPointAggregated point){
+    public boolean contains(DataPointAggregated point, double bufferDecimal){
         double p = (Math.pow((point.heartRate - heartRate), 2)
-                / Math.pow(getBufferValue(getSemiMajorAxis()), 2))
+                / Math.pow(getSemiMajorAxis() * bufferDecimal, 2))
                 + (Math.pow((point.stepCount - stepCount), 2)
-                / Math.pow(getBufferValue(getSemiMinorAxis()), 2));
+                / Math.pow(getSemiMinorAxis() * bufferDecimal, 2));
 
         return p <= 1;
     }
@@ -57,11 +57,4 @@ public class Ellipse {
     private double getDifferenceBetweenTwoNumbers(double x, double y) {
         return Math.abs(x - y);
     }
-
-    private double getBufferValue(double axis){
-        byte BUFFER_PERCENTAGE = 10;
-        double factor = 1 + (double) BUFFER_PERCENTAGE / 100;
-        return axis * factor;
-    }
-
 }
