@@ -25,18 +25,18 @@ public class DataPointAggregated {
             return false;
         }
 
-        return Double.compare(this.heartRate, ((DataPointAggregated) other).heartRate) == 0 &&
-                Double.compare(this.minHeartRate, ((DataPointAggregated) other).minHeartRate) == 0 &&
-                Double.compare(this.maxHeartRate, ((DataPointAggregated) other).maxHeartRate) == 0 &&
-                Double.compare(this.stepCount, ((DataPointAggregated) other).stepCount) == 0 &&
+        return Double.compare(this.heartRate, ((DataPointAggregated) other).heartRate) <= Constants.DELTA &&
+                Double.compare(this.minHeartRate, ((DataPointAggregated) other).minHeartRate) <= Constants.DELTA &&
+                Double.compare(this.maxHeartRate, ((DataPointAggregated) other).maxHeartRate) <= Constants.DELTA &&
+                Double.compare(this.stepCount, ((DataPointAggregated) other).stepCount) <= Constants.DELTA &&
                 Double.compare(this.distanceToCentroids[Constants.Activity.SITTING.ordinal()],
-                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.SITTING.ordinal()]) == 0 &&
+                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.SITTING.ordinal()]) <= Constants.DELTA  &&
                 Double.compare(this.distanceToCentroids[Constants.Activity.WALKING.ordinal()],
-                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.WALKING.ordinal()]) == 0 &&
+                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.WALKING.ordinal()]) <= Constants.DELTA  &&
                 Double.compare(this.distanceToCentroids[Constants.Activity.RUNNING.ordinal()],
-                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.RUNNING.ordinal()]) == 0 &&
+                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.RUNNING.ordinal()]) <= Constants.DELTA  &&
                 Double.compare(this.distanceToCentroids[Constants.Activity.CYCLING.ordinal()],
-                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.CYCLING.ordinal()]) == 0;
+                        ((DataPointAggregated) other).distanceToCentroids[Constants.Activity.CYCLING.ordinal()]) <= Constants.DELTA ;
     }
 
     @NonNull

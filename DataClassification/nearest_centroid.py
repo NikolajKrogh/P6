@@ -133,16 +133,24 @@ def format_final_centroid_to_java(centroids):
     result += "};"
     return result    
 
+def makeOverleafPoints(X,y):
+    #red = sit, green = walk, violet = run, lime = bike
+    colours = ["red", "green", "violet", "lime"]
+    result = ""
+    for i, value in enumerate(X):
+        result += f"\\filldraw[{colours[y[i][0]]}] ({value[0]},{value[1]}) circle (0.2pt) node[anchor=north] {{}}; \n"          
+    return result
+
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
     X,y = make_aggregated_time_series(data)
+    #pyperclip.copy(makeOverleafPoints(X,y))
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X, np.ravel(y))
     centroids = convert_scikit_centroids_to_our_centroids(nearest_centroid.centroids_)
     add_min_max_step_count_data_to_centroids(centroids,X,y)
     add_min_max_heart_rate_data_to_centroids(centroids, X,y)
-    
 
     pyperclip.copy(format_final_centroid_to_java(centroids))
    
