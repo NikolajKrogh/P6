@@ -1,56 +1,30 @@
 package com.example.p6.handlers;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
+import com.example.p6.classes.DataPointAggregated;
 import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CsvHandler {
-    //region Centroid constants
-    //endregion
-    public static void writeToFile(String fileName, String content, Context context, boolean appendMode){
-        int mode; //either Context.MODE_APPEND or Context.MODE_PRIVATE
-        if (appendMode)
-            mode = Context.MODE_APPEND;
-        else
-            mode = Context.MODE_PRIVATE;
-        try {
-            File file = new File(context.getDir(fileName, mode),fileName);
-            file.createNewFile(); // if file already exists, this will do nothing
-            FileOutputStream writer = new FileOutputStream(file,appendMode);
-            writer.write(content.getBytes());
-            writer.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
-        StringBuilder result = new StringBuilder();
-        for (Centroid centroid : centroids) {
-            result.append(centroid.toString());
-            result.append(delimiter);
-        }
-        return result.toString();
-    }
-
-    public static void writeCentroidsToFile(Centroid[] centroids, Context context){
-        String content = Constants.centroidHeader;
-        String fileName = "centroids.csv";
-        content += CsvHandler.convertArrayOfCentroidsToString(centroids, "\n");
-        CsvHandler.writeToFile(fileName, content, context, false);
-    }
-
     public static void writeToCentroidHistory(Centroid[] centroids, String dateTime, Context context){
         String content = "";
         String fileName = "centroids_history.csv";
@@ -61,8 +35,43 @@ public class CsvHandler {
             content += convertArrayOfCentroidsToString(NearestCentroidHandler.generalModelCentroids, ",") +"\n";
         }
         content += dateTime + ",";
-        content += CsvHandler.convertArrayOfCentroidsToString(centroids, ",") + "\n";
-        CsvHandler.writeToFile(fileName, content, context, true);
+        content += convertArrayOfCentroidsToString(centroids, ",") + "\n";
+        writeToFile(fileName, content, context, true);
+    }
+
+    public static void addAggregatedDataPointToHistory(Constants.Activity activity, DataPointAggregated dataPoint, Context context)
+            throws IOException {
+        String content = "";
+        String fileName = "ATW_history_" + activity.name().toLowerCase();
+
+        if (fileIsEmpty(fileName, context)){
+            content += Constants.dataPointHeader;
+        }
+
+        byte numberOfLinesInFile = (byte) getNumberOfLinesInFile(fileName, context);
+
+        if (numberOfLinesInFile <= 100) {
+            content += dataPoint.toString() + "\n";
+            writeToFile(fileName, content, context, true);
+        }
+        else {
+            List<String> aggregatedDataPoints = new ArrayList<>();
+            File file = new File(context.getDir(fileName, Context.MODE_APPEND), fileName);
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            bufferedReader.readLine();  // skip header
+            bufferedReader.readLine();  // skip oldest ATW
+
+            for (int i = 0; i < numberOfLinesInFile - 2; i++) {
+                aggregatedDataPoints.add(bufferedReader.readLine());
+            }
+
+            for (String aggregatedDataPoint : aggregatedDataPoints) {
+                content += aggregatedDataPoint + "\n";
+            }
+            content += dataPoint.toString() + "\n";
+            writeToFile(fileName, content, context, false);
+        }
     }
 
     public static void writeDataPointsToFile(String fileName, List<DataPointRaw> dataPoints,
@@ -77,7 +86,7 @@ public class CsvHandler {
             content.append(dataPoint.toString());
         }
 
-        CsvHandler.writeToFile(fileName, content.toString(), context, true);
+        writeToFile(fileName, content.toString(), context, true);
     }
 
     public static void writePredictedActivityToFile(String fileName, AccuracyData accuracyDataForActivity, List<Constants.Activity> predictedActivities, Context context) {
@@ -97,7 +106,7 @@ public class CsvHandler {
             content.append("\n");
         }
 
-        CsvHandler.writeToFile(fileName, content.toString(), context, true);
+        writeToFile(fileName, content.toString(), context, true);
     }
 
     public static void writeToTotalAccuracyForActivity(String fileName, AccuracyData
@@ -113,7 +122,7 @@ public class CsvHandler {
         accuracyDataFromFile.cyclingPredictions += accuracyDataForActivity.cyclingPredictions;
 
         String content = Constants.accuracyHeader + accuracyDataFromFile;
-        CsvHandler.writeToFile(fileName, content, context, false);
+        writeToFile(fileName, content, context, false);
     }
 
     public static AccuracyData getAccuracyDataFromFile(String fileName, Context context)
@@ -125,8 +134,8 @@ public class CsvHandler {
             if (file.length() == 0){
                 return accuracyDataForActivity;
             }
-            FileReader filereader = new FileReader(file);
-            CSVReader csvReader = new CSVReader(filereader);
+            FileReader fileReader = new FileReader(file);
+            CSVReader csvReader = new CSVReader(fileReader);
             csvReader.readNext(); //skip header
             String[] accuracyDataFromFile = csvReader.readNext();
 
@@ -145,11 +154,6 @@ public class CsvHandler {
             throw new CsvValidationException();
         }
         return accuracyDataForActivity;
-    }
-
-    private static boolean fileIsEmpty(String fileName, Context context) {
-        File file = new File(context.getDir(fileName, Context.MODE_PRIVATE).getPath(),fileName);
-        return file.length() == 0;
     }
 
     public static void deleteFile(String fileName, Context context){
@@ -186,4 +190,57 @@ public class CsvHandler {
         return centroids;
     }
 
+    public static void writeCentroidsToFile(Centroid[] centroids, Context context){
+        String content = Constants.centroidHeader;
+        String fileName = "centroids.csv";
+        content += convertArrayOfCentroidsToString(centroids, "\n");
+        writeToFile(fileName, content, context, false);
+    }
+
+
+    private static void writeToFile(String fileName, String content, Context context, boolean appendMode){
+        int mode; //either Context.MODE_APPEND or Context.MODE_PRIVATE
+        if (appendMode)
+            mode = Context.MODE_APPEND;
+        else
+            mode = Context.MODE_PRIVATE;
+        try {
+            File file = new File(context.getDir(fileName, mode),fileName);
+            file.createNewFile(); // if file already exists, this will do nothing
+            FileOutputStream writer = new FileOutputStream(file,appendMode);
+            writer.write(content.getBytes());
+            writer.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int getNumberOfLinesInFile(String fileName, Context context) {
+        try {
+            File file = new File(context.getDir(fileName, Context.MODE_APPEND),fileName);
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            int lines = 0;
+            bufferedReader.readLine(); // skip header
+            while (bufferedReader.readLine() != null) lines++;
+            bufferedReader.close();
+            return lines;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
+        StringBuilder result = new StringBuilder();
+        for (Centroid centroid : centroids) {
+            result.append(centroid.toString());
+            result.append(delimiter);
+        }
+        return result.toString();
+    }
+
+    private static boolean fileIsEmpty(String fileName, Context context) {
+        File file = new File(context.getDir(fileName, Context.MODE_PRIVATE).getPath(),fileName);
+        return file.length() == 0;
+    }
 }
