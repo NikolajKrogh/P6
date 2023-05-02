@@ -64,6 +64,16 @@ public class NearestCentroidHandlerTest {
     }
 
     @Test
+    public void activitiesWithinTwoEllipsesArePredictedAsTheNearestActivity() {
+        for (int i = 0; i < TestingVariables.betweenWalkingAndRunningDataPoints.length; i++){
+            Constants.Activity predictedActivity = NearestCentroidHandler.predict(
+                    TestingVariables.betweenWalkingAndRunningDataPoints[i],
+                    TestingVariables.centroids);
+            assertEquals(Constants.Activity.WALKING, predictedActivity);
+        }
+    }
+
+    @Test
     public void centroidsAreUpdatedCorrectly() {
         int length = NearestCentroidHandler.centroids.length;
         DataPointAggregated input = new DataPointAggregated(1, 1, 1, 1);

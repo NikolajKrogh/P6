@@ -23,7 +23,7 @@ public class NearestCentroidHandler {
         // Is the activity within any ellipse? If not, check if it is within any buffer
         if(activitiesWhichContainDataPoint.size() == 0)
             activitiesWhichContainDataPoint
-                    = getActivitiesWhichContainDataPoint(dataPoint, model, (byte) 10);
+                    = getActivitiesWhichContainDataPoint(dataPoint, model, (byte) 1.1);
 
         // Is the activity not within any ellipse or buffer?
         if(activitiesWhichContainDataPoint.size() == 0)
@@ -81,10 +81,10 @@ public class NearestCentroidHandler {
     }
 
     private static List<Constants.Activity> getActivitiesWhichContainDataPoint(
-            DataPointAggregated dataPoint, Centroid[] model, byte buffer){
+            DataPointAggregated dataPoint, Centroid[] model, byte bufferDecimal){
         List<Constants.Activity> activitiesWhichContainDataPoint = new ArrayList<>();
         for (int i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            if (model[i].ellipse.contains(dataPoint, (byte) buffer)){
+            if (model[i].ellipse.contains(dataPoint, bufferDecimal)){
                 activitiesWhichContainDataPoint.add(Constants.Activity.values()[i]);
             }
         }

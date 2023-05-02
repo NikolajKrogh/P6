@@ -41,4 +41,8 @@ public class TestingVariables {
             new DataPointAggregated(300, 0, 0, 0),
             new DataPointAggregated(0, 0, 0, 300),
             new DataPointAggregated(300, 0, 0, 300)};
+
+    public static DataPointAggregated[] betweenWalkingAndRunningDataPoints = {
+            new DataPointAggregated(140, 0, 0, 125),
+            new DataPointAggregated(130, 0, 0, 130)};
 }
