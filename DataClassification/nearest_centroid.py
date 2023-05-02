@@ -108,8 +108,6 @@ def add_min_max_heart_rate_data_to_centroids(centroids,X,y):
     for i in range(NUMBER_OF_LABELS):
         labels = y[np.where(y==i)]
         data_points = X[offset:offset + len(labels)]
-        print(len(labels),len(data_points))
-        print(data_points.max(axis=0))
         offset += len(labels)
         #axis=0 means we compare all values in a column
         centroids[i].max_heart_rate = data_points.max(axis=0)[0]
