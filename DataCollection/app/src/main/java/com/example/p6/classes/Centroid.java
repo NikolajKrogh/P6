@@ -63,7 +63,7 @@ public class Centroid {
                 ellipse.maxHeartRate,
                 stepCount,
                 ellipse.minStepCount,
-                ellipse.maxStepCount,
+                ellipse.getMaxStepCount(),
                 label,
                 size
         );
@@ -71,7 +71,7 @@ public class Centroid {
 
     public String formatUIString(){
         return String.format(Locale.US, Constants.Activity.values()[label].name() + ":\n" +
-                "%.2f, %.2f\n%.2f, %.2f\n%.2f, %.2f\n",
+                "Centroid: %.2f, %.2f\nEllipse-center: %.2f, %.2f\nEllipse-axes: %.2f, %.2f\n",
                 heartRate, stepCount, ellipse.heartRate, ellipse.stepCount,
                 ellipse.getSemiMajorAxis(),
                 ellipse.getSemiMinorAxis());

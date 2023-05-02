@@ -37,7 +37,8 @@ public class Constants {
     public enum Mode {
         PREDICT_ACTIVITY,
         UPDATE_WITH_LABELS,
-        COLLECT_DATA,
+        TEST_ACCURACY,
+        COLLECT_DATA
     }
 
     public static final byte NOT_SET = -1;

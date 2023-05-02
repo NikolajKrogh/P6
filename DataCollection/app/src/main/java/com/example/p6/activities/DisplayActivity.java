@@ -5,10 +5,12 @@ import static com.example.p6.classes.Constants.Screen.*;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,6 +40,9 @@ import java.util.Locale;
 
 
 public class DisplayActivity extends Activity implements SensorEventListener, View.OnLongClickListener, View.OnClickListener {
+
+    private android.content.Context context;
+
     private enum Time {
         MINUTES,
         SECONDS,
@@ -99,6 +104,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private Toast myToast;
     private TextView activityText;
     private boolean modelWasUpdated = false;
+    Intent batteryStatus;
 
     //endregion
 
@@ -108,11 +114,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        context = getApplicationContext();
 
         Locale.setDefault(Locale.US);   // Makes String.Format language-insensitive
 
         try {
-            NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(getApplicationContext());
+            NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(context);
         } catch (IOException | CsvValidationException e) {
             throw new RuntimeException(e);
         }
@@ -126,10 +133,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         stopButton.setOnClickListener(DisplayActivity.this);
         stopButton.setOnLongClickListener(DisplayActivity.this);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
-        activityText.setText("Tracking " + activityToTrack);
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        batteryStatus = context.registerReceiver(null, ifilter);
 
-        myToast = Toast.makeText(getApplicationContext(), null, Toast.LENGTH_SHORT);
+        myToast = Toast.makeText(context, null, Toast.LENGTH_SHORT);
+        activityText.setText("Tracking " + activityToTrack);
     }
 
     private void showToast(String text) {
@@ -203,18 +211,29 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                     numberOfDataPointsAdded++;
                 }
                 else {
+
+                    if (getBatteryLevel() <= 5){
+                        try {
+                            stopActivity();
+                        } catch (CsvValidationException | IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
                     switch (mode){
                         case PREDICT_ACTIVITY:
                         case UPDATE_WITH_LABELS:
+                        case TEST_ACCURACY:
                             addDataPointsToCorrespondingList();
                             break;
                         case COLLECT_DATA:
                             CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
-                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, getApplicationContext());
+                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
                             break;
                         default:
                             throw new RuntimeException("Mode " + mode + " not recognized");
                     }
+
                     timesWrittenToFile++;
                     timesWrittenToFileText.setText("Written to file " + timesWrittenToFile + " times");
                     numberOfDataPointsAdded = 0;
@@ -228,6 +247,16 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
+    // Function taken from:
+    // https://developer.android.com/training/monitoring-device-state/battery-monitoring
+    private double getBatteryLevel() {
+        // Scale is the maximum battery percentage
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+
+        return level * 100 / (double) scale;
+    }
+
     private void addDataPointsToCorrespondingList(){
         PreProcessingHandler.aggregateDataPoints(dataPointsToAdd, Constants.TIME_WINDOW_SIZE);
         for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
@@ -235,12 +264,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
             if (mode == PREDICT_ACTIVITY){
                 activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                predictedActivityText.setText("Predicted " + activity.name());
+                displayPredictedActivity(activity);
             }
 
-            if (mode == UPDATE_WITH_LABELS){
+            if (mode == UPDATE_WITH_LABELS || mode == TEST_ACCURACY){
                 Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                predictedActivityText.setText("Predicted " + predictedActivity.name());
+                displayPredictedActivity(predictedActivity);
                 predictedActivities.add(predictedActivity);
             }
 
@@ -263,6 +292,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
+    private void displayPredictedActivity(Constants.Activity activity){
+        predictedActivityText.setText("Predicted " + activity.name());
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -271,48 +304,66 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private void stopActivity() throws CsvValidationException, IOException {
         unregisterListeners();
         Intent intent = new Intent(DisplayActivity.this, SelectActivity.class);
+        AccuracyData accuracyDataForActivity = new AccuracyData();
+
+        if (mode == UPDATE_WITH_LABELS || mode == TEST_ACCURACY) {
+             accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
+        }
 
         switch (mode){
             case PREDICT_ACTIVITY:
                 updateModelForPredictedActivities();
                 intent = new Intent(DisplayActivity.this, MainActivity.class);
                 MainActivity.BackButtonPressed = true;
+                showToast("Updated model based on predictions");
                 break;
             case UPDATE_WITH_LABELS:
                 updateModelForPredictedActivities();
-                writeToAccuracyFiles();
+                writeToAccuracyFileForActivity(accuracyDataForActivity);
+                writeToTotalAccuracyFileForActivity(accuracyDataForActivity);
+                showToast("Updated model for " + activityToTrack);
+                break;
+            case TEST_ACCURACY:
+                addDataPointsToCorrespondingList();
+                writeToAccuracyFileForActivity(accuracyDataForActivity);
+                showToast("Accuracy calculated for " + activityToTrack);
                 break;
             case COLLECT_DATA:
-                showToast("Writing to file ...");
+                showToast("Wrote to file " + activityToTrack);
                 String fileName = activityToTrack.name().toLowerCase() + "_" +
                         dateTimeFormatter.format(dateTime) + ".csv";
-                CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, getApplicationContext());
+                CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, context);
                 break;
             default:
                 throw new RuntimeException("Mode " + mode + " not recognized");
         }
+
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
     }
 
-    private void writeToAccuracyFiles() throws CsvValidationException, IOException {
-        AccuracyData accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
-
-        String fileName = "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
+    private void writeToAccuracyFileForActivity(AccuracyData accuracyDataForActivity) {
+        String fileName = "";
+        if (mode == TEST_ACCURACY) {
+            fileName += "test_";
+        }
+        fileName += "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
                 dateTimeFormatter.format(dateTime) + ".txt";
         CsvHandler.writePredictedActivityToFile(
                 fileName,
                 accuracyDataForActivity,
                 predictedActivities,
-                getApplicationContext());
+                context);
+    }
 
-        fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
+    private void writeToTotalAccuracyFileForActivity(AccuracyData accuracyDataForActivity) throws CsvValidationException, IOException {
+        String fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
         CsvHandler.writeToTotalAccuracyForActivity(
                 fileName,
                 accuracyDataForActivity,
-                CsvHandler.getAccuracyDataFromFile(fileName, getApplicationContext()),
-                getApplicationContext());
+                CsvHandler.getAccuracyDataFromFile(fileName, context),
+                context);
     }
 
     private void updateModelForPredictedActivities(){
@@ -322,9 +373,10 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
-            showToast("Updated model");
-            CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, getApplicationContext());
-            CsvHandler.writeToCentroidHistory(NearestCentroidHandler.centroids, dateTimeFormatter.format(dateTime), getApplicationContext());
+            CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, context);
+            CsvHandler.writeToCentroidHistory(
+                    NearestCentroidHandler.centroids,
+                    dateTimeFormatter.format(dateTime), context);
         }
     }
 

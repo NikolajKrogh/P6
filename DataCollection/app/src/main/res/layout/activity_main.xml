@@ -31,22 +31,22 @@
                     android:id="@+id/PredictActivityButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onRunModelClick"
+                    android:onClick="onPredictActivityClick"
                     android:text="Predict Activity " />
 
                 <Button
                     android:id="@+id/UpdateWithLabelsButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onSynchronizeModelClick"
+                    android:onClick="onUpdateWithLabelsClick"
                     android:text="Update with labels" />
 
                 <Button
-                    android:id="@+id/viewModelButton"
+                    android:id="@+id/testAccuracyButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onViewModelClick"
-                    android:text="View model" />
+                    android:onClick="onTestAccuracyClick"
+                    android:text="Test accuracy" />
 
                 <Button
                     android:id="@+id/collectDataButton"
@@ -60,17 +60,28 @@
                     android:layout_height="25dp" />
 
                 <Button
-                    android:id="@+id/exitAppButton"
+                    android:id="@+id/viewModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="onExitButtonClick"
-                    android:text="Exit app" />
+                    android:onClick="onViewModelClick"
+                    android:text="View model" />
 
                 <Button
                     android:id="@+id/resetModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Reset model" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp" />
+
+                <Button
+                    android:id="@+id/exitAppButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onExitButtonClick"
+                    android:text="Exit app" />
 
                 <Space
                     android:layout_width="match_parent"
