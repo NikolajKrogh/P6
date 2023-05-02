@@ -102,7 +102,7 @@ def add_min_max_step_count_data_to_centroids(centroids, X, y):
         centroids[i].max_step_count = data_points.max(axis=0)[1]
         centroids[i].min_step_count = data_points.min(axis=0)[1]
         
-#Here the min and max value is added from the raw datapoints (data)
+#Here the min and max value is added from the aggregated datapoints (data)
 def add_min_max_heart_rate_data_to_centroids(centroids,X,y):
     offset = 0
     for i in range(NUMBER_OF_LABELS):
