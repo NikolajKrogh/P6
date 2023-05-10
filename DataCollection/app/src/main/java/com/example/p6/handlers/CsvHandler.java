@@ -171,22 +171,7 @@ public class CsvHandler {
             throw new RuntimeException(e);
         }
     }
-
-    private static int getNumberOfLinesInFile(String fileName, Context context) {
-        try {
-            File file = new File(context.getDir(fileName, Context.MODE_APPEND),fileName);
-            FileReader fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            int lines = 0;
-            bufferedReader.readLine(); // skip header
-            while (bufferedReader.readLine() != null) lines++;
-            bufferedReader.close();
-            return lines;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    
     private static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
         StringBuilder result = new StringBuilder();
         for (Centroid centroid : centroids) {
