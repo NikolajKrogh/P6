@@ -366,7 +366,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 context);
     }
 
-    private void updateModelForPredictedActivities() throws IOException {
+    private void updateModelForPredictedActivities() {
         addDataPointsToCorrespondingList();
         for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
@@ -395,7 +395,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         }
     }
 
-    private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity) throws IOException {
+    private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity) {
         for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
             NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(activity, dataPoint);
             modelWasUpdated = true;

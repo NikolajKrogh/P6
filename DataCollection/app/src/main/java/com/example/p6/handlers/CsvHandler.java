@@ -9,7 +9,6 @@ import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -171,7 +170,7 @@ public class CsvHandler {
             throw new RuntimeException(e);
         }
     }
-    
+
     private static String convertArrayOfCentroidsToString(Centroid[] centroids, String delimiter) {
         StringBuilder result = new StringBuilder();
         for (Centroid centroid : centroids) {
