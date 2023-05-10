@@ -67,6 +67,13 @@
                     android:text="View model" />
 
                 <Button
+                    android:id="@+id/updateModelButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onUpdateModelClick"
+                    android:text="Update model" />
+
+                <Button
                     android:id="@+id/resetModelButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -74,7 +81,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="50dp" />
+                    android:layout_height="25dp" />
 
                 <Button
                     android:id="@+id/exitAppButton"

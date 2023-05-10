@@ -9,10 +9,16 @@ import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CsvHandler {
@@ -144,6 +150,37 @@ public class CsvHandler {
             throw new CsvValidationException();
         }
         return centroids;
+    }
+
+    public static List<DataPointRaw> getDataPointsFromFile(Context context) throws IOException, CsvValidationException {
+        List<DataPointRaw> dataPoints = new ArrayList<>();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(context.getAssets().open("dataPoints.csv")));
+
+            CSVReader csvReader = new CSVReader(reader);
+            csvReader.readNext(); //skip header
+            String[] nextEntry;
+
+
+            while ((nextEntry = csvReader.readNext()) != null) {
+                dataPoints.add(new DataPointRaw(
+                        Short.parseShort(nextEntry[1]),
+                        Integer.parseInt(nextEntry[2]),
+                        Byte.parseByte(nextEntry[3]),
+                        Short.parseShort(nextEntry[0])));
+            }
+
+        }
+        catch (IOException e) {
+            throw new IOException();
+        }
+        catch (CsvValidationException e) {
+            throw new CsvValidationException();
+        }
+
+        return dataPoints;
     }
 
     public static void writeCentroidsToFile(Centroid[] centroids, Context context){

@@ -94,7 +94,7 @@ public class NearestCentroidHandlerTest {
         byte i = 0;
         byte labels[] = {0, 1, 2};
 
-        for(DataPointAggregated dataPoint : aggregatedDataPoints){
+        for (DataPointAggregated dataPoint : aggregatedDataPoints){
             Centroid actualCentroid = NearestCentroidHandler.updateModel(
                     Constants.Activity.values()[labels[i]],
                     dataPoint.heartRate, dataPoint.minHeartRate, dataPoint.maxHeartRate,

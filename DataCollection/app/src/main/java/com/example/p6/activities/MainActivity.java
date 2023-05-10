@@ -13,21 +13,29 @@ import android.widget.Toast;
 
 import com.example.p6.R;
 import com.example.p6.classes.Constants;
+import com.example.p6.classes.DataPointRaw;
 import com.example.p6.handlers.CsvHandler;
 import com.example.p6.databinding.ActivityMainBinding;
+import com.example.p6.handlers.NearestCentroidHandler;
+import com.example.p6.handlers.PreProcessingHandler;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class MainActivity extends Activity implements View.OnLongClickListener, View.OnClickListener {
 
     private android.content.Context context;
 
     //region Global variables
-    static Constants.Activity activityToTrack = UNLABELED;
+    public static Constants.Activity activityToTrack = UNLABELED;
     static Constants.Screen currentScreen = MAIN;
-    static Constants.Mode trackingMode = COLLECT_DATA;
+    public static Constants.Mode trackingMode = COLLECT_DATA;
     static boolean BackButtonPressed = false;
     //endregion
 
-    private Toast myToast;
+    static public Toast myToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +102,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     public void onTestAccuracyClick(View view){
         trackingMode = TEST_ACCURACY;
         goToScreen(SelectActivity.class);
+    }
+
+    public void onUpdateModelClick(View view) throws CsvValidationException, IOException {
+        trackingMode = UPDATE_MODEL;
+        NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(context);
+        List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context);
+        PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);
+        DisplayActivity.showToast("Model was updated");
     }
 
     public void onViewModelClick(View view){

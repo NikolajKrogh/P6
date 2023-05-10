@@ -23,7 +23,6 @@ import com.example.p6.R;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
 import com.example.p6.handlers.CsvHandler;
-import com.example.p6.classes.DataPointAggregated;
 import com.example.p6.classes.DataPointRaw;
 import com.example.p6.handlers.NearestCentroidHandler;
 import com.example.p6.handlers.PreProcessingHandler;
@@ -31,9 +30,7 @@ import com.example.p6.databinding.ActivityDisplayBinding;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,19 +74,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     //region Data point variables
     private short numberOfDataPointsAdded = 0;
     private List<DataPointRaw> dataPointsToAdd = new ArrayList<>();
-    private List<DataPointAggregated> aggregatedDataPointsSitting = new ArrayList<>();
-    private List<DataPointAggregated> aggregatedDataPointsWalking = new ArrayList<>();
-    private List<DataPointAggregated> aggregatedDataPointsRunning = new ArrayList<>();
-    private List<DataPointAggregated> aggregatedDataPointsCycling = new ArrayList<>();
-    private List<Constants.Activity> predictedActivities = new ArrayList<>();
-
-
-    //endregion
-
-    //region Formatters
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss");
-    private final DecimalFormat clockFormat = new DecimalFormat("#00");
-
     //endregion
 
     //region Other global variables
@@ -99,11 +83,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     private LocalDateTime dateTime;
     private TextView timerText;
     private TextView timesWrittenToFileText;
-    private TextView predictedActivityText;
+    private static TextView predictedActivityText;
     private short timesWrittenToFile = 0;
-    private Toast myToast;
     private TextView activityText;
-    private boolean modelWasUpdated = false;
     Intent batteryStatus;
 
     //endregion
@@ -136,13 +118,12 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         batteryStatus = context.registerReceiver(null, ifilter);
 
-        myToast = Toast.makeText(context, null, Toast.LENGTH_SHORT);
         activityText.setText("Tracking " + activityToTrack);
     }
 
-    private void showToast(String text) {
-        myToast.setText(text);
-        myToast.show();
+    public static void showToast(String text) {
+        MainActivity.myToast.setText(text);
+        MainActivity.myToast.show();
     }
 
     @Override
@@ -224,11 +205,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                         case PREDICT_ACTIVITY:
                         case UPDATE_WITH_LABELS:
                         case TEST_ACCURACY:
-                            addDataPointsToCorrespondingList();
+                            PreProcessingHandler.addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
                             break;
                         case COLLECT_DATA:
                             CsvHandler.writeDataPointsToFile(activityToTrack.name().toLowerCase() + "_" +
-                                    dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
+                                    Constants.dateTimeFormatter.format(dateTime) + ".csv", dataPointsToAdd, context);
                             break;
                         default:
                             throw new RuntimeException("Mode " + mode + " not recognized");
@@ -257,42 +238,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         return level * 100 / (double) scale;
     }
 
-    private void addDataPointsToCorrespondingList(){
-        PreProcessingHandler.aggregateDataPoints(dataPointsToAdd, Constants.TIME_WINDOW_SIZE);
-        for (DataPointAggregated dataPoint : PreProcessingHandler.aggregatedDataPoints) {
-            Constants.Activity activity = activityToTrack;
-
-            if (mode == PREDICT_ACTIVITY){
-                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                displayPredictedActivity(activity);
-            }
-
-            if (mode == UPDATE_WITH_LABELS || mode == TEST_ACCURACY){
-                Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                displayPredictedActivity(predictedActivity);
-                predictedActivities.add(predictedActivity);
-            }
-
-            switch (activity){
-                case SITTING:
-                    aggregatedDataPointsSitting.add(dataPoint);
-                    break;
-                case WALKING:
-                    aggregatedDataPointsWalking.add(dataPoint);
-                    break;
-                case RUNNING:
-                    aggregatedDataPointsRunning.add(dataPoint);
-                    break;
-                case CYCLING:
-                    aggregatedDataPointsCycling.add(dataPoint);
-                    break;
-                default:
-                    throw new RuntimeException("Activity " + activity + " not recognized");
-            }
-        }
-    }
-
-    private void displayPredictedActivity(Constants.Activity activity){
+    public static void displayPredictedActivity(Constants.Activity activity){
         predictedActivityText.setText("Predicted " + activity.name());
     }
 
@@ -307,31 +253,31 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         AccuracyData accuracyDataForActivity = new AccuracyData();
 
         if (mode == UPDATE_WITH_LABELS || mode == TEST_ACCURACY) {
-             accuracyDataForActivity = new AccuracyData(predictedActivities, activityToTrack);
+             accuracyDataForActivity = new AccuracyData(PreProcessingHandler.predictedActivities, activityToTrack);
         }
 
         switch (mode){
             case PREDICT_ACTIVITY:
-                updateModelForPredictedActivities();
+                PreProcessingHandler.updateModelForPredictedActivities(dataPointsToAdd, context);
                 intent = new Intent(DisplayActivity.this, MainActivity.class);
                 MainActivity.BackButtonPressed = true;
                 showToast("Updated model based on predictions");
                 break;
             case UPDATE_WITH_LABELS:
-                updateModelForPredictedActivities();
+                PreProcessingHandler.updateModelForPredictedActivities(dataPointsToAdd, context);
                 writeToAccuracyFileForActivity(accuracyDataForActivity);
                 writeToTotalAccuracyFileForActivity(accuracyDataForActivity);
                 showToast("Updated model for " + activityToTrack);
                 break;
             case TEST_ACCURACY:
-                addDataPointsToCorrespondingList();
+                PreProcessingHandler.addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
                 writeToAccuracyFileForActivity(accuracyDataForActivity);
                 showToast("Accuracy calculated for " + activityToTrack);
                 break;
             case COLLECT_DATA:
                 showToast("Wrote to file " + activityToTrack);
                 String fileName = activityToTrack.name().toLowerCase() + "_" +
-                        dateTimeFormatter.format(dateTime) + ".csv";
+                        Constants.dateTimeFormatter.format(dateTime) + ".csv";
                 CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, context);
                 break;
             default:
@@ -349,11 +295,11 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
             fileName += "test_";
         }
         fileName += "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
-                dateTimeFormatter.format(dateTime) + ".txt";
+                Constants.dateTimeFormatter.format(dateTime) + ".txt";
         CsvHandler.writePredictedActivityToFile(
                 fileName,
                 accuracyDataForActivity,
-                predictedActivities,
+                PreProcessingHandler.predictedActivities,
                 context);
     }
 
@@ -364,69 +310,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 accuracyDataForActivity,
                 CsvHandler.getAccuracyDataFromFile(fileName, context),
                 context);
-    }
-
-    private void updateModelForPredictedActivities() {
-        addDataPointsToCorrespondingList();
-        for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
-            List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
-            updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
-        }
-        if (modelWasUpdated){
-            CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, context);
-            CsvHandler.writeToCentroidHistory(
-                    NearestCentroidHandler.centroids,
-                    dateTimeFormatter.format(dateTime), context);
-        }
-    }
-
-    private List<DataPointAggregated> getListForActivity(Constants.Activity activity){
-        switch (activity){
-            case SITTING:
-                return aggregatedDataPointsSitting;
-            case WALKING:
-                return aggregatedDataPointsWalking;
-            case RUNNING:
-                return aggregatedDataPointsRunning;
-            case CYCLING:
-                return  aggregatedDataPointsCycling;
-            default:
-                throw new RuntimeException("Activity " + activity + " does not correspond to any list");
-        }
-    }
-
-    private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity) {
-        int numberOfDataPoints = aggregatedDataPointsForActivity.size();
-
-        if (numberOfDataPoints == 0) {
-            return;
-        }
-
-        double totalHeartRate = 0;
-        double minHeartRate = aggregatedDataPointsForActivity.get(0).minHeartRate;
-        double maxHeartRate = 0;
-
-        int totalStepCount = 0;
-        double minStepCount = aggregatedDataPointsForActivity.get(0).stepCount;
-        double maxStepCount = 0;
-
-        for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
-            totalHeartRate += dataPoint.heartRate;
-            minHeartRate = Math.min(minHeartRate, dataPoint.minHeartRate);
-            maxHeartRate = Math.max(maxHeartRate, dataPoint.maxHeartRate);
-
-            totalStepCount += dataPoint.stepCount;
-            minStepCount = Math.min(minStepCount, dataPoint.stepCount);
-            maxStepCount = Math.max(maxStepCount, dataPoint.stepCount);
-        }
-
-        double averageHeartRate = totalHeartRate / numberOfDataPoints;
-        double averageStepCount = totalStepCount / numberOfDataPoints;
-
-        NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(
-                activity, averageHeartRate, minHeartRate, maxHeartRate,
-                averageStepCount, minStepCount, maxStepCount, numberOfDataPoints);
-        modelWasUpdated = true;
     }
 
     private void unregisterListeners(){
@@ -454,9 +337,9 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         long minutesToDisplay = minutesSinceStart % 60;
         long secondsToDisplay = secondsSinceStart % 60;
 
-        timerText.setText("Time: " + clockFormat.format(hoursToDisplay)
-                + ":" + clockFormat.format(minutesToDisplay)
-                + ":" + clockFormat.format(secondsToDisplay));
+        timerText.setText("Time: " + Constants.clockFormat.format(hoursToDisplay)
+                + ":" + Constants.clockFormat.format(minutesToDisplay)
+                + ":" + Constants.clockFormat.format(secondsToDisplay));
     }
 
     private void addDataPointToArray(short minutes, short heartRate, int step_count) {
