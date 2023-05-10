@@ -39,7 +39,7 @@ public class PreProcessingHandler {
             }
 
             accumulatedHeartRate += dataPoint.heartRate;
-            prevMinute = dataPoint.minutes;;
+            prevMinute = dataPoint.minutes;
             prevStepCount = (short) dataPoint.stepCount;
             updateHeartRateEdgeCases(dataPoint);
 
