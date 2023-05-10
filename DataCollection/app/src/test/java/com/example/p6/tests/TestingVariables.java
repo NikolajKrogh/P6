@@ -2,7 +2,6 @@ package com.example.p6.tests;
 
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.DataPointAggregated;
-import com.example.p6.handlers.NearestCentroidHandler;
 
 public class TestingVariables {
 
