@@ -1,27 +1,19 @@
 package com.example.p6.handlers;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
-import com.example.p6.classes.DataPointAggregated;
 import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CsvHandler {
