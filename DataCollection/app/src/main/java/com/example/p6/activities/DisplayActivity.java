@@ -397,7 +397,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
 
     private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity) throws IOException {
         for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
-            CsvHandler.addAggregatedDataPointToHistory(activity, dataPoint, context);
             NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(activity, dataPoint);
             modelWasUpdated = true;
         }

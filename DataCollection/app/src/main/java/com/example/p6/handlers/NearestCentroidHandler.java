@@ -49,21 +49,45 @@ public class NearestCentroidHandler {
         currentCentroid.heartRate
                 = addToAverage(currentCentroid.heartRate, size, dataPoint.heartRate);
 
-        currentCentroid.ellipse.minHeartRate
-                = addToAverage(currentCentroid.ellipse.minHeartRate, size, dataPoint.minHeartRate);
+        // Update min heart rate
+        if (dataPoint.minHeartRate < currentCentroid.ellipse.minHeartRate){
+            currentCentroid.ellipse.minHeartRate = dataPoint.minHeartRate;
+        }
+        else {
+            currentCentroid.ellipse.minHeartRate = addToAverage(
+                    currentCentroid.ellipse.minHeartRate, size, dataPoint.minHeartRate);
+        }
 
-        currentCentroid.ellipse.maxHeartRate
-                = addToAverage(currentCentroid.ellipse.maxHeartRate, size, dataPoint.maxHeartRate);
+        // Update max heart rate
+        if (dataPoint.maxHeartRate > currentCentroid.ellipse.maxHeartRate){
+            currentCentroid.ellipse.maxHeartRate = dataPoint.maxHeartRate;
+        }
+        else {
+            currentCentroid.ellipse.maxHeartRate
+                    = addToAverage(currentCentroid.ellipse.maxHeartRate, size, dataPoint.maxHeartRate);
+        }
 
         // Update step-count
         currentCentroid.stepCount
                 = addToAverage(currentCentroid.stepCount, size, dataPoint.stepCount);
 
-        currentCentroid.ellipse.minStepCount
-                = addToAverage(currentCentroid.ellipse.minStepCount, size, dataPoint.stepCount);
+        // Update min step count
+        if (dataPoint.stepCount < currentCentroid.ellipse.minStepCount){
+            currentCentroid.ellipse.minStepCount = dataPoint.stepCount;
+        }
+        else {
+            currentCentroid.ellipse.minStepCount = addToAverage(
+                    currentCentroid.ellipse.minStepCount, size, dataPoint.stepCount);
+        }
 
-        currentCentroid.ellipse.setMaxStepCount(
-                addToAverage(currentCentroid.ellipse.getMaxStepCount(), size, dataPoint.stepCount));
+        // Update max step count
+        if (dataPoint.stepCount > currentCentroid.ellipse.getMaxStepCount()){
+            currentCentroid.ellipse.setMaxStepCount(dataPoint.stepCount);
+        }
+        else {
+            currentCentroid.ellipse.setMaxStepCount(addToAverage(
+                    currentCentroid.ellipse.getMaxStepCount(), size, dataPoint.stepCount));
+        }
 
         // Update size
         currentCentroid.size++;

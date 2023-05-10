@@ -39,41 +39,6 @@ public class CsvHandler {
         writeToFile(fileName, content, context, true);
     }
 
-    public static void addAggregatedDataPointToHistory(Constants.Activity activity, DataPointAggregated dataPoint, Context context)
-            throws IOException {
-        String content = "";
-        String fileName = "ATW_history_" + activity.name().toLowerCase();
-
-        if (fileIsEmpty(fileName, context)){
-            content += Constants.dataPointHeader;
-        }
-
-        byte numberOfLinesInFile = (byte) getNumberOfLinesInFile(fileName, context);
-
-        if (numberOfLinesInFile <= 100) {
-            content += dataPoint.toString() + "\n";
-            writeToFile(fileName, content, context, true);
-        }
-        else {
-            List<String> aggregatedDataPoints = new ArrayList<>();
-            File file = new File(context.getDir(fileName, Context.MODE_APPEND), fileName);
-            FileReader fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            bufferedReader.readLine();  // skip header
-            bufferedReader.readLine();  // skip oldest ATW
-
-            for (int i = 0; i < numberOfLinesInFile - 2; i++) {
-                aggregatedDataPoints.add(bufferedReader.readLine());
-            }
-
-            for (String aggregatedDataPoint : aggregatedDataPoints) {
-                content += aggregatedDataPoint + "\n";
-            }
-            content += dataPoint.toString() + "\n";
-            writeToFile(fileName, content, context, false);
-        }
-    }
-
     public static void writeDataPointsToFile(String fileName, List<DataPointRaw> dataPoints,
                                              Context context) {
         StringBuilder content = new StringBuilder();
