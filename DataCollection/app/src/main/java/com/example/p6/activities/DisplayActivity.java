@@ -396,10 +396,37 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     }
 
     private void updateCentroidForActivity(List<DataPointAggregated> aggregatedDataPointsForActivity, Constants.Activity activity) {
-        for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
-            NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(activity, dataPoint);
-            modelWasUpdated = true;
+        int numberOfDataPoints = aggregatedDataPointsForActivity.size();
+
+        if (numberOfDataPoints == 0) {
+            return;
         }
+
+        double totalHeartRate = 0;
+        double minHeartRate = aggregatedDataPointsForActivity.get(0).minHeartRate;
+        double maxHeartRate = 0;
+
+        int totalStepCount = 0;
+        double minStepCount = aggregatedDataPointsForActivity.get(0).stepCount;
+        double maxStepCount = 0;
+
+        for (DataPointAggregated dataPoint : aggregatedDataPointsForActivity) {
+            totalHeartRate += dataPoint.heartRate;
+            minHeartRate = Math.min(minHeartRate, dataPoint.minHeartRate);
+            maxHeartRate = Math.max(maxHeartRate, dataPoint.maxHeartRate);
+
+            totalStepCount += dataPoint.stepCount;
+            minStepCount = Math.min(minStepCount, dataPoint.stepCount);
+            maxStepCount = Math.max(maxStepCount, dataPoint.stepCount);
+        }
+
+        double averageHeartRate = totalHeartRate / numberOfDataPoints;
+        double averageStepCount = totalStepCount / numberOfDataPoints;
+
+        NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(
+                activity, averageHeartRate, minHeartRate, maxHeartRate,
+                averageStepCount, minStepCount, maxStepCount, numberOfDataPoints);
+        modelWasUpdated = true;
     }
 
     private void unregisterListeners(){

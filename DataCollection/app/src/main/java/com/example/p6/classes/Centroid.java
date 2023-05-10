@@ -40,7 +40,7 @@ public class Centroid {
                 Double.parseDouble(maxStepCount));
     }
 
-    private void setEllipse(double minHeartRate, double maxHeartRate, double minStepCount, double maxStepCount){
+    public void setEllipse(double minHeartRate, double maxHeartRate, double minStepCount, double maxStepCount){
         Activity activity = Activity.values()[this.label];
 
         double ellipseHeartRate = (minHeartRate + maxHeartRate) / 2;
@@ -52,6 +52,26 @@ public class Centroid {
 
         this.ellipse = new Ellipse(ellipseHeartRate, minHeartRate, maxHeartRate,
                 ellipseStepCount, minStepCount, maxStepCount);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() != Centroid.class) {
+            return false;
+        }
+
+        return Double.compare(this.heartRate, ((Centroid) other).heartRate) <= Constants.DELTA &&
+                Double.compare(this.ellipse.minHeartRate, ((Centroid) other).ellipse.minHeartRate) <= Constants.DELTA &&
+                Double.compare(this.ellipse.maxHeartRate, ((Centroid) other).ellipse.maxHeartRate) <= Constants.DELTA &&
+                Double.compare(this.stepCount, ((Centroid) other).stepCount) <= Constants.DELTA &&
+                Double.compare(this.ellipse.heartRate, ((Centroid) other).ellipse.heartRate) <= Constants.DELTA &&
+                Double.compare(this.ellipse.minHeartRate, ((Centroid) other).ellipse.minHeartRate) <= Constants.DELTA &&
+                Double.compare(this.ellipse.maxHeartRate, ((Centroid) other).ellipse.maxHeartRate) <= Constants.DELTA &&
+                Double.compare(this.ellipse.stepCount, ((Centroid) other).ellipse.stepCount) <= Constants.DELTA &&
+                Double.compare(this.ellipse.minStepCount, ((Centroid) other).ellipse.minStepCount) <= Constants.DELTA &&
+                Double.compare(this.ellipse.getMaxStepCount(), ((Centroid) other).ellipse.getMaxStepCount()) <= Constants.DELTA &&
+                this.label == ((Centroid)other).label &&
+                this.size == ((Centroid)other).size;
     }
 
     @NonNull
