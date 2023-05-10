@@ -3,6 +3,7 @@
 *.onnx
 *.sav
 *.xlsx
+*.txt
 
 # Gradle files
 .gradle/
