@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.p6.R;
+import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.DataPointRaw;
 import com.example.p6.handlers.CsvHandler;
@@ -110,14 +111,31 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         String [] files = context.getAssets().list("");
 
         for (int i = 0; i < files.length; i++){
+            String fileName = files[i];
             if (files[i].endsWith(".csv")){
-                System.out.println("\n" + files[i]);
-                List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context, files[i]);
+                setActivityToTrackBasedOnFileName(fileName);
+                List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context, fileName);
                 PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);
+                CsvHandler.writeToTotalAccuracyFileForActivity(new AccuracyData(PreProcessingHandler.predictedActivities, activityToTrack), context);
             }
         }
 
         DisplayActivity.showToast("Model was updated");
+    }
+
+    private void setActivityToTrackBasedOnFileName(String fileName){
+        if (fileName.contains("sitting")) {
+            activityToTrack = SITTING;
+        }
+        else if (fileName.contains("walking")) {
+            activityToTrack = WALKING;
+        }
+        else if (fileName.contains("running")) {
+            activityToTrack = RUNNING;
+        }
+        else if (fileName.contains("cycling")) {
+            activityToTrack = CYCLING;
+        }
     }
 
     public void onViewModelClick(View view){

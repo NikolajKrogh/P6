@@ -1,7 +1,10 @@
 package com.example.p6.handlers;
 
+import static com.example.p6.classes.Constants.Mode.TEST_ACCURACY;
+
 import android.content.Context;
 
+import com.example.p6.activities.MainActivity;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
@@ -18,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,12 +80,19 @@ public class CsvHandler {
 
         accuracyDataFromFile.correctPredictions += accuracyDataForActivity.correctPredictions;
         accuracyDataFromFile.totalPredictions += accuracyDataForActivity.totalPredictions;
-        accuracyDataFromFile.accuracy = (double) accuracyDataFromFile.correctPredictions
-                / (double) accuracyDataFromFile.totalPredictions;
+        accuracyDataFromFile.accuracy = accuracyDataFromFile.getPercentage(accuracyDataFromFile.correctPredictions);
+
         accuracyDataFromFile.sittingPredictions += accuracyDataForActivity.sittingPredictions;
         accuracyDataFromFile.walkingPredictions += accuracyDataForActivity.walkingPredictions;
         accuracyDataFromFile.runningPredictions += accuracyDataForActivity.runningPredictions;
         accuracyDataFromFile.cyclingPredictions += accuracyDataForActivity.cyclingPredictions;
+        accuracyDataFromFile.unlabeledPredictions += accuracyDataForActivity.unlabeledPredictions;
+
+        accuracyDataFromFile.sittingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.sittingPredictions);
+        accuracyDataFromFile.walkingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.walkingPredictions);
+        accuracyDataFromFile.runningPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.runningPredictions);
+        accuracyDataFromFile.cyclingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.cyclingPredictions);
+        accuracyDataFromFile.unlabeledPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.unlabeledPredictions);
 
         String content = Constants.accuracyHeader + accuracyDataFromFile;
         writeToFile(fileName, content, context, false);
@@ -108,6 +119,7 @@ public class CsvHandler {
             accuracyDataForActivity.walkingPredictions = Short.parseShort((accuracyDataFromFile[4]));
             accuracyDataForActivity.runningPredictions = Short.parseShort((accuracyDataFromFile[5]));
             accuracyDataForActivity.cyclingPredictions = Short.parseShort((accuracyDataFromFile[6]));
+            accuracyDataForActivity.unlabeledPredictions = Short.parseShort((accuracyDataFromFile[7]));
         }
         catch (IOException e) {
             throw new IOException();
@@ -189,6 +201,29 @@ public class CsvHandler {
         String fileName = "centroids.csv";
         content += convertArrayOfCentroidsToString(centroids, "\n");
         writeToFile(fileName, content, context, false);
+    }
+
+    public static void writeToAccuracyFileForActivity(AccuracyData accuracyDataForActivity, Context context) {
+        String fileName = "";
+        if (MainActivity.trackingMode == TEST_ACCURACY) {
+            fileName += "test_";
+        }
+        fileName += "accuracy_for_" + MainActivity.activityToTrack.name().toLowerCase() + "_" +
+                Constants.dateTimeFormatter.format(LocalDateTime.now()) + ".txt";
+        CsvHandler.writePredictedActivityToFile(
+                fileName,
+                accuracyDataForActivity,
+                PreProcessingHandler.predictedActivities,
+                context);
+    }
+
+    public static void writeToTotalAccuracyFileForActivity(AccuracyData accuracyDataForActivity, Context context) throws CsvValidationException, IOException {
+        String fileName = "accuracy_total_for_" + MainActivity.activityToTrack.name().toLowerCase() + ".csv";
+        CsvHandler.writeToTotalAccuracyForActivity(
+                fileName,
+                accuracyDataForActivity,
+                CsvHandler.getAccuracyDataFromFile(fileName, context),
+                context);
     }
 
 

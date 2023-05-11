@@ -47,18 +47,20 @@ public class PreProcessingHandler {
         for (DataPointAggregated dataPoint : aggregatedDataPoints) {
             Constants.Activity activity = MainActivity.activityToTrack;
 
-            if (MainActivity.trackingMode == PREDICT_ACTIVITY || MainActivity.trackingMode == UPDATE_MODEL){
+            if (MainActivity.trackingMode == PREDICT_ACTIVITY ){
                 activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-
-                if (MainActivity.trackingMode == PREDICT_ACTIVITY) {
-                    displayPredictedActivity(activity);
-                }
+                displayPredictedActivity(activity);
             }
 
             if (MainActivity.trackingMode == UPDATE_WITH_LABELS || MainActivity.trackingMode == TEST_ACCURACY){
                 Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
                 displayPredictedActivity(predictedActivity);
                 predictedActivities.add(predictedActivity);
+            }
+
+            if (MainActivity.trackingMode == UPDATE_MODEL) {
+                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
+                predictedActivities.add(activity);
             }
 
             switch (activity){
@@ -81,7 +83,6 @@ public class PreProcessingHandler {
                     throw new RuntimeException("Activity " + activity + " not recognized");
             }
         }
-        System.out.println("UNLABELED: " + aggregatedDataPointsUnlabeled.size());
     }
 
     private static void aggregateDataPoints(List<DataPointRaw> dataPointsToAdd, byte timeWindowSize) {
@@ -124,7 +125,6 @@ public class PreProcessingHandler {
         addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
         for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
-            System.out.println(Constants.Activity.values()[i] + ": " + listForActivity.size());
             updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){

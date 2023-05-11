@@ -6,34 +6,28 @@ import java.util.List;
 import java.util.Locale;
 
 public class AccuracyData {
-    public double accuracy;
-    public short correctPredictions;
-    public short totalPredictions;
-    public short sittingPredictions;
-    public short walkingPredictions;
-    public short runningPredictions;
-    public short cyclingPredictions;
+    public double accuracy = 1;
+    public short correctPredictions = 0;
+    public short totalPredictions = 0;
+    public short sittingPredictions = 0;
+    public short walkingPredictions = 0;
+    public short runningPredictions = 0;
+    public short cyclingPredictions = 0;
+    public short unlabeledPredictions = 0;
+    public double sittingPercentage = 0;
+    public double walkingPercentage = 0;
+    public double runningPercentage = 0;
+    public double cyclingPercentage = 0;
+    public double unlabeledPercentage = 0;
 
     public AccuracyData() {
-        this.accuracy = 1;
-        this.correctPredictions = 0;
-        this.totalPredictions = 0;
-        this.sittingPredictions = 0;
-        this.walkingPredictions = 0;
-        this.runningPredictions = 0;
-        this.cyclingPredictions = 0;
+
     }
 
     public AccuracyData(List<Constants.Activity> predictedActivities, Constants.Activity activityToTrack){
         this.totalPredictions = (short) predictedActivities.size();
 
         if (this.totalPredictions == 0) {
-            this.accuracy = 1;
-            this.correctPredictions = 0;
-            this.sittingPredictions = 0;
-            this.walkingPredictions = 0;
-            this.runningPredictions = 0;
-            this.cyclingPredictions = 0;
             return;
         }
 
@@ -58,12 +52,24 @@ public class AccuracyData {
                 case CYCLING:
                     this.cyclingPredictions++;
                     break;
+                case UNLABELED:
+                    this.unlabeledPredictions++;
+                    break;
                 default:
                     throw new RuntimeException("Activity " + activity + " not recognized");
             }
         }
 
-        this.accuracy = (double) this.correctPredictions / (double) this.totalPredictions;
+        this.accuracy = getPercentage(this.correctPredictions);
+        this.sittingPercentage = getPercentage(this.sittingPredictions);
+        this.walkingPercentage = getPercentage(this.walkingPredictions);
+        this.runningPercentage = getPercentage(this.runningPredictions);
+        this.cyclingPercentage = getPercentage(this.cyclingPredictions);
+        this.unlabeledPercentage = getPercentage(this.unlabeledPredictions);
+    }
+
+    public double getPercentage(int numerator) {
+        return (double) numerator / (double) this.totalPredictions;
     }
 
     @NonNull
@@ -71,14 +77,20 @@ public class AccuracyData {
     public String toString() {
             return String.format(
                     Locale.US,
-                    "%.4f,%d,%d,%d,%d,%d,%d",
+                    "%.4f,%d,%d,%d,%d,%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f",
                     accuracy,
                     correctPredictions,
                     totalPredictions,
                     sittingPredictions,
                     walkingPredictions,
                     runningPredictions,
-                    cyclingPredictions
+                    cyclingPredictions,
+                    unlabeledPredictions,
+                    sittingPercentage,
+                    walkingPercentage,
+                    runningPercentage,
+                    cyclingPercentage,
+                    unlabeledPercentage
             );
     }
 }

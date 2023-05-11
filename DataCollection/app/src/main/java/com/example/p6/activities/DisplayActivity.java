@@ -265,13 +265,13 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 break;
             case UPDATE_WITH_LABELS:
                 PreProcessingHandler.updateModelForPredictedActivities(dataPointsToAdd, context);
-                writeToAccuracyFileForActivity(accuracyDataForActivity);
-                writeToTotalAccuracyFileForActivity(accuracyDataForActivity);
+                CsvHandler.writeToAccuracyFileForActivity(accuracyDataForActivity, context);
+                CsvHandler.writeToTotalAccuracyFileForActivity(accuracyDataForActivity, context);
                 showToast("Updated model for " + activityToTrack);
                 break;
             case TEST_ACCURACY:
                 PreProcessingHandler.addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
-                writeToAccuracyFileForActivity(accuracyDataForActivity);
+                CsvHandler.writeToAccuracyFileForActivity(accuracyDataForActivity, context);
                 showToast("Accuracy calculated for " + activityToTrack);
                 break;
             case COLLECT_DATA:
@@ -287,29 +287,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();
-    }
-
-    private void writeToAccuracyFileForActivity(AccuracyData accuracyDataForActivity) {
-        String fileName = "";
-        if (mode == TEST_ACCURACY) {
-            fileName += "test_";
-        }
-        fileName += "accuracy_for_" + activityToTrack.name().toLowerCase() + "_" +
-                Constants.dateTimeFormatter.format(dateTime) + ".txt";
-        CsvHandler.writePredictedActivityToFile(
-                fileName,
-                accuracyDataForActivity,
-                PreProcessingHandler.predictedActivities,
-                context);
-    }
-
-    private void writeToTotalAccuracyFileForActivity(AccuracyData accuracyDataForActivity) throws CsvValidationException, IOException {
-        String fileName = "accuracy_total_for_" + activityToTrack.name().toLowerCase() + ".csv";
-        CsvHandler.writeToTotalAccuracyForActivity(
-                fileName,
-                accuracyDataForActivity,
-                CsvHandler.getAccuracyDataFromFile(fileName, context),
-                context);
     }
 
     private void unregisterListeners(){
