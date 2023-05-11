@@ -152,12 +152,13 @@ public class CsvHandler {
         return centroids;
     }
 
-    public static List<DataPointRaw> getDataPointsFromFile(Context context) throws IOException, CsvValidationException {
+    public static List<DataPointRaw> getDataPointsFromFile(Context context, String FileName) throws IOException, CsvValidationException {
         List<DataPointRaw> dataPoints = new ArrayList<>();
-        BufferedReader reader = null;
+        BufferedReader reader;
+
         try {
             reader = new BufferedReader(
-                    new InputStreamReader(context.getAssets().open("dataPoints.csv")));
+                    new InputStreamReader(context.getAssets().open(FileName)));
 
             CSVReader csvReader = new CSVReader(reader);
             csvReader.readNext(); //skip header

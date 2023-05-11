@@ -107,8 +107,16 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     public void onUpdateModelClick(View view) throws CsvValidationException, IOException {
         trackingMode = UPDATE_MODEL;
         NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(context);
-        List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context);
-        PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);
+        String [] files = context.getAssets().list("");
+
+        for (int i = 0; i < files.length; i++){
+            if (files[i].endsWith(".csv")){
+                System.out.println("\n" + files[i]);
+                List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context, files[i]);
+                PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);
+            }
+        }
+
         DisplayActivity.showToast("Model was updated");
     }
 
