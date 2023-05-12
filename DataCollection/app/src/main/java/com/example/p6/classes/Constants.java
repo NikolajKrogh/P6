@@ -8,7 +8,7 @@ public class Constants {
     public final static byte TIME_WINDOW_SIZE = 1;
     public final static double DELTA = 0.0001;
     public static String accuracyHeader = "accuracy,correct,total,sitting,walking,running,cycling," +
-            "unlabeled,sitting%,walking%,running%,cycling%,unlabeled%\n";
+            "unlabeled,sittingPredictionRate,walkingPredictionRate,runningPredictionRate,cyclingPredictionRate,unlabeledPredictionRate\n";
     public static String dataPointHeader = "minutes,heart_rate,step_count,label\n";
     public static String centroidHeader =
             "heart_rate,min_heart_rate,max_heart_rate,step_count,min_step_count,max_step_count,label,centroid_size\n";

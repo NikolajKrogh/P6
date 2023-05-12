@@ -47,20 +47,23 @@ public class PreProcessingHandler {
         for (DataPointAggregated dataPoint : aggregatedDataPoints) {
             Constants.Activity activity = MainActivity.activityToTrack;
 
-            if (MainActivity.trackingMode == PREDICT_ACTIVITY ){
-                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                displayPredictedActivity(activity);
-            }
-
-            if (MainActivity.trackingMode == UPDATE_WITH_LABELS || MainActivity.trackingMode == TEST_ACCURACY){
-                Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                displayPredictedActivity(predictedActivity);
-                predictedActivities.add(predictedActivity);
-            }
-
-            if (MainActivity.trackingMode == UPDATE_MODEL) {
-                activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
-                predictedActivities.add(activity);
+            switch (MainActivity.trackingMode) {
+                case PREDICT_ACTIVITY:
+                    activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
+                    displayPredictedActivity(activity);
+                    break;
+                case UPDATE_WITH_LABELS:
+                case TEST_ACCURACY:
+                    Constants.Activity predictedActivity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
+                    displayPredictedActivity(predictedActivity);
+                    predictedActivities.add(predictedActivity);
+                    break;
+                case UPDATE_MODEL:
+                    activity = NearestCentroidHandler.predict(dataPoint, NearestCentroidHandler.centroids);
+                    predictedActivities.add(activity);
+                    break;
+                default:
+                    throw new RuntimeException("Activity " + MainActivity.trackingMode + " not recognized");
             }
 
             switch (activity){

@@ -14,11 +14,11 @@ public class AccuracyData {
     public short runningPredictions = 0;
     public short cyclingPredictions = 0;
     public short unlabeledPredictions = 0;
-    public double sittingPercentage = 0;
-    public double walkingPercentage = 0;
-    public double runningPercentage = 0;
-    public double cyclingPercentage = 0;
-    public double unlabeledPercentage = 0;
+    public double sittingPredictionRate = 0;
+    public double walkingPredictionRate = 0;
+    public double runningPredictionRate = 0;
+    public double cyclingPredictionRate = 0;
+    public double unlabeledPredictionRate = 0;
 
     public AccuracyData() {
 
@@ -60,15 +60,15 @@ public class AccuracyData {
             }
         }
 
-        this.accuracy = getPercentage(this.correctPredictions);
-        this.sittingPercentage = getPercentage(this.sittingPredictions);
-        this.walkingPercentage = getPercentage(this.walkingPredictions);
-        this.runningPercentage = getPercentage(this.runningPredictions);
-        this.cyclingPercentage = getPercentage(this.cyclingPredictions);
-        this.unlabeledPercentage = getPercentage(this.unlabeledPredictions);
+        this.accuracy = getPredictionRate(this.correctPredictions);
+        this.sittingPredictionRate = getPredictionRate(this.sittingPredictions);
+        this.walkingPredictionRate = getPredictionRate(this.walkingPredictions);
+        this.runningPredictionRate = getPredictionRate(this.runningPredictions);
+        this.cyclingPredictionRate = getPredictionRate(this.cyclingPredictions);
+        this.unlabeledPredictionRate = getPredictionRate(this.unlabeledPredictions);
     }
 
-    public double getPercentage(int numerator) {
+    public double getPredictionRate(int numerator) {
         return (double) numerator / (double) this.totalPredictions;
     }
 
@@ -86,11 +86,11 @@ public class AccuracyData {
                     runningPredictions,
                     cyclingPredictions,
                     unlabeledPredictions,
-                    sittingPercentage,
-                    walkingPercentage,
-                    runningPercentage,
-                    cyclingPercentage,
-                    unlabeledPercentage
+                    sittingPredictionRate,
+                    walkingPredictionRate,
+                    runningPredictionRate,
+                    cyclingPredictionRate,
+                    unlabeledPredictionRate
             );
     }
 }

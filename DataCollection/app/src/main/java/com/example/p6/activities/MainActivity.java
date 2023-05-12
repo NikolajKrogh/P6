@@ -31,9 +31,9 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
 
     //region Global variables
     public static Constants.Activity activityToTrack = UNLABELED;
-    static Constants.Screen currentScreen = MAIN;
+    static public Constants.Screen currentScreen = MAIN;
     public static Constants.Mode trackingMode = COLLECT_DATA;
-    static boolean BackButtonPressed = false;
+    static public boolean BackButtonPressed = false;
     //endregion
 
     static public Toast myToast;
@@ -119,7 +119,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
             }
         }
 
-        DisplayActivity.showToast("Model was updated");
+        MainActivity.showToast("Model was updated");
     }
 
     private void setActivityToTrackBasedOnFileName(String fileName){
@@ -144,8 +144,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
     // onClick() for resetModelButton
     @Override
     public void onClick(View v) {
-        myToast.setText("Press and hold to reset");
-        myToast.show();
+        MainActivity.showToast("Press and hold to reset");
     }
 
     public void onExitButtonClick(View view){
@@ -162,10 +161,14 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         CsvHandler.deleteFile("accuracy_total_for_walking.csv", context);
         CsvHandler.deleteFile("accuracy_total_for_running.csv", context);
         CsvHandler.deleteFile("accuracy_total_for_cycling.csv", context);
-
-        myToast.setText("Model has been reset");
-        myToast.show();
+        
+        MainActivity.showToast("Model has been reset");
 
         return true;    // true means that the long click is "consumed"
+    }
+
+    public static void showToast(String text) {
+        myToast.setText(text);
+        myToast.show();
     }
 }

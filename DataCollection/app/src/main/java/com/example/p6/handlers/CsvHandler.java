@@ -77,7 +77,7 @@ public class CsvHandler {
 
         accuracyDataFromFile.correctPredictions += accuracyDataForActivity.correctPredictions;
         accuracyDataFromFile.totalPredictions += accuracyDataForActivity.totalPredictions;
-        accuracyDataFromFile.accuracy = accuracyDataFromFile.getPercentage(accuracyDataFromFile.correctPredictions);
+        accuracyDataFromFile.accuracy = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.correctPredictions);
 
         accuracyDataFromFile.sittingPredictions += accuracyDataForActivity.sittingPredictions;
         accuracyDataFromFile.walkingPredictions += accuracyDataForActivity.walkingPredictions;
@@ -85,11 +85,11 @@ public class CsvHandler {
         accuracyDataFromFile.cyclingPredictions += accuracyDataForActivity.cyclingPredictions;
         accuracyDataFromFile.unlabeledPredictions += accuracyDataForActivity.unlabeledPredictions;
 
-        accuracyDataFromFile.sittingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.sittingPredictions);
-        accuracyDataFromFile.walkingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.walkingPredictions);
-        accuracyDataFromFile.runningPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.runningPredictions);
-        accuracyDataFromFile.cyclingPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.cyclingPredictions);
-        accuracyDataFromFile.unlabeledPercentage = accuracyDataFromFile.getPercentage(accuracyDataFromFile.unlabeledPredictions);
+        accuracyDataFromFile.sittingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.sittingPredictions);
+        accuracyDataFromFile.walkingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.walkingPredictions);
+        accuracyDataFromFile.runningPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.runningPredictions);
+        accuracyDataFromFile.cyclingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.cyclingPredictions);
+        accuracyDataFromFile.unlabeledPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.unlabeledPredictions);
 
         String content = Constants.accuracyHeader + accuracyDataFromFile;
         writeToFile(fileName, content, context, false);

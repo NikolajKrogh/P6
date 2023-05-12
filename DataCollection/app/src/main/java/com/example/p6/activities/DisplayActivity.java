@@ -120,11 +120,6 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
         activityText.setText("Tracking " + activityToTrack);
     }
 
-    public static void showToast(String text) {
-        MainActivity.myToast.setText(text);
-        MainActivity.myToast.show();
-    }
-
     @Override
     public void onUserInteraction(){
         setScreenBrightness(HIGH_BRIGHTNESS);
@@ -133,7 +128,7 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
     // onLongClick() for stopActivityButton
     @Override
     public void onClick(View v) {
-        showToast("Press and hold to stop");
+        MainActivity.showToast("Press and hold to stop");
     }
 
     // onLongClick() for stopActivityButton
@@ -260,21 +255,21 @@ public class DisplayActivity extends Activity implements SensorEventListener, Vi
                 PreProcessingHandler.updateModelForPredictedActivities(dataPointsToAdd, context);
                 intent = new Intent(DisplayActivity.this, MainActivity.class);
                 MainActivity.BackButtonPressed = true;
-                showToast("Updated model based on predictions");
+                MainActivity.showToast("Updated model based on predictions");
                 break;
             case UPDATE_WITH_LABELS:
                 PreProcessingHandler.updateModelForPredictedActivities(dataPointsToAdd, context);
                 CsvHandler.writeToAccuracyFileForActivity(accuracyDataForActivity, context);
                 CsvHandler.writeToTotalAccuracyFileForActivity(accuracyDataForActivity, context);
-                showToast("Updated model for " + activityToTrack);
+                MainActivity.showToast("Updated model for " + activityToTrack);
                 break;
             case TEST_ACCURACY:
                 PreProcessingHandler.addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
                 CsvHandler.writeToAccuracyFileForActivity(accuracyDataForActivity, context);
-                showToast("Accuracy calculated for " + activityToTrack);
+                MainActivity.showToast("Accuracy calculated for " + activityToTrack);
                 break;
             case COLLECT_DATA:
-                showToast("Wrote to file " + activityToTrack);
+                MainActivity.showToast("Wrote to file " + activityToTrack);
                 String fileName = activityToTrack.name().toLowerCase() + "_" +
                         Constants.dateTimeFormatter.format(dateTime) + ".csv";
                 CsvHandler.writeDataPointsToFile(fileName, dataPointsToAdd, context);
