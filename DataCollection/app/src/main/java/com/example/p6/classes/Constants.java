@@ -1,10 +1,14 @@
 package com.example.p6.classes;
 
+import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
+
 public class Constants {
     public final static byte NUMBER_OF_LABELS = 4;
     public final static byte TIME_WINDOW_SIZE = 1;
     public final static double DELTA = 0.0001;
-    public static String accuracyHeader = "accuracy,correct,total,sitting,walking,running,cycling\n";
+    public static String accuracyHeader = "accuracy,correct,total,sitting,walking,running,cycling," +
+            "unlabeled,sittingPredictionRate,walkingPredictionRate,runningPredictionRate,cyclingPredictionRate,unlabeledPredictionRate\n";
     public static String dataPointHeader = "minutes,heart_rate,step_count,label\n";
     public static String centroidHeader =
             "heart_rate,min_heart_rate,max_heart_rate,step_count,min_step_count,max_step_count,label,centroid_size\n";
@@ -17,6 +21,9 @@ public class Constants {
             "min_step_count_running,max_step_count_running,label_running,centroid_size_running," +
             "heart_rate_cycling,min_heart_rate_cycling,max_heart_rate_cycling,step_count_cycling," +
             "min_step_count_cycling,max_step_count_cycling,label_cycling,centroid_size_cycling\n";
+
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss");
+    public static final DecimalFormat clockFormat = new DecimalFormat("#00");
 
     //region Enums
     public enum Activity {
@@ -38,7 +45,8 @@ public class Constants {
         PREDICT_ACTIVITY,
         UPDATE_WITH_LABELS,
         TEST_ACCURACY,
-        COLLECT_DATA
+        COLLECT_DATA,
+        UPDATE_MODEL
     }
 
     public static final byte NOT_SET = -1;

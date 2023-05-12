@@ -1,7 +1,10 @@
 package com.example.p6.handlers;
 
+import static com.example.p6.classes.Constants.Mode.TEST_ACCURACY;
+
 import android.content.Context;
 
+import com.example.p6.activities.MainActivity;
 import com.example.p6.classes.AccuracyData;
 import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
@@ -9,10 +12,14 @@ import com.example.p6.classes.DataPointRaw;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CsvHandler {
@@ -70,12 +77,19 @@ public class CsvHandler {
 
         accuracyDataFromFile.correctPredictions += accuracyDataForActivity.correctPredictions;
         accuracyDataFromFile.totalPredictions += accuracyDataForActivity.totalPredictions;
-        accuracyDataFromFile.accuracy = (double) accuracyDataFromFile.correctPredictions
-                / (double) accuracyDataFromFile.totalPredictions;
+        accuracyDataFromFile.accuracy = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.correctPredictions);
+
         accuracyDataFromFile.sittingPredictions += accuracyDataForActivity.sittingPredictions;
         accuracyDataFromFile.walkingPredictions += accuracyDataForActivity.walkingPredictions;
         accuracyDataFromFile.runningPredictions += accuracyDataForActivity.runningPredictions;
         accuracyDataFromFile.cyclingPredictions += accuracyDataForActivity.cyclingPredictions;
+        accuracyDataFromFile.unlabeledPredictions += accuracyDataForActivity.unlabeledPredictions;
+
+        accuracyDataFromFile.sittingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.sittingPredictions);
+        accuracyDataFromFile.walkingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.walkingPredictions);
+        accuracyDataFromFile.runningPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.runningPredictions);
+        accuracyDataFromFile.cyclingPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.cyclingPredictions);
+        accuracyDataFromFile.unlabeledPredictionRate = accuracyDataFromFile.getPredictionRate(accuracyDataFromFile.unlabeledPredictions);
 
         String content = Constants.accuracyHeader + accuracyDataFromFile;
         writeToFile(fileName, content, context, false);
@@ -102,6 +116,7 @@ public class CsvHandler {
             accuracyDataForActivity.walkingPredictions = Short.parseShort((accuracyDataFromFile[4]));
             accuracyDataForActivity.runningPredictions = Short.parseShort((accuracyDataFromFile[5]));
             accuracyDataForActivity.cyclingPredictions = Short.parseShort((accuracyDataFromFile[6]));
+            accuracyDataForActivity.unlabeledPredictions = Short.parseShort((accuracyDataFromFile[7]));
         }
         catch (IOException e) {
             throw new IOException();
@@ -146,11 +161,66 @@ public class CsvHandler {
         return centroids;
     }
 
+    public static List<DataPointRaw> getDataPointsFromFile(Context context, String FileName) throws IOException, CsvValidationException {
+        List<DataPointRaw> dataPoints = new ArrayList<>();
+        BufferedReader reader;
+
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(context.getAssets().open(FileName)));
+
+            CSVReader csvReader = new CSVReader(reader);
+            csvReader.readNext(); //skip header
+            String[] nextEntry;
+
+
+            while ((nextEntry = csvReader.readNext()) != null) {
+                dataPoints.add(new DataPointRaw(
+                        Short.parseShort(nextEntry[1]),
+                        Integer.parseInt(nextEntry[2]),
+                        Byte.parseByte(nextEntry[3]),
+                        Short.parseShort(nextEntry[0])));
+            }
+
+        }
+        catch (IOException e) {
+            throw new IOException();
+        }
+        catch (CsvValidationException e) {
+            throw new CsvValidationException();
+        }
+
+        return dataPoints;
+    }
+
     public static void writeCentroidsToFile(Centroid[] centroids, Context context){
         String content = Constants.centroidHeader;
         String fileName = "centroids.csv";
         content += convertArrayOfCentroidsToString(centroids, "\n");
         writeToFile(fileName, content, context, false);
+    }
+
+    public static void writeToAccuracyFileForActivity(AccuracyData accuracyDataForActivity, Context context) {
+        String fileName = "";
+        if (MainActivity.trackingMode == TEST_ACCURACY) {
+            fileName += "test_";
+        }
+        fileName += "accuracy_for_" + MainActivity.activityToTrack.name().toLowerCase() + "_" +
+                Constants.dateTimeFormatter.format(LocalDateTime.now()) + ".txt";
+        CsvHandler.writePredictedActivityToFile(
+                fileName,
+                accuracyDataForActivity,
+                PreProcessingHandler.predictedActivities,
+                context);
+    }
+
+    public static void writeToTotalAccuracyFileForActivity(AccuracyData accuracyDataForActivity, Context context) throws CsvValidationException, IOException {
+        String fileName = "accuracy_total_for_" + MainActivity.activityToTrack.name().toLowerCase() + ".csv";
+        CsvHandler.writeToTotalAccuracyForActivity(
+                fileName,
+                accuracyDataForActivity,
+                CsvHandler.getAccuracyDataFromFile(fileName, context),
+                context);
     }
 
 
