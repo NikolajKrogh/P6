@@ -110,9 +110,8 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         NearestCentroidHandler.centroids = CsvHandler.getCentroidsFromFile(context);
         String [] files = context.getAssets().list("");
 
-        for (int i = 0; i < files.length; i++){
-            String fileName = files[i];
-            if (files[i].endsWith(".csv")){
+        for (String fileName : files) {
+            if (fileName.endsWith(".csv")) {
                 setActivityToTrackBasedOnFileName(fileName);
                 List<DataPointRaw> rawDataPoints = CsvHandler.getDataPointsFromFile(context, fileName);
                 PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);

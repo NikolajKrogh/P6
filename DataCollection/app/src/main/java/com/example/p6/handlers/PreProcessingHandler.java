@@ -42,7 +42,7 @@ public class PreProcessingHandler {
         aggregatedDataPointsUnlabeled.clear();
         predictedActivities.clear();
 
-        aggregateDataPoints(dataPointsToAdd, Constants.TIME_WINDOW_SIZE);
+        aggregateDataPoints(dataPointsToAdd);
 
         for (DataPointAggregated dataPoint : aggregatedDataPoints) {
             Constants.Activity activity = MainActivity.activityToTrack;
@@ -85,7 +85,7 @@ public class PreProcessingHandler {
         }
     }
 
-    private static void aggregateDataPoints(List<DataPointRaw> dataPointsToAdd, byte timeWindowSize) {
+    private static void aggregateDataPoints(List<DataPointRaw> dataPointsToAdd) {
         aggregatedDataPoints.clear();
         resetValues();
 
@@ -93,7 +93,7 @@ public class PreProcessingHandler {
 
             if (!isFirstIteration && prevMinute != dataPoint.minutes && numberOfDataPointsInTimeWindow > 0) {
                 int diffBetweenMinutes = prevMinute - firstMinuteInTimeWindow;
-                if (diffBetweenMinutes == timeWindowSize - 1) {
+                if (diffBetweenMinutes == Constants.TIME_WINDOW_SIZE - 1) {
                     addAggregatedDataPointsToList();
                     resetValues();
                 }
@@ -176,7 +176,7 @@ public class PreProcessingHandler {
         }
 
         double averageHeartRate = totalHeartRate / numberOfDataPoints;
-        double averageStepCount = totalStepCount / numberOfDataPoints;
+        double averageStepCount = (double) totalStepCount / numberOfDataPoints;
 
         NearestCentroidHandler.centroids[activity.ordinal()] = NearestCentroidHandler.updateModel(
                 activity, averageHeartRate, minHeartRate, maxHeartRate,
