@@ -1,7 +1,6 @@
 package com.example.p6.handlers;
 
 import static com.example.p6.activities.DisplayActivity.displayPredictedActivity;
-import static com.example.p6.classes.Constants.Mode.*;
 import static com.example.p6.classes.Constants.NOT_SET;
 
 import android.content.Context;
