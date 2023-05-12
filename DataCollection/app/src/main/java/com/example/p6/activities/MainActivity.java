@@ -31,9 +31,9 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
 
     //region Global variables
     public static Constants.Activity activityToTrack = UNLABELED;
-    static public Constants.Screen currentScreen = MAIN;
+    public static Constants.Screen currentScreen = MAIN;
     public static Constants.Mode trackingMode = COLLECT_DATA;
-    static public boolean BackButtonPressed = false;
+    public static boolean BackButtonPressed = false;
     //endregion
 
     static public Toast myToast;
@@ -161,7 +161,7 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
         CsvHandler.deleteFile("accuracy_total_for_walking.csv", context);
         CsvHandler.deleteFile("accuracy_total_for_running.csv", context);
         CsvHandler.deleteFile("accuracy_total_for_cycling.csv", context);
-        
+
         MainActivity.showToast("Model has been reset");
 
         return true;    // true means that the long click is "consumed"
