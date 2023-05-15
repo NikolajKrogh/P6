@@ -77,17 +77,13 @@ public class Centroid {
     @NonNull
     @Override
     public String toString(){
-        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%d",
+        return String.format(Locale.US, "%f,%f,%f,%f,%f,%f,%d,%d",
                 heartRate,
                 ellipse.minHeartRate,
                 ellipse.maxHeartRate,
                 stepCount,
                 ellipse.minStepCount,
-                ellipse.heartRate,
-                ellipse.stepCount,
                 ellipse.getMaxStepCount(),
-                ellipse.getSemiMajorAxis(),
-                ellipse.getSemiMinorAxis(),
                 label,
                 size
         );

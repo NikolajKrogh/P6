@@ -11,7 +11,7 @@ public class Constants {
             "unlabeled,sittingPredictionRate,walkingPredictionRate,runningPredictionRate,cyclingPredictionRate,unlabeledPredictionRate\n";
     public static String dataPointHeader = "minutes,heart_rate,step_count,label\n";
     public static String centroidHeader =
-            "heart_rate,min_heart_rate,max_heart_rate,step_count,min_step_count,max_step_count,ellipse_heart_rate,ellipse_step_count,semi_major_header,semi_minor_header,label,centroid_size\n";
+            "heart_rate,min_heart_rate,max_heart_rate,step_count,min_step_count,max_step_count,label,centroid_size\n";
     public static String centroidHistoryHeader = "date," +
             "heart_rate_sitting,min_heart_rate_sitting,max_heart_rate_sitting,step_count_sitting," +
             "min_step_count_sitting,max_step_count_sitting,label_sitting,centroid_size_sitting," +
