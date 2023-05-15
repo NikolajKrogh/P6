@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.p6.R;
 import com.example.p6.classes.AccuracyData;
+import com.example.p6.classes.Centroid;
 import com.example.p6.classes.Constants;
 import com.example.p6.classes.DataPointRaw;
 import com.example.p6.handlers.CsvHandler;
@@ -117,6 +118,10 @@ public class MainActivity extends Activity implements View.OnLongClickListener, 
                 PreProcessingHandler.updateModelForPredictedActivities(rawDataPoints, context);
                 CsvHandler.writeToTotalAccuracyFileForActivity(new AccuracyData(PreProcessingHandler.predictedActivities, activityToTrack), context);
             }
+        }
+
+        for (Centroid centroid : NearestCentroidHandler.centroids) {
+            System.out.println(centroid.formatUIString());
         }
 
         MainActivity.showToast("Model was updated");
