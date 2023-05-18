@@ -129,7 +129,7 @@ def format_final_centroid_to_java(centroids):
 
 def makeOverleafPoints(X,y):
     #red = sit, green = walk, violet = run, lime = bike
-    colours = ["red", "green", "violet", "lime"]
+    colours = ["orange", "blue", "red", "green"]
     result = ""
     for i, value in enumerate(X):
         result += f"\\filldraw[{colours[y[i][0]]}] ({value[0]},{value[1]}) circle (0.2pt) node[anchor=north] {{}}; \n"          
@@ -138,7 +138,8 @@ def makeOverleafPoints(X,y):
 if __name__ == '__main__':
     data = pd.read_csv(os.path.join("data","combined.csv"))
     X,y = make_aggregated_time_series(data)
-    #pyperclip.copy(makeOverleafPoints(X,y))
+    pyperclip.copy(makeOverleafPoints(X,y))
+    quit()
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state=42)
     nearest_centroid = NearestCentroid() 
     nearest_centroid.fit(X_train, np.ravel(y_train))
