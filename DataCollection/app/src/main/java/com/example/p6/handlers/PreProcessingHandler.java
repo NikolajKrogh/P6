@@ -127,7 +127,7 @@ public class PreProcessingHandler {
         addAggregatedDataPointsToCorrespondingList(dataPointsToAdd);
         for (short i = 0; i < Constants.NUMBER_OF_LABELS; i++) {
             List<DataPointAggregated> listForActivity = getListForActivity(Constants.Activity.values()[i]);
-            updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
+            //updateCentroidForActivity(listForActivity, Constants.Activity.values()[i]);
         }
         if (modelWasUpdated){
             CsvHandler.writeCentroidsToFile(NearestCentroidHandler.centroids, context);
